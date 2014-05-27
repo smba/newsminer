@@ -3,7 +3,7 @@ from django.http import HttpResponse
 #from django.template.loader import get_template
 
 def index(request):
-    return HttpResponse("<b>Hello Index!</b><br><a href='/dossier'>Dossier</a>")
+    return render_to_response('index.html')
 
 def dossier(request):
     return HttpResponse("<b>Hello Dossier!</b><br><a href='/'>Home</a>")
