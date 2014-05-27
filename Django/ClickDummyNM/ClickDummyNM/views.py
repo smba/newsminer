@@ -21,5 +21,4 @@ def dossier(request):
                     'widget_3': "Google-Maps",
                     }
     return render_to_response('index.html', context_dict, context)
-    return HttpResponse("<b>Hello Dossier!</b><br><a href='/'>Home</a>")
 
