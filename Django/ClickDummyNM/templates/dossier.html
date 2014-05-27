@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+
+{% load static %}
+
+<html>
+
+    <head>
+        <title>NewsMiner+</title>
+        <link rel="stylesheet" href="{% static "css/base.css" %}" /> <!-- CSS -->
+        <script src="{% static "js/jquery.js" %}"></script> <!-- JavaScript -->
+    </head>
+
+    <body>
+        <h1>{{dossier_title}}</h1>
+        <img src="{% static "logogei.png" %}" alt="Picture of Paul" /> <!-- Images -->
+		<br />
+		{{article_text}}
+		<br />
+		{{widget_1}}
+		<br />
+		{{widget_2}}
+		<br />
+		{{widget_3}}
+    </body>
+
+</html>
