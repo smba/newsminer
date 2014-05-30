@@ -17,6 +17,9 @@ import com.sun.syndication.fetcher.impl.HttpURLFeedFetcher;
 import com.sun.syndication.io.FeedException;
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
+import edu.stanford.nlp.ie.AbstractSequenceClassifier;
+import edu.stanford.nlp.ie.crf.CRFClassifier;
+import edu.stanford.nlp.ling.CoreLabel;
 import newsminer.util.DatabaseUtils;
 
 /***
@@ -31,11 +34,17 @@ import newsminer.util.DatabaseUtils;
 public class RSSCrawler extends Observable implements Runnable {
   //constants
   /** the interval at which the feeds are crawled */
-  private static final long TIMESTEP = TimeUnit.HOURS.toMillis(1);
+  private static final long   TIMESTEP              = TimeUnit.HOURS.toMillis(1);
+  /** the path to the classifier */
+  private static final String SERIALIZED_CLASSIFIER = "classifiers/english.all.3class.distsim.crf.ser.gz";
   
   //PreparedStatement attributes
   /** statement for inserting RSS articles */
   private final PreparedStatement insertArticle;
+  
+  //attributes
+  /** the classifier to use */
+  private final AbstractSequenceClassifier<CoreLabel> classifier;
   
   //variables
   /** the time at which the next flush occurs */
@@ -52,6 +61,15 @@ public class RSSCrawler extends Observable implements Runnable {
           "INSERT INTO rss_articles VALUES (?, ?, ?, ?, ?, ?)");
     } catch (SQLException sqle) {
       throw new IOException(sqle);
+    }
+    
+    //Get the classifier.
+    try {
+      classifier = CRFClassifier.getClassifier(SERIALIZED_CLASSIFIER);
+    } catch (ClassCastException cce) {
+      throw new IOException(cce);
+    } catch (ClassNotFoundException cnfe) {
+      throw new IOException (cnfe);
     }
   }
   
@@ -161,13 +179,16 @@ public class RSSCrawler extends Observable implements Runnable {
         murle.printStackTrace();
         continue;
       }
-      final String text;
+      String text;
       try {
         text = ArticleExtractor.getInstance().getText(linkURL);
       } catch (BoilerpipeProcessingException bpe) {
         bpe.printStackTrace();
         continue;
       }
+      
+      //Extract the entities.
+      text = classifier.classifyWithInlineXML(text);
       
       //Update the database table.
       try {
