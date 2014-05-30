@@ -6,6 +6,7 @@ import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Observable;
 import java.util.concurrent.TimeUnit;
 
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -14,7 +15,6 @@ import com.sun.syndication.fetcher.FetcherException;
 import com.sun.syndication.fetcher.impl.HashMapFeedInfoCache;
 import com.sun.syndication.fetcher.impl.HttpURLFeedFetcher;
 import com.sun.syndication.io.FeedException;
-
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
 import newsminer.util.DatabaseUtils;
@@ -22,12 +22,13 @@ import newsminer.util.DatabaseUtils;
 /***
  * Crawls RSS feeds and stores their articles in the database.
  * The URLs to the feeds are taken from the database.
+ * Notifies the observers of the feed's URL that was just crawled.
  * 
- * @author  Stefan Muehlbauer test
+ * @author  Stefan Muehlbauer
  * @author  Timo Guenther
  * @version 2014-05-25
  */
-public class RSSCrawler implements Runnable {
+public class RSSCrawler extends Observable implements Runnable {
   //constants
   /** the interval at which the feeds are crawled */
   private static final long TIMESTEP = TimeUnit.HOURS.toMillis(1);
@@ -186,5 +187,8 @@ public class RSSCrawler implements Runnable {
     } catch (SQLException sqle) {
       System.err.println(sqle.getMessage());
     }
+    
+    //Notify the observers.
+    notifyObservers(sourceURL);
   }
 }
