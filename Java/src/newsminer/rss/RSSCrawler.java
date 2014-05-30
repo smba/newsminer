@@ -23,7 +23,7 @@ import newsminer.util.DatabaseUtils;
  * Crawls RSS feeds and stores their articles in the database.
  * The URLs to the feeds are taken from the database.
  * 
- * @author  Stefan Muehlbauer
+ * @author  Stefan Muehlbauer test
  * @author  Timo Guenther
  * @version 2014-05-25
  */
