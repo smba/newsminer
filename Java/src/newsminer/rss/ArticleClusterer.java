@@ -2,12 +2,14 @@ package newsminer.rss;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
-import edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering;
-import edu.ucla.sspace.matrix.Matrix;
+import edu.ucla.sspace.similarity.CosineSimilarity;
+import edu.ucla.sspace.vector.CompactSparseVector;
+import edu.ucla.sspace.common.Similarity.SimType;
 
 /**
  * @author Stefan Muehlbauer
@@ -15,53 +17,88 @@ import edu.ucla.sspace.matrix.Matrix;
  * 
  */
 public class ArticleClusterer {
-  private static ArticleClusterer instance = new ArticleClusterer();
-  
-  private ArticleClusterer() {
+  private static final Object MIN_CLUSTER_SIMILARITY_PROPERTY = 5.3;
+
+  public ArticleClusterer() {
     
   }
-  public static ArticleClusterer getInstance() {
-    return instance;
+  
+  public void foo() {
+    List<String> texts = new ArrayList<String>();
+    texts.add("old old very very old old mac");
+    texts.add("old donald");
+    texts.add("old has");
+    texts.add("old farm");
+    
+    Set<String> tagUniverse = buildUniverse(texts);
+    
+    edu.ucla.sspace.matrix.Matrix mat = new edu.ucla.sspace.matrix.ArrayMatrix(
+        texts.size(), tagUniverse.size());
+    int i = 0;
+    for (String text : texts) {
+      Set<String> tags = new HashSet<String>();
+      CompactSparseVector v = buildVector(tagUniverse, text.split(" "));
+      // System.out.println(v.toString());
+      mat.setRow(i, v);
+      System.out.println(mat.getRowVector(i));
+      i++;
+    }
+    
+    edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering clusterer = new edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering();
+    
+    Properties prop = new Properties();
+    prop.put("edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering.simFunc", edu.ucla.sspace.common.Similarity.SimType.COSINE);
+    prop.put("edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering.clusterThreshold", "0.6");
+    clusterer.cluster(mat, prop); //TODO
   }
   
   /**
-   * Builds word universe from all texts given
+   * builds universe
+   * 
    * @param texts
    * @return
    */
-  private List<String> buildUniverse(List<String> texts) {
-    Set<String> universeSet = new HashSet<String>();
+  private Set<String> buildUniverse(List<String> texts) {
+    Set<String> universe = new LinkedHashSet<String>();
     for (String text : texts) {
-      String[] textSplit = text.replace(".", " ").replace(","," ").split(" ");
-      for (String word : textSplit) {
-        universeSet.add(word.toLowerCase());
+      for (String word : text.split(" ")) {
+        universe.add(word.toLowerCase());
       }
-    }
-    
-    List<String> universe = new ArrayList<String>();
-    for (String word : universeSet) {
-      universe.add(word);
     }
     return universe;
   }
   
   /**
-   * Builds double[] vector from given universe and text
-   * @param universe
-   * @param text
-   * @return
+   * Returns a vector with a 1 where the tag is found in the universe
+   * 
+   * @param tagUniverse
+   *          set of all tags
+   * @param tags
+   *          tags within the tag universe
+   * @return a vector with a 1 where the tag is found in the universe
    */
-  private double[] buildVector(List<String> universe, String text) {
-    double[] values = new double[universe.size()];
-    String[] tokens = text.split(" ");
-    for (int i = 0; i < universe.size(); i++) {
-      values[i] = countWord(universe.get(i), tokens);
+  private CompactSparseVector buildVector(Set<String> tagUniverse, String[] tags) {
+    Set<String> tagSet = new HashSet<String>();
+    for (String tag : tags) {
+      tagSet.add(tag);
     }
-    return values;
+    final double[] r = new double[tagUniverse.size()];
+    int i = 0;
+    for (String tag : tagUniverse) {
+      r[i] = tagSet.contains(tag) ? countWord(tag, tags) : 0.0;
+      i++;
+    }
+    CompactSparseVector raw = new CompactSparseVector(r);
+    double[] r_ = r;
+    for (int j = 0; j < r.length; j++) {
+      r_[j] = r[j] / raw.magnitude();
+    }
+    return new CompactSparseVector(r_);
   }
   
   /**
-   * Counts the occurencies of given word in token array.
+   * count words in token array
+   * 
    * @param word
    * @param tokens
    * @return
@@ -69,28 +106,11 @@ public class ArticleClusterer {
   private int countWord(String word, String[] tokens) {
     int count = 0;
     for (String token : tokens) {
-      if (token.compareTo(word) == 0) {
+      if (word.toLowerCase().compareTo(token.toLowerCase()) == 0) {
         count++;
       }
     }
     return count;
   }
   
-  /**
-   * Normalizes an vector
-   * @param values
-   * @return
-   */
-  private double[] normalize(double[] values) {
-    double len = 0.0;
-    for (double value : values) {
-      len += Math.pow(value, 2);
-    }
-    len = Math.pow(len, 0.5);
-    double[] out = values;
-    for (int i = 0; i < values.length; i++) {
-      out[i] = values[i] / len;
-    }
-    return out;
-  }
 }
