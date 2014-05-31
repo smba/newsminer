@@ -5,8 +5,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.BreakIterator;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -79,22 +77,6 @@ public abstract class TextUtils {
     return tags;
   }
   
-  /**
-   * count words in token array
-   * 
-   * @param word
-   * @param tokens
-   * @return
-   */
-  public static int countWord(String word, String[] tokens) {
-    int count = 0;
-    for (String token : tokens) {
-      if (word.toLowerCase().compareTo(token.toLowerCase()) == 0) {
-        count++;
-      }
-    }
-    return count;
-  }
   
   /**
    * Returns all occurence of all contained words, stopworded, stemmed
