@@ -1,17 +1,16 @@
 package newsminer.rss;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import newsminer.util.TextUtils;
+
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import newsminer.util.TextUtils;
-import edu.ucla.sspace.similarity.CosineSimilarity;
-import edu.ucla.sspace.vector.CompactSparseVector;
 import edu.ucla.sspace.common.Similarity.SimType;
+import edu.ucla.sspace.vector.CompactSparseVector;
 
 /**
  * @author Stefan Muehlbauer
@@ -19,53 +18,93 @@ import edu.ucla.sspace.common.Similarity.SimType;
  * 
  */
 public class ArticleClusterer {
-  private static final Object MIN_CLUSTER_SIMILARITY_PROPERTY = 5.3;
 
-  public ArticleClusterer() {
-    
+  //Instance regarding to the Singleton Pattern
+  private final static ArticleClusterer instance = new ArticleClusterer();
+  
+  //simFunc DEFAULT
+  private final SimType simFunc = edu.ucla.sspace.common.Similarity.SimType.COSINE;
+  
+  //threshold default
+  private String threshold = "1.0";
+  
+  //word universe
+  private List<String> universe;
+  
+  //texts
+  private String[] texts;
+  
+  //matrix 
+  private edu.ucla.sspace.matrix.Matrix matrix;
+  
+  //clusterer
+  private edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering clusterer;
+  
+  private ArticleClusterer() {
+    //
   }
   
-  public void foo() {
-    List<String> texts = new ArrayList<String>();
-    texts.add("old old very very old old mac");
-    texts.add("old donald");
-    texts.add("old has");
-    texts.add("old farm");
+  public static ArticleClusterer getInstance() {
+    return instance;
+  }
+  
+  public void fetchArticles() {
+    /*
+     * TODO Database usage
+     */
+  }
+  
+  public void storeClusters() {
+    /*
+     * TODO Database usage
+     */
+  }
+  
+  public void buildClusters() {
+    clusterer = new edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering();
     
-    Set<String> tagUniverse = buildUniverse(texts);
+    this.fetchArticles();
+    this.buildMatrix();
+    Properties properties = new Properties();
+    properties.put("edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering.simFunc", this.simFunc);
+    properties.put("edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering.clusterThreshold", this.threshold);
     
-    edu.ucla.sspace.matrix.Matrix mat = new edu.ucla.sspace.matrix.ArrayMatrix(
-        texts.size(), tagUniverse.size());
-    int i = 0;
-    for (String text : texts) {
-      Set<String> tags = new HashSet<String>();
-      CompactSparseVector v = buildVector(tagUniverse, text);
-      // System.out.println(v.toString());
-      mat.setRow(i, v);
-      System.out.println(mat.getRowVector(i));
-      i++;
-    }
+    clusterer.cluster(this.matrix, properties);
     
-    edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering clusterer = new edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering();
-    
-    Properties prop = new Properties();
-    prop.put("edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering.simFunc", edu.ucla.sspace.common.Similarity.SimType.COSINE);
-    prop.put("edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering.clusterThreshold", "0.6");
-    clusterer.cluster(mat, prop); //TODO
+    this.storeClusters();
+    //TODO
   }
   
   /**
-   * builds universe
+   * Builds the required matrix
+   */
+  private void buildMatrix() {
+    this.buildUniverse();
+    matrix = new edu.ucla.sspace.matrix.ArrayMatrix(this.texts.length, universe.size());
+    int i = 0;
+    for (String text : this.texts) {
+      matrix.setRow(i, buildVector(text));
+      i++;
+    }
+  }
+  
+  /**
+   * builds the universe
    * 
    * @param texts
+   * @return 
    * @return
    */
-  private Set<String> buildUniverse(List<String> texts) {
-    Set<String> universe = new LinkedHashSet<String>();
-    for (String text : texts) {
-      universe.addAll(TextUtils.getWordsDistribution(text).keySet());
+  private void buildUniverse() {
+    Set<String> universeSet = new LinkedHashSet<String>();
+    for (String text : this.texts) {
+      universeSet.addAll(TextUtils.getWordsDistribution(text).keySet());
     }
-    return universe;
+    List<String> _universe = new LinkedList<String>();
+    for (String word : universeSet) {
+      _universe.add(word);
+    }
+    this.universe = _universe;
   }
   
   /**
@@ -77,21 +116,37 @@ public class ArticleClusterer {
    *          tags within the tag universe
    * @return a vector with a 1 where the tag is found in the universe
    */
-  private CompactSparseVector buildVector(Set<String> universe, String text) {
-    final double[] r = new double[universe.size()];
+  private CompactSparseVector buildVector(String text) {
+    final double[] r = new double[this.universe.size()];
     int i = 0;
     Map<String, Integer> distribution = TextUtils.getWordsDistribution(text);
-    for (String word : universe) {
+    for (String word : this.universe) {
       r[i] = distribution.keySet().contains(word) ? distribution.get(word) : 0.0;
       i++;
     }
     CompactSparseVector raw = new CompactSparseVector(r);
     
-    //normalisieren
+    //normalizing
     double[] r_ = r;
     for (int j = 0; j < r.length; j++) {
       r_[j] = r[j] / raw.magnitude();
     }
     return new CompactSparseVector(r_);
   }  
+  
+  /**
+   * Get the current threshold
+   * @return
+   */
+  public double getThreshold() {
+    return Double.parseDouble(threshold);
+  }
+  
+  /**
+   * Set the threshold
+   * @param threshold
+   */
+  public void setThreshold(double threshold) {
+    this.threshold = "" + threshold;
+  }
 }
