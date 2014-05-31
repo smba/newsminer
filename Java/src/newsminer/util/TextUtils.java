@@ -4,7 +4,11 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.BreakIterator;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -37,12 +41,13 @@ public abstract class TextUtils {
   }
   
   /**
-   * Returns all the tags (words) in the given text.
+   * Returns all the words in the given text. Stemmed. Stopworded
    * Uses the default language.
    * @param  text text to be split
    * @return all the tags (words) in the given text
    * @see    getTags(String, Locale)
    */
+  @Deprecated
   public static Set<String> getTags(String text) {
     return getTags(text, Locale.getDefault());
   }
@@ -53,6 +58,7 @@ public abstract class TextUtils {
    * @param  locale language for the word iterator
    * @return all the tags (words) in the given text
    */
+  @Deprecated
   public static Set<String> getTags(String text, Locale locale) {
     final Set<String>   tags         = new TreeSet<String>();
     final BreakIterator wordIterator = BreakIterator.getWordInstance(locale);
@@ -71,5 +77,45 @@ public abstract class TextUtils {
       end   = wordIterator.next();
     }
     return tags;
+  }
+  
+  /**
+   * count words in token array
+   * 
+   * @param word
+   * @param tokens
+   * @return
+   */
+  public static int countWord(String word, String[] tokens) {
+    int count = 0;
+    for (String token : tokens) {
+      if (word.toLowerCase().compareTo(token.toLowerCase()) == 0) {
+        count++;
+      }
+    }
+    return count;
+  }
+  
+  /**
+   * Returns all occurence of all contained words, stopworded, stemmed
+   *  and lowercased.
+   * @param text
+   * @return
+   */
+  public static Map<String, Integer> getWordsDistribution(String text) {
+    String[] tokens = text.replace(","," ").replace(".", " ").split(" ");
+    Map<String, Integer> distribution = new HashMap<String, Integer>();
+    for (String token : tokens) {
+      token = STEMMER.stem(token.toLowerCase());
+      if (!STOPWORDS.contains(token)) {
+        //word is valid
+        if (!distribution.containsKey(token)) {
+          distribution.put(token, 1);
+        } else {
+          distribution.put(token, distribution.get(token) + 1);
+        }
+      }
+    }
+    return distribution;
   }
 }
