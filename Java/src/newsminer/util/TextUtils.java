@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.BreakIterator;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -17,7 +17,7 @@ import edu.ucla.sspace.text.Stemmer;
  * Provides methods for handling text.
  * 
  * @author  Timo Guenther
- * @version 2014-04-22
+ * @version 2014-06-02
  */
 public abstract class TextUtils {
   //constants
@@ -45,9 +45,8 @@ public abstract class TextUtils {
    * @return all the tags (words) in the given text
    * @see    getTags(String, Locale)
    */
-  @Deprecated
   public static Set<String> getTags(String text) {
-    return getTags(text, Locale.getDefault());
+    return getTags(text, Locale.ENGLISH);
   }
   
   /**
@@ -56,7 +55,6 @@ public abstract class TextUtils {
    * @param  locale language for the word iterator
    * @return all the tags (words) in the given text
    */
-  @Deprecated
   public static Set<String> getTags(String text, Locale locale) {
     final Set<String>   tags         = new TreeSet<String>();
     final BreakIterator wordIterator = BreakIterator.getWordInstance(locale);
@@ -77,26 +75,40 @@ public abstract class TextUtils {
     return tags;
   }
   
+  /**
+   * Returns the occurrence count of every word in the given text.
+   * The words will be stemmed and will not contain stopwords.
+   * @param  text text containing words
+   * @return the occurrence count of every word in the given text
+   */
+  public static Map<String, Integer> getWordDistribution(String text) {
+    return getWordDistribution(text, Locale.ENGLISH);
+  }
   
   /**
-   * Returns all occurence of all contained words, stopworded, stemmed
-   *  and lowercased.
-   * @param text
-   * @return
+   * Returns the occurrence count of every word in the given text.
+   * The words will be stemmed and will not contain stopwords.
+   * @param  text text containing words
+   * @param  locale language of the word iterator
+   * @return the occurrence count of every word in the given text
    */
-  public static Map<String, Integer> getWordsDistribution(String text) {
-    String[] tokens = text.replace(","," ").replace(".", " ").split(" ");
-    Map<String, Integer> distribution = new HashMap<String, Integer>();
-    for (String token : tokens) {
-      token = STEMMER.stem(token.toLowerCase());
-      if (!STOPWORDS.contains(token)) {
-        //word is valid
-        if (!distribution.containsKey(token)) {
-          distribution.put(token, 1);
-        } else {
-          distribution.put(token, distribution.get(token) + 1);
+  public static Map<String, Integer> getWordDistribution(String text, Locale locale) {
+    final Map<String, Integer> distribution = new LinkedHashMap<String, Integer>();
+    final BreakIterator        wordIterator = BreakIterator.getWordInstance(locale);
+    wordIterator.setText(text);
+    int start = wordIterator.first();
+    int end   = wordIterator.next();
+    while (end != BreakIterator.DONE) {
+      String tag = text.substring(start, end);
+      if (Character.isLetterOrDigit(tag.charAt(0))) {
+        tag = STEMMER.stem(tag.toLowerCase());
+        if (!STOPWORDS.contains(tag)) {
+          final Integer count = distribution.get(tag);
+          distribution.put(tag, count == null ? 1 : count + 1);
         }
       }
+      start = end;
+      end   = wordIterator.next();
     }
     return distribution;
   }

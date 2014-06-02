@@ -98,7 +98,7 @@ public class ArticleClusterer {
   private void buildUniverse() {
     Set<String> universeSet = new LinkedHashSet<String>();
     for (String text : this.texts) {
-      universeSet.addAll(TextUtils.getWordsDistribution(text).keySet());
+      universeSet.addAll(TextUtils.getWordDistribution(text).keySet());
     }
     List<String> _universe = new LinkedList<String>();
     for (String word : universeSet) {
@@ -119,7 +119,7 @@ public class ArticleClusterer {
   private CompactSparseVector buildVector(String text) {
     final double[] r = new double[this.universe.size()];
     int i = 0;
-    Map<String, Integer> distribution = TextUtils.getWordsDistribution(text);
+    Map<String, Integer> distribution = TextUtils.getWordDistribution(text);
     for (String word : this.universe) {
       r[i] = distribution.keySet().contains(word) ? distribution.get(word) : 0.0;
       i++;
@@ -147,6 +147,6 @@ public class ArticleClusterer {
    * @param threshold
    */
   public void setThreshold(double threshold) {
-    this.threshold = "" + threshold;
+    this.threshold = String.valueOf(threshold);
   }
 }
