@@ -22,3 +22,6 @@ def dossier(request):
                     }
     return render_to_response('dossier.html', context_dict, context)
 
+def map(request):
+    context = RequestContext(request)
+    return render_to_response('map.html', {}, context)

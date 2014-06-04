@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'leaflet',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -88,3 +89,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+
+LEAFLET_CONFIG = {
+    'DEFAULT_CENTER': (28.076646,  -82.516604),
+    'DEFAULT_ZOOM': 4,
+    'MIN_ZOOM': 1,
+    'MAX_ZOOM': 21,
+}
