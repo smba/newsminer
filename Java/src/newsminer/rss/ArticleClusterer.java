@@ -1,152 +1,130 @@
 package newsminer.rss;
 
+import newsminer.util.DatabaseUtils;
 import newsminer.util.TextUtils;
 
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 
+import edu.ucla.sspace.clustering.Clustering;
+import edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering;
 import edu.ucla.sspace.common.Similarity.SimType;
+import edu.ucla.sspace.matrix.ArrayMatrix;
+import edu.ucla.sspace.matrix.Matrix;
 import edu.ucla.sspace.vector.CompactSparseVector;
 
 /**
- * @author Stefan Muehlbauer
- * @author Timo Guenther
+ * Clusters articles that cover same topics.
  * 
+ * @author  Stefan Muehlbauer
+ * @author  Timo Guenther
+ * @version 2014-06-04
  */
-public class ArticleClusterer {
-
-  //Instance regarding to the Singleton Pattern
-  private final static ArticleClusterer instance = new ArticleClusterer();
+public class ArticleClusterer { //TODO Observer, Observable
+  //constants
+  /** function used to determine similarity */
+  private static final SimType SIM_FUNC  = SimType.COSINE;
+  /** threshold value used in clustering */
+  private static final String  THRESHOLD = "1.0";
   
-  //simFunc DEFAULT
-  private final SimType simFunc = edu.ucla.sspace.common.Similarity.SimType.COSINE;
+  //attributes
+   /** properties for the clustering */
+  private final Properties clusteringProperties;
   
-  //threshold default
-  private String threshold = "1.0";
-  
-  //word universe
-  private List<String> universe;
-  
-  //texts
-  private String[] texts;
-  
-  //matrix 
-  private edu.ucla.sspace.matrix.Matrix matrix;
-  
-  //clusterer
-  private edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering clusterer;
-  
-  private ArticleClusterer() {
-    //
-  }
-  
-  public static ArticleClusterer getInstance() {
-    return instance;
-  }
-  
-  public void fetchArticles() {
-    /*
-     * TODO Database usage
-     */
-  }
-  
-  public void storeClusters() {
-    /*
-     * TODO Database usage
-     */
-  }
-  
-  public void buildClusters() {
-    clusterer = new edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering();
-    
-    this.fetchArticles();
-    this.buildMatrix();
-    Properties properties = new Properties();
-    properties.put("edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering.simFunc", this.simFunc);
-    properties.put("edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering.clusterThreshold", this.threshold);
-    
-    clusterer.cluster(this.matrix, properties);
-    
-    this.storeClusters();
-    //TODO
+  /**
+   * Constructs a new instance of this class.
+   */
+  public ArticleClusterer() {
+    clusteringProperties = new Properties();
+    clusteringProperties.put("edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering.simFunc",          SIM_FUNC);
+    clusteringProperties.put("edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering.clusterThreshold", THRESHOLD);
   }
   
   /**
-   * Builds the required matrix
+   * Clusters the articles.
    */
-  private void buildMatrix() {
-    this.buildUniverse();
-    matrix = new edu.ucla.sspace.matrix.ArrayMatrix(this.texts.length, universe.size());
+  protected void flush() {
+    try (final PreparedStatement ps = DatabaseUtils.getConnection().prepareStatement( //Get the articles.
+        "SELECT * FROM rss_articles", //TODO time
+        ResultSet.TYPE_SCROLL_INSENSITIVE,
+        ResultSet.CONCUR_READ_ONLY)) {
+      final ResultSet articlesRS = ps.executeQuery();
+      
+      //Get all tags in all articles.
+      final Set<String> tagUniverse = new TreeSet<String>();
+      int articleCount = 0;
+      while (articlesRS.next()) {
+        //Get the text.
+        final String text;
+        try {
+          text = articlesRS.getString("text");
+        } catch (SQLException sqle) {
+          sqle.printStackTrace();
+          continue;
+        }
+        
+        //Get the tags.
+        tagUniverse.addAll(TextUtils.getTags(text)); //TODO language
+        articleCount++;
+      }
+      articlesRS.beforeFirst();
+      
+      //Build the matrix.
+      final Matrix matrix = new ArrayMatrix(articleCount, tagUniverse.size());
+      int i = 0;
+      while (articlesRS.next()) {
+        //Get the text.
+        final String text;
+        try {
+          text = articlesRS.getString("text");
+        } catch (SQLException sqle) {
+          sqle.printStackTrace();
+          continue;
+        }
+        
+        //Add the vector.
+        matrix.setRow(i, buildVector(tagUniverse, TextUtils.getTagDistribution(text)));
+        i++;
+      }
+      
+      //Cluster.
+      final Clustering clustering = new HierarchicalAgglomerativeClustering();
+      clustering.cluster(matrix, clusteringProperties);
+      
+      //Store the clustering.
+      //TODO
+    } catch (SQLException sqle) {
+      throw new RuntimeException(sqle);
+    }
+  }
+  
+  /**
+   * Returns a vector with the occurrence count of the tag where it is found in the universe.
+   * @param  tagUniverse set of all tags
+   * @param  tagDistribution all tags and their occurrence count
+   * @return a vector with the occurrence count of the tag where it is found in the universe
+   */
+  private static CompactSparseVector buildVector(Set<String> tagUniverse, Map<String, Integer> tagDistribution) {
+    //Build the vector.
+    final double[] r = new double[tagUniverse.size()];
     int i = 0;
-    for (String text : this.texts) {
-      matrix.setRow(i, buildVector(text));
+    for (String tag : tagUniverse) {
+      final Integer count = tagDistribution.get(tag);
+      r[i] = count != null ? count : 0.0;
       i++;
     }
-  }
-  
-  /**
-   * builds the universe
-   * 
-   * @param texts
-   * @return 
-   * @return
-   */
-  private void buildUniverse() {
-    Set<String> universeSet = new LinkedHashSet<String>();
-    for (String text : this.texts) {
-      universeSet.addAll(TextUtils.getWordDistribution(text).keySet());
-    }
-    List<String> _universe = new LinkedList<String>();
-    for (String word : universeSet) {
-      _universe.add(word);
-    }
-    this.universe = _universe;
-  }
-  
-  /**
-   * Returns a vector with a 1 where the tag is found in the universe
-   * 
-   * @param tagUniverse
-   *          set of all tags
-   * @param tags
-   *          tags within the tag universe
-   * @return a vector with a 1 where the tag is found in the universe
-   */
-  private CompactSparseVector buildVector(String text) {
-    final double[] r = new double[this.universe.size()];
-    int i = 0;
-    Map<String, Integer> distribution = TextUtils.getWordDistribution(text);
-    for (String word : this.universe) {
-      r[i] = distribution.keySet().contains(word) ? distribution.get(word) : 0.0;
-      i++;
-    }
-    CompactSparseVector raw = new CompactSparseVector(r);
+    final CompactSparseVector raw = new CompactSparseVector(r);
     
-    //normalizing
-    double[] r_ = r;
+    //Normalize the vector.
+    final double magnitude = raw.magnitude();
     for (int j = 0; j < r.length; j++) {
-      r_[j] = r[j] / raw.magnitude();
+      r[j] /= magnitude;
     }
-    return new CompactSparseVector(r_);
-  }  
-  
-  /**
-   * Get the current threshold
-   * @return
-   */
-  public double getThreshold() {
-    return Double.parseDouble(threshold);
-  }
-  
-  /**
-   * Set the threshold
-   * @param threshold
-   */
-  public void setThreshold(double threshold) {
-    this.threshold = String.valueOf(threshold);
+    return new CompactSparseVector(r);
   }
 }

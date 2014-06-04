@@ -17,7 +17,7 @@ import edu.ucla.sspace.text.Stemmer;
  * Provides methods for handling text.
  * 
  * @author  Timo Guenther
- * @version 2014-06-02
+ * @version 2014-06-04
  */
 public abstract class TextUtils {
   //constants
@@ -76,23 +76,23 @@ public abstract class TextUtils {
   }
   
   /**
-   * Returns the occurrence count of every word in the given text.
+   * Returns the occurrence count of every tag (word) in the given text.
    * The words will be stemmed and will not contain stopwords.
    * @param  text text containing words
-   * @return the occurrence count of every word in the given text
+   * @return the occurrence count of every tag (word) in the given text
    */
-  public static Map<String, Integer> getWordDistribution(String text) {
-    return getWordDistribution(text, Locale.ENGLISH);
+  public static Map<String, Integer> getTagDistribution(String text) {
+    return getTagDistribution(text, Locale.ENGLISH);
   }
   
   /**
-   * Returns the occurrence count of every word in the given text.
+   * Returns the occurrence count of every tag (word) in the given text.
    * The words will be stemmed and will not contain stopwords.
    * @param  text text containing words
    * @param  locale language of the word iterator
-   * @return the occurrence count of every word in the given text
+   * @return the occurrence count of every tag (word) in the given text
    */
-  public static Map<String, Integer> getWordDistribution(String text, Locale locale) {
+  public static Map<String, Integer> getTagDistribution(String text, Locale locale) {
     final Map<String, Integer> distribution = new LinkedHashMap<String, Integer>();
     final BreakIterator        wordIterator = BreakIterator.getWordInstance(locale);
     wordIterator.setText(text);
