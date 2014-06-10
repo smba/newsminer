@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, include, url
 from ClickDummyNM import views
 from django.contrib import admin
+from dh5bp.urls import urlpatterns as dh5bp_urls
 admin.autodiscover()
 
 urlpatterns = patterns('',
@@ -12,3 +13,5 @@ urlpatterns = patterns('',
     url(r'^map', views.map, name = 'dossier'),
     #url(r'^admin/', include(admin.site.urls)),
 )
+
+urlpatterns += dh5bp_urls
