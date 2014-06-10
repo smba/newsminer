@@ -7,9 +7,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
 import edu.ucla.sspace.clustering.Clustering;
 import edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering;
 import edu.ucla.sspace.common.Similarity.SimType;
@@ -55,14 +58,16 @@ public class ArticleClusterer { //TODO Observer, Observable
       final ResultSet articlesRS = ps.executeQuery();
       
       //Build the matrix.
-      final Set<String> tagUniverse = new LinkedHashSet<String>(); //column headers
-      final Matrix      matrix      = new GrowingSparseMatrix();
+      final Set<String>  tagUniverse = new LinkedHashSet<>(); //column headers
+      final List<String> links       = new LinkedList<>();    //row headers
+      final Matrix       matrix      = new GrowingSparseMatrix();
       int i = 0;
       while (articlesRS.next()) {
         //Get the text.
         final String text;
         try {
           text = articlesRS.getString("text");
+          links.add(articlesRS.getString("link"));
         } catch (SQLException sqle) {
           sqle.printStackTrace();
           continue;
@@ -80,11 +85,20 @@ public class ArticleClusterer { //TODO Observer, Observable
       }
       
       //Cluster.
-      final Clustering clustering = new HierarchicalAgglomerativeClustering();
-      clustering.cluster(matrix, clusteringProperties);
+      final Clustering         clustering  = new HierarchicalAgglomerativeClustering();
+      final List<Set<Integer>> clusters    = clustering.cluster(matrix, clusteringProperties).clusters();
       
-      //Store the clustering.
-      //TODO
+      //Store the clusters.
+      for (Set<Integer> cluster : clusters) {
+        //Store a new cluster.
+        //TODO
+        
+        //Store the cluster elements with the new cluster.
+        for (int index : cluster) {
+          final String link = links.get(index);
+          //TODO store cluster element
+        }
+      }
     } catch (SQLException sqle) {
       throw new RuntimeException(sqle);
     }
