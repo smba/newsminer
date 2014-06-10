@@ -6,17 +6,17 @@ import newsminer.util.TextUtils;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.TreeSet;
-
 import edu.ucla.sspace.clustering.Clustering;
 import edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering;
 import edu.ucla.sspace.common.Similarity.SimType;
-import edu.ucla.sspace.matrix.ArrayMatrix;
+import edu.ucla.sspace.matrix.GrowingSparseMatrix;
 import edu.ucla.sspace.matrix.Matrix;
 import edu.ucla.sspace.vector.CompactSparseVector;
+import edu.ucla.sspace.vector.DoubleVector;
 
 /**
  * Clusters articles that cover same topics.
@@ -46,36 +46,16 @@ public class ArticleClusterer { //TODO Observer, Observable
   }
   
   /**
-   * Clusters the articles.
+   * Clusters the articles and stores the result.
    */
-  protected void flush() {
+  public void cluster() {
     try (final PreparedStatement ps = DatabaseUtils.getConnection().prepareStatement( //Get the articles.
-        "SELECT * FROM rss_articles", //TODO time
-        ResultSet.TYPE_SCROLL_INSENSITIVE,
-        ResultSet.CONCUR_READ_ONLY)) {
+        "SELECT * FROM rss_articles")) {
       final ResultSet articlesRS = ps.executeQuery();
       
-      //Get all tags in all articles.
-      final Set<String> tagUniverse = new TreeSet<String>();
-      int articleCount = 0;
-      while (articlesRS.next()) {
-        //Get the text.
-        final String text;
-        try {
-          text = articlesRS.getString("text");
-        } catch (SQLException sqle) {
-          sqle.printStackTrace();
-          continue;
-        }
-        
-        //Get the tags.
-        tagUniverse.addAll(TextUtils.getTags(text)); //TODO language
-        articleCount++;
-      }
-      articlesRS.beforeFirst();
-      
       //Build the matrix.
-      final Matrix matrix = new ArrayMatrix(articleCount, tagUniverse.size());
+      final Set<String> tagUniverse = new LinkedHashSet<String>(); //column headers
+      final Matrix      matrix      = new GrowingSparseMatrix();
       int i = 0;
       while (articlesRS.next()) {
         //Get the text.
@@ -87,8 +67,14 @@ public class ArticleClusterer { //TODO Observer, Observable
           continue;
         }
         
-        //Add the vector.
-        matrix.setRow(i, buildVector(tagUniverse, TextUtils.getTagDistribution(text)));
+        //Get the text's tag distribution.
+        final Map<String, Integer> tagDistribution = TextUtils.getTagDistribution(text);
+        
+        //Add all new tags to the tag universe.
+        tagUniverse.addAll(tagDistribution.keySet());
+        
+        //Build the vector for this tag distribution and add it as a row to the matrix.
+        matrix.setRow(i, buildVector(tagUniverse, tagDistribution));
         i++;
       }
       
@@ -109,7 +95,7 @@ public class ArticleClusterer { //TODO Observer, Observable
    * @param  tagDistribution all tags and their occurrence count
    * @return a vector with the occurrence count of the tag where it is found in the universe
    */
-  private static CompactSparseVector buildVector(Set<String> tagUniverse, Map<String, Integer> tagDistribution) {
+  private static DoubleVector buildVector(Set<String> tagUniverse, Map<String, Integer> tagDistribution) {
     //Build the vector.
     final double[] r = new double[tagUniverse.size()];
     int i = 0;
@@ -118,7 +104,7 @@ public class ArticleClusterer { //TODO Observer, Observable
       r[i] = count != null ? count : 0.0;
       i++;
     }
-    final CompactSparseVector raw = new CompactSparseVector(r);
+    final DoubleVector raw = new CompactSparseVector(r);
     
     //Normalize the vector.
     final double magnitude = raw.magnitude();
