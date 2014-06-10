@@ -17,13 +17,14 @@ import edu.ucla.sspace.matrix.GrowingSparseMatrix;
 import edu.ucla.sspace.matrix.Matrix;
 import edu.ucla.sspace.vector.CompactSparseVector;
 import edu.ucla.sspace.vector.DoubleVector;
+import edu.ucla.sspace.vector.ScaledDoubleVector;
 
 /**
  * Clusters articles that cover same topics.
  * 
  * @author  Stefan Muehlbauer
  * @author  Timo Guenther
- * @version 2014-06-04
+ * @version 2014-06-10
  */
 public class ArticleClusterer { //TODO Observer, Observable
   //constants
@@ -97,20 +98,16 @@ public class ArticleClusterer { //TODO Observer, Observable
    */
   private static DoubleVector buildVector(Set<String> tagUniverse, Map<String, Integer> tagDistribution) {
     //Build the vector.
-    final double[] r = new double[tagUniverse.size()];
+    final double[] array = new double[tagUniverse.size()];
     int i = 0;
     for (String tag : tagUniverse) {
       final Integer count = tagDistribution.get(tag);
-      r[i] = count != null ? count : 0.0;
+      array[i] = count != null ? count : 0.0;
       i++;
     }
-    final DoubleVector raw = new CompactSparseVector(r);
+    final DoubleVector vector = new CompactSparseVector(array);
     
     //Normalize the vector.
-    final double magnitude = raw.magnitude();
-    for (int j = 0; j < r.length; j++) {
-      r[j] /= magnitude;
-    }
-    return new CompactSparseVector(r);
+    return new ScaledDoubleVector(vector, 1.0/vector.magnitude());
   }
 }
