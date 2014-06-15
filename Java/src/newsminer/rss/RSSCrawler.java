@@ -6,7 +6,13 @@ import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Observable;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -15,21 +21,23 @@ import com.sun.syndication.fetcher.FetcherException;
 import com.sun.syndication.fetcher.impl.HashMapFeedInfoCache;
 import com.sun.syndication.fetcher.impl.HttpURLFeedFetcher;
 import com.sun.syndication.io.FeedException;
+
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
 import edu.stanford.nlp.ie.crf.CRFClassifier;
 import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.util.Triple;
 import newsminer.util.DatabaseUtils;
 
 /***
  * Crawls RSS feeds and stores their articles in the database.
  * The URLs to the feeds are taken from the database.
- * Notifies the observers of the feed's URL that was just crawled.
+ * Notifies the observers once all feeds have been crawled.
  * 
  * @author  Stefan Muehlbauer
  * @author  Timo Guenther
- * @version 2014-05-25
+ * @version 2014-06-15
  */
 public class RSSCrawler extends Observable implements Runnable {
   //constants
@@ -119,6 +127,9 @@ public class RSSCrawler extends Observable implements Runnable {
         //Read the feed.
         read(source_url);
       }
+      
+      //Notify the observers.
+      notifyObservers();
     } catch (SQLException sqle) {
       throw new RuntimeException(sqle);
     }
@@ -165,8 +176,8 @@ public class RSSCrawler extends Observable implements Runnable {
       final SyndEntry article = (SyndEntry) articleObject;
       
       //Get the relevant variables.
-      final String source_url  = sourceURL;
       final String link        = article.getLink();
+      final String source_url  = sourceURL;
       final long   timestamp   = article.getPublishedDate().getTime();
       final String title       = article.getTitle();
       final String description = article.getDescription().getValue();
@@ -179,7 +190,7 @@ public class RSSCrawler extends Observable implements Runnable {
         murle.printStackTrace();
         continue;
       }
-      String text;
+      final String text;
       try {
         text = ArticleExtractor.getInstance().getText(linkURL);
       } catch (BoilerpipeProcessingException bpe) {
@@ -188,12 +199,33 @@ public class RSSCrawler extends Observable implements Runnable {
       }
       
       //Extract the entities.
-      text = classifier.classifyWithInlineXML(text);
+      final Map<String, Set<String>>               namedEntityTypes = new TreeMap<>();
+      final List<Triple<String, Integer, Integer>> characterOffsets = classifier.classifyToCharacterOffsets(text);
+      for (Triple<String, Integer, Integer> characterOffset : characterOffsets) {
+        final String type        = characterOffset.first;
+        final String namedEntity = text.substring(characterOffset.second, characterOffset.third);
+        Set<String> namedEntities = namedEntityTypes.get(type);
+        if (namedEntities == null) {
+          namedEntities = new LinkedHashSet<>();
+        }
+        namedEntities.add(namedEntity);
+        namedEntityTypes.put(type, namedEntities);
+      }
+      
+      //Store the entities.
+      for (Entry<String, Set<String>> namedEntityType : namedEntityTypes.entrySet()) {
+        final String      type          = namedEntityType.getKey();
+        final Set<String> namedEntities = namedEntityType.getValue();
+        for (String namedEntity : namedEntities) {
+          //TODO
+          System.out.println(type + ": " + namedEntity);
+        }
+      }
       
       //Update the database table.
       try {
-        insertArticle.setString(1, source_url);
-        insertArticle.setString(2, link);
+        insertArticle.setString(1, link);
+        insertArticle.setString(2, source_url);
         insertArticle.setLong  (3, timestamp);
         insertArticle.setString(4, title);
         insertArticle.setString(5, description);
@@ -208,8 +240,5 @@ public class RSSCrawler extends Observable implements Runnable {
     } catch (SQLException sqle) {
       System.err.println(sqle.getMessage());
     }
-    
-    //Notify the observers.
-    notifyObservers(sourceURL);
   }
 }
