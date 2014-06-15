@@ -4,6 +4,7 @@ import java.io.Console;
 import java.io.IOException;
 import java.sql.SQLException;
 
+import newsminer.rss.ArticleClusterer;
 import newsminer.rss.RSSCrawler;
 import newsminer.util.DatabaseUtils;
 
@@ -11,7 +12,7 @@ import newsminer.util.DatabaseUtils;
  * Coordinates the News Miner components.
  * 
  * @author  Timo Guenther
- * @version 2014-05-25
+ * @version 2014-06-15
  */
 public abstract class NewsMiner {
   /**
@@ -46,27 +47,20 @@ public abstract class NewsMiner {
     
     //Initialize the components.
     System.out.println("Initializing.");
-    //TODO final TwitterCrawler    twitterCrawler;
-    //TODO final TwitterAggregator twitterAggregator;
-    final RSSCrawler        rssCrawler;
-    //TODO final RSSFilter         rssFilter;
+    final RSSCrawler       rssCrawler;
+    final ArticleClusterer articleClusterer;
     try {
-      //TODO twitterCrawler    = new TwitterCrawler();
-      //TODO twitterAggregator = new TwitterAggregator();
-      rssCrawler        = new RSSCrawler();
-      //TODO rssFilter         = new RSSFilter();
+      rssCrawler       = new RSSCrawler();
+      articleClusterer = new ArticleClusterer();
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
     
     //Add observers.
-    //TODO twitterCrawler.addObserver(twitterAggregator);
-    //TODO twitterAggregator.addObserver(rssFilter);
+    rssCrawler.addObserver(articleClusterer);
     
     //Start the components.
     System.out.println("Starting.");
-    //TODO new Thread(twitterAggregator, TwitterAggregator.class.getSimpleName()).start();
-    //TODOnew Thread(twitterCrawler, TwitterCrawler.class.getSimpleName()).start();
     new Thread(rssCrawler, RSSCrawler.class.getSimpleName()).start();
   }
 }

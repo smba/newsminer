@@ -89,8 +89,20 @@ public class RSSCrawler extends Observable implements Runnable {
   public void run() {
     flushTimestamp = System.currentTimeMillis();
     while (!Thread.currentThread().isInterrupted()) {
+      //Start flushing.
+      System.out.println("Crawling RSS feeds.");
+      final long startTimestamp = System.currentTimeMillis();
+      
       //Crawl the RSS feeds.
-      flush();
+      crawl();
+      
+      //Finish flushing.
+      final long finishTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTimestamp);
+      System.out.println("Finished crawling RSS feeds in " + finishTimeSeconds + " second" + (finishTimeSeconds == 1 ? "" : "s") + ".");
+      
+      //Notify the observers.
+      setChanged();
+      notifyObservers();
       
       //Sleep until the next time-step.
       flushTimestamp += TIMESTEP;
@@ -105,11 +117,7 @@ public class RSSCrawler extends Observable implements Runnable {
   /**
    * Retrieves the feed URLs, accesses their streams, and stores the data.
    */
-  private synchronized void flush() {
-    //Start flushing.
-    System.out.println("Crawling RSS feeds.");
-    final long startTimestamp = System.currentTimeMillis();
-    
+  private synchronized void crawl() {
     //Retrieve the feed URLs and crawl every one of them.
     try (final PreparedStatement ps = DatabaseUtils.getConnection().prepareStatement(
         "SELECT source_url FROM rss_feeds")) { 
@@ -127,16 +135,9 @@ public class RSSCrawler extends Observable implements Runnable {
         //Read the feed.
         read(source_url);
       }
-      
-      //Notify the observers.
-      notifyObservers();
     } catch (SQLException sqle) {
       throw new RuntimeException(sqle);
     }
-    
-    //Finish flushing.
-    final long finishTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTimestamp);
-    System.out.println("Finished crawling RSS feeds in " + finishTimeSeconds + " second" + (finishTimeSeconds == 1 ? "" : "s") + ".");
   }
   
   /**
@@ -218,7 +219,6 @@ public class RSSCrawler extends Observable implements Runnable {
         final Set<String> namedEntities = namedEntityType.getValue();
         for (String namedEntity : namedEntities) {
           //TODO
-          System.out.println(type + ": " + namedEntity);
         }
       }
       

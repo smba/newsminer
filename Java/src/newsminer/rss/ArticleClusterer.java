@@ -10,13 +10,15 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import edu.ucla.sspace.clustering.Clustering;
 import edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering;
 import edu.ucla.sspace.common.Similarity.SimType;
-import edu.ucla.sspace.matrix.ArrayMatrix;
 import edu.ucla.sspace.matrix.AtomicGrowingSparseMatrix;
 import edu.ucla.sspace.matrix.Matrix;
 import edu.ucla.sspace.vector.CompactSparseVector;
@@ -28,9 +30,9 @@ import edu.ucla.sspace.vector.ScaledDoubleVector;
  * 
  * @author  Stefan Muehlbauer
  * @author  Timo Guenther
- * @version 2014-06-10
+ * @version 2014-06-15
  */
-public class ArticleClusterer { //TODO Observer, Observable
+public class ArticleClusterer implements Observer { //TODO Observable
   //constants
   /** function used to determine similarity */
   private static final SimType SIM_FUNC  = SimType.COSINE;
@@ -50,10 +52,27 @@ public class ArticleClusterer { //TODO Observer, Observable
     clusteringProperties.put("edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering.clusterThreshold", THRESHOLD);
   }
   
+  @Override
+  public void update(Observable o, Object arg) {
+    System.out.println("ArticleClusterer.update");
+    if (o instanceof RSSCrawler) {
+      //Start clustering.
+      System.out.println("Clustering articles.");
+      final long startTimestamp = System.currentTimeMillis();
+      
+      //Cluster.
+      cluster();
+      
+      //Finish clustering.
+      final long finishTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTimestamp);
+      System.out.println("Finished clustering articles in " + finishTimeSeconds + " second" + (finishTimeSeconds == 1 ? "" : "s") + ".");
+    }
+  }
+
   /**
    * Clusters the articles and stores the result.
    */
-  public void cluster() {
+  public synchronized void cluster() {
     try (final PreparedStatement ps = DatabaseUtils.getConnection().prepareStatement( //Get the articles.
         "SELECT * FROM rss_articles")) {
       final ResultSet articlesRS = ps.executeQuery();
@@ -62,7 +81,6 @@ public class ArticleClusterer { //TODO Observer, Observable
       final Set<String>  tagUniverse = new LinkedHashSet<>(); //column headers
       final List<String> links       = new LinkedList<>();    //row headers
       final Matrix       matrix      = new AtomicGrowingSparseMatrix();
-      System.err.println("Matrix erstellt");
       int i = 0;
       while (articlesRS.next()) {
         //Get the text.
@@ -83,14 +101,14 @@ public class ArticleClusterer { //TODO Observer, Observable
         
         //Build the vector for this tag distribution and add it as a row to the matrix.
         matrix.setRow(i, buildVector(tagUniverse, tagDistribution));
-        System.err.println(buildVector(tagUniverse, tagDistribution).length());
         i++;
       }
+      System.out.println(matrix.rows() + " by " + matrix.columns() + " matrix built.");
       
       //Cluster.
       final Clustering         clustering  = new HierarchicalAgglomerativeClustering();
-      System.out.println(matrix.columns() + " Spalten und " + matrix.rows() + " Zeilen");
       final List<Set<Integer>> clusters    = clustering.cluster(matrix, clusteringProperties).clusters();
+      System.out.println("Clusters found: " + clusters.size());
       
       //Store the clusters.
       for (Set<Integer> cluster : clusters) {
