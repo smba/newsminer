@@ -4,10 +4,15 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.BreakIterator;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.TreeSet;
 
 import edu.ucla.sspace.text.EnglishStemmer;
@@ -111,5 +116,48 @@ public abstract class TextUtils {
       end   = wordIterator.next();
     }
     return distribution;
+  }
+  
+  /**
+   * Extracts all tagged tokens in text by given tag.
+   * @param text
+   * @param tag
+   * @return
+   */
+  private static Set<String> extractXMLTags(String text, String tag) {
+    int i = 0;
+    int b, start, end;
+    String startTag = "<" + tag + ">";
+    String endTag = "</" + tag + ">";
+    Set<String> subs = new LinkedHashSet<String>();
+    List<Integer> indizes = new ArrayList<Integer>(); 
+    while ((text.indexOf(startTag, i) != -1) || (text.indexOf(endTag, i) != -1)) {
+      start = text.indexOf(startTag, i);
+      end = text.indexOf(endTag, i);
+      b = (start < end) && (start != -1) ? start : end; 
+      indizes.add(b);
+      i = b + 1;
+    }
+    for (int j = 0; j < indizes.size(); j+=2) {
+      subs.add(text.substring(indizes.get(j)+startTag.length(), indizes.get(j+1)));
+    }
+    return subs;
+  }
+  
+  /**
+   * Extracts all tagged tokens in text by given tags.
+   * @param text
+   * @param tags
+   * @return
+   */
+  public static Map<String, Set<String>> extractXMLTags(String text, String[] tags) {
+    Map<String, Set<String>> out = new HashMap<String, Set<String>>();
+    Set<String> words;
+    for (String tag : tags) {
+      words = extractXMLTags(text, tag);
+      System.err.println(words);
+      out.put(tag, words);
+    }
+    return out;
   }
 }
