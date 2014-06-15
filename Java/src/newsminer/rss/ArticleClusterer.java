@@ -6,6 +6,7 @@ import newsminer.util.TextUtils;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,6 +25,11 @@ import edu.ucla.sspace.matrix.Matrix;
 import edu.ucla.sspace.vector.CompactSparseVector;
 import edu.ucla.sspace.vector.DoubleVector;
 import edu.ucla.sspace.vector.ScaledDoubleVector;
+import static org.junit.Assert.*;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Clusters articles that cover same topics.
@@ -35,9 +41,9 @@ import edu.ucla.sspace.vector.ScaledDoubleVector;
 public class ArticleClusterer implements Observer { //TODO Observable
   //constants
   /** function used to determine similarity */
-  private static final SimType SIM_FUNC  = SimType.COSINE;
+  private static final SimType SIM_FUNC  = SimType.PEARSON_CORRELATION;
   /** threshold value used in clustering */
-  private static final String  THRESHOLD = "1.0";
+  private static final String  THRESHOLD = "0.27";
   
   //attributes
    /** properties for the clustering */
@@ -79,7 +85,7 @@ public class ArticleClusterer implements Observer { //TODO Observable
       
       //Build the matrix.
       final Set<String>  tagUniverse = new LinkedHashSet<>(); //column headers
-      final List<String> links       = new LinkedList<>();    //row headers
+      final List<String> links       = new ArrayList<>();    //row headers
       final Matrix       matrix      = new AtomicGrowingSparseMatrix();
       int i = 0;
       while (articlesRS.next()) {
@@ -107,18 +113,25 @@ public class ArticleClusterer implements Observer { //TODO Observable
       
       //Cluster.
       final Clustering         clustering  = new HierarchicalAgglomerativeClustering();
-      final List<Set<Integer>> clusters    = clustering.cluster(matrix, clusteringProperties).clusters();
+      final List<Set<Integer>> clusters    = sortClusters(clustering.cluster(matrix, clusteringProperties).clusters());
       System.out.println("Clusters found: " + clusters.size());
       
-      //Store the clusters.
+      System.out.print("Test");
+      
+      //Store the clusters.      
       for (Set<Integer> cluster : clusters) {
         //Store a new cluster.
         //TODO
-        
+        System.err.println("--------------------------------------");
         //Store the cluster elements with the new cluster.
+        if (cluster.size() > 2) {
+          
         for (int index : cluster) {
           final String link = links.get(index);
           //TODO store cluster element
+          System.out.println(links.get(index));
+        }
+
         }
       }
     } catch (SQLException sqle) {
@@ -146,4 +159,22 @@ public class ArticleClusterer implements Observer { //TODO Observable
     //Normalize the vector.
     return new ScaledDoubleVector(vector, 1.0/vector.magnitude());
   }
+  
+  private static List<Set<Integer>> sortClusters(List<Set<Integer>> clusters) {
+    boolean flag = true; // set flag to true to begin first pass
+    Set<Integer> temp; // holding variable
+    while (flag) {
+      flag = false; // set flag to false awaiting a possible swap
+      for (int j = 0; j < clusters.size() - 1; j++) {
+        if (clusters.get(j).size() < clusters.get(j + 1).size()) {
+          temp = clusters.get(j); // swap elements
+          clusters.set(j, clusters.get(j + 1));
+          clusters.set(j + 1, temp);
+          flag = true; // shows a swap occurred
+        }
+      }
+    }
+    return clusters;
+  }
+
 }
