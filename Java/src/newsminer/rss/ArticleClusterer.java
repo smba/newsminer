@@ -16,7 +16,8 @@ import java.util.Set;
 import edu.ucla.sspace.clustering.Clustering;
 import edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering;
 import edu.ucla.sspace.common.Similarity.SimType;
-import edu.ucla.sspace.matrix.GrowingSparseMatrix;
+import edu.ucla.sspace.matrix.ArrayMatrix;
+import edu.ucla.sspace.matrix.AtomicGrowingSparseMatrix;
 import edu.ucla.sspace.matrix.Matrix;
 import edu.ucla.sspace.vector.CompactSparseVector;
 import edu.ucla.sspace.vector.DoubleVector;
@@ -60,7 +61,8 @@ public class ArticleClusterer { //TODO Observer, Observable
       //Build the matrix.
       final Set<String>  tagUniverse = new LinkedHashSet<>(); //column headers
       final List<String> links       = new LinkedList<>();    //row headers
-      final Matrix       matrix      = new GrowingSparseMatrix();
+      final Matrix       matrix      = new AtomicGrowingSparseMatrix();
+      System.err.println("Matrix erstellt");
       int i = 0;
       while (articlesRS.next()) {
         //Get the text.
@@ -81,11 +83,13 @@ public class ArticleClusterer { //TODO Observer, Observable
         
         //Build the vector for this tag distribution and add it as a row to the matrix.
         matrix.setRow(i, buildVector(tagUniverse, tagDistribution));
+        System.err.println(buildVector(tagUniverse, tagDistribution).length());
         i++;
       }
       
       //Cluster.
       final Clustering         clustering  = new HierarchicalAgglomerativeClustering();
+      System.out.println(matrix.columns() + " Spalten und " + matrix.rows() + " Zeilen");
       final List<Set<Integer>> clusters    = clustering.cluster(matrix, clusteringProperties).clusters();
       
       //Store the clusters.
