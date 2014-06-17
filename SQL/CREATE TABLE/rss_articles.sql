@@ -13,5 +13,5 @@ CREATE TABLE rss_articles
     ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT rss_articles_cluster_id_fkey FOREIGN KEY (cluster_id)
     REFERENCES rss_article_clusters (id) MATCH SIMPLE
-    ON UPDATE CASCADE ON DELETE CASCADE
+    ON UPDATE CASCADE ON DELETE SET NULL
 );

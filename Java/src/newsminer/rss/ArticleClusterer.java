@@ -6,7 +6,6 @@ import newsminer.util.TextUtils;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,18 +24,13 @@ import edu.ucla.sspace.matrix.Matrix;
 import edu.ucla.sspace.vector.CompactSparseVector;
 import edu.ucla.sspace.vector.DoubleVector;
 import edu.ucla.sspace.vector.ScaledDoubleVector;
-import static org.junit.Assert.*;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * Clusters articles that cover same topics.
  * 
  * @author  Stefan Muehlbauer
  * @author  Timo Guenther
- * @version 2014-06-15
+ * @version 2014-06-17
  */
 public class ArticleClusterer implements Observer { //TODO Observable
   //constants
@@ -85,7 +79,7 @@ public class ArticleClusterer implements Observer { //TODO Observable
       
       //Build the matrix.
       final Set<String>  tagUniverse = new LinkedHashSet<>(); //column headers
-      final List<String> links       = new ArrayList<>();    //row headers
+      final List<String> links       = new LinkedList<>();    //row headers
       final Matrix       matrix      = new AtomicGrowingSparseMatrix();
       int i = 0;
       while (articlesRS.next()) {
@@ -112,26 +106,39 @@ public class ArticleClusterer implements Observer { //TODO Observable
       System.out.println(matrix.rows() + " by " + matrix.columns() + " matrix built.");
       
       //Cluster.
-      final Clustering         clustering  = new HierarchicalAgglomerativeClustering();
-      final List<Set<Integer>> clusters    = sortClusters(clustering.cluster(matrix, clusteringProperties).clusters());
+      final Clustering         clustering = new HierarchicalAgglomerativeClustering();
+      final List<Set<Integer>> clusters   = clustering.cluster(matrix, clusteringProperties).clusters();
       System.out.println("Clusters found: " + clusters.size());
       
-      System.out.print("Test");
+      //Remove the old clusters.
+      try (final PreparedStatement deleteCluster = DatabaseUtils.getConnection().prepareStatement(
+        "DELETE FROM rss_article_clusters")) {
+        deleteCluster.executeUpdate();
+      }
       
-      //Store the clusters.      
+      //Store the clusters.
+      int id = 0;
       for (Set<Integer> cluster : clusters) {
         //Store a new cluster.
-        //TODO
-        System.err.println("--------------------------------------");
-        //Store the cluster elements with the new cluster.
-        if (cluster.size() > 2) {
-          
-        for (int index : cluster) {
-          final String link = links.get(index);
-          //TODO store cluster element
-          System.out.println(links.get(index));
+        id++;
+        try (final PreparedStatement insertNewCluster = DatabaseUtils.getConnection().prepareStatement(
+            "INSERT INTO rss_article_clusters(id) VALUES (?)")) {
+          insertNewCluster.setInt(1, id);
+          insertNewCluster.execute();
         }
-
+        
+        //Store the cluster elements with the new cluster.
+        if (cluster.size() > 1) {
+          try (final PreparedStatement updateClusterID = DatabaseUtils.getConnection().prepareStatement(
+              "UPDATE rss_articles SET cluster_id = ? WHERE link = ?")) {
+            for (int index : cluster) {
+              final String link = links.get(index);
+              updateClusterID.setInt   (1, id);
+              updateClusterID.setString(2, link);
+              updateClusterID.addBatch();
+            }
+            updateClusterID.executeBatch();
+          }
         }
       }
     } catch (SQLException sqle) {
@@ -159,22 +166,4 @@ public class ArticleClusterer implements Observer { //TODO Observable
     //Normalize the vector.
     return new ScaledDoubleVector(vector, 1.0/vector.magnitude());
   }
-  
-  private static List<Set<Integer>> sortClusters(List<Set<Integer>> clusters) {
-    boolean flag = true; // set flag to true to begin first pass
-    Set<Integer> temp; // holding variable
-    while (flag) {
-      flag = false; // set flag to false awaiting a possible swap
-      for (int j = 0; j < clusters.size() - 1; j++) {
-        if (clusters.get(j).size() < clusters.get(j + 1).size()) {
-          temp = clusters.get(j); // swap elements
-          clusters.set(j, clusters.get(j + 1));
-          clusters.set(j + 1, temp);
-          flag = true; // shows a swap occurred
-        }
-      }
-    }
-    return clusters;
-  }
-
 }
