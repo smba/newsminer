@@ -15,6 +15,12 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
+import com.google.code.geocoder.Geocoder;
+import com.google.code.geocoder.GeocoderRequestBuilder;
+import com.google.code.geocoder.model.GeocodeResponse;
+import com.google.code.geocoder.model.GeocoderRequest;
+import com.google.code.geocoder.model.GeocoderResult;
+import com.google.code.geocoder.model.LatLng;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.fetcher.FetcherException;
@@ -37,7 +43,7 @@ import newsminer.util.DatabaseUtils;
  * 
  * @author  Stefan Muehlbauer
  * @author  Timo Guenther
- * @version 2014-06-15
+ * @version 2014-06-19
  */
 public class RSSCrawler extends Observable implements Runnable {
   //constants
@@ -83,7 +89,7 @@ public class RSSCrawler extends Observable implements Runnable {
   
   /**
    * Crawls the RSS feeds every time-step.
-   * @see flush()
+   * @see crawl()
    */
   @Override
   public void run() {
@@ -217,8 +223,34 @@ public class RSSCrawler extends Observable implements Runnable {
       for (Entry<String, Set<String>> namedEntityType : namedEntityTypes.entrySet()) {
         final String      type          = namedEntityType.getKey();
         final Set<String> namedEntities = namedEntityType.getValue();
-        for (String namedEntity : namedEntities) {
-          //TODO
+        switch (type) {
+          case "LOCATION":
+            for (String location : namedEntities) {
+              try (final PreparedStatement selectLocation = DatabaseUtils.getConnection().prepareStatement(
+                  "SELECT * FROM locations WHERE name = ? AND latitude IS NOT NULL AND longitude IS NOT NULL")) {
+                selectLocation.setString(1, location);
+                final ResultSet rs = selectLocation.executeQuery();
+                if (!rs.next()) { //empty result set
+                  final LatLng geoCoordinates = getGeoCoordinates(location);
+                  if (geoCoordinates != null) {
+                    try (final PreparedStatement insertLocation = DatabaseUtils.getConnection().prepareStatement(
+                          "INSERT INTO locations VALUES (?, ?, ?)")) {
+                      insertLocation.setString(1, location);
+                      insertLocation.setDouble(2, geoCoordinates.getLat().doubleValue());
+                      insertLocation.setDouble(3, geoCoordinates.getLng().doubleValue());
+                      insertLocation.executeUpdate();
+                    }
+                  }
+                }
+              } catch (SQLException sqle) {
+                sqle.printStackTrace();
+              }
+            }
+            break;
+          case "ORGANIZATION":
+            break;
+          case "PERSON":
+            break;
         }
       }
       
@@ -240,5 +272,21 @@ public class RSSCrawler extends Observable implements Runnable {
     } catch (SQLException sqle) {
       System.err.println(sqle.getMessage());
     }
+  }
+  
+  /**
+   * Returns the geographical coordinates for the given location.
+   * @param  location location as String, e.g. Braunschweig, Entenhausen, etc.
+   * @return latitude and longitude
+   */
+  private static LatLng getGeoCoordinates(String location) {
+    final Geocoder             geocoder         = new Geocoder();
+    final GeocoderRequest      geocoderRequest  = new GeocoderRequestBuilder().setAddress(location).getGeocoderRequest();
+    final GeocodeResponse      geocoderResponse = geocoder.geocode(geocoderRequest);
+    final List<GeocoderResult> results          = geocoderResponse.getResults();
+    if (results.size() == 0) {
+      return null;
+    }
+    return results.get(0).getGeometry().getLocation();
   }
 }
