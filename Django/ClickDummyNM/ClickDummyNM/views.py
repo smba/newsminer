@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import RequestContext
@@ -24,4 +25,35 @@ def dossier(request):
 
 def map(request):
     context = RequestContext(request)
-    return render_to_response('map.html', {}, context)
+    #empty context_dict
+    context_dict = {
+                    'locations': [{
+                                   "name": 'Braunschweig',
+                                   "latlng": (52.16, 10,31)
+                                   },
+                                  {
+                                   "name": 'København',
+                                   "latlng": (55.41, 12.35)
+                                   },
+                                  {
+                                   "name": 'Gøteborg',
+                                   "latlng": (57.42, 11.57)
+                                   },
+                                  {
+                                   "name": "Basel",
+                                   "latlng": (47.34, 07.36)
+                                   }
+                                  ]
+                    }
+    #center berechnen
+    i = 0.
+    lat = 0.0
+    lng = 0.0
+    for location in context_dict['locations']:
+        lat  += location["latlng"][0]
+        lng  += location["latlng"][1]
+        i += 1
+    context_dict["map_center"] = (lat/i, lng/i)
+    
+
+    return render_to_response('map.html', context_dict, context)
