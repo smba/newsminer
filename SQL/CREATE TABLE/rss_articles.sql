@@ -6,6 +6,9 @@ CREATE TABLE rss_articles
   title text NOT NULL,
   description text NOT NULL,
   text text,
+  entity_locations text[] NOT NULL DEFAULT '{}'::text[],
+  entity_organizations text[] NOT NULL DEFAULT '{}'::text[],
+  entity_persons text[] NOT NULL DEFAULT '{}'::text[],
   cluster_id integer,
   CONSTRAINT rss_articles_pkey PRIMARY KEY (link),
   CONSTRAINT rss_articles_source_url_fkey FOREIGN KEY (source_url)
