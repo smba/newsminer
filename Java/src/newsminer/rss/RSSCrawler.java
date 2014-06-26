@@ -35,6 +35,7 @@ import edu.stanford.nlp.ie.crf.CRFClassifier;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.Triple;
 import newsminer.util.DatabaseUtils;
+import newsminer.util.FileUtils;
 
 /***
  * Crawls RSS feeds and stores their articles in the database.
@@ -43,7 +44,7 @@ import newsminer.util.DatabaseUtils;
  * 
  * @author  Stefan Muehlbauer
  * @author  Timo Guenther
- * @version 2014-06-19
+ * @version 2014-06-26
  */
 public class RSSCrawler extends Observable implements Runnable {
   //constants
@@ -51,6 +52,15 @@ public class RSSCrawler extends Observable implements Runnable {
   private static final long   TIMESTEP              = TimeUnit.HOURS.toMillis(1);
   /** the path to the classifier */
   private static final String SERIALIZED_CLASSIFIER = "classifiers/english.all.3class.distsim.crf.ser.gz";
+  /** the developer key used for Google API requests */
+  private static final String GOOGLE_API_KEY;
+  static {
+    try {
+      GOOGLE_API_KEY = FileUtils.getProperties("conf/google_api.properties").getProperty("key");
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+  }
   
   //PreparedStatement attributes
   /** statement for inserting RSS articles */
@@ -225,20 +235,20 @@ public class RSSCrawler extends Observable implements Runnable {
         final Set<String> namedEntities = namedEntityType.getValue();
         switch (type) {
           case "LOCATION":
-            for (String location : namedEntities) {
-              try (final PreparedStatement selectLocation = DatabaseUtils.getConnection().prepareStatement(
-                  "SELECT * FROM locations WHERE name = ? AND latitude IS NOT NULL AND longitude IS NOT NULL")) {
-                selectLocation.setString(1, location);
-                final ResultSet rs = selectLocation.executeQuery();
+            for (String name : namedEntities) {
+              try (final PreparedStatement selectEntity = DatabaseUtils.getConnection().prepareStatement(
+                  "SELECT * FROM entity_locations WHERE name = ? AND latitude IS NOT NULL AND longitude IS NOT NULL")) {
+                selectEntity.setString(1, name);
+                final ResultSet rs = selectEntity.executeQuery();
                 if (!rs.next()) { //empty result set
-                  final LatLng geoCoordinates = getGeoCoordinates(location);
+                  final LatLng geoCoordinates = getGeoCoordinates(name);
                   if (geoCoordinates != null) {
-                    try (final PreparedStatement insertLocation = DatabaseUtils.getConnection().prepareStatement(
-                          "INSERT INTO locations VALUES (?, ?, ?)")) {
-                      insertLocation.setString(1, location);
-                      insertLocation.setDouble(2, geoCoordinates.getLat().doubleValue());
-                      insertLocation.setDouble(3, geoCoordinates.getLng().doubleValue());
-                      insertLocation.executeUpdate();
+                    try (final PreparedStatement insertEntity = DatabaseUtils.getConnection().prepareStatement(
+                          "INSERT INTO entity_locations(name, latitude, longitude) VALUES (?, ?, ?)")) {
+                      insertEntity.setString(1, name);
+                      insertEntity.setDouble(2, geoCoordinates.getLat().doubleValue());
+                      insertEntity.setDouble(3, geoCoordinates.getLng().doubleValue());
+                      insertEntity.executeUpdate();
                     }
                   }
                 }
