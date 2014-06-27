@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.MissingResourceException;
 import java.util.Observable;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
@@ -43,7 +44,6 @@ import edu.stanford.nlp.ie.AbstractSequenceClassifier;
 import edu.stanford.nlp.ie.crf.CRFClassifier;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.Triple;
-import edu.ucla.sspace.util.Properties;
 import newsminer.json.JSONArray;
 import newsminer.json.JSONObject;
 import newsminer.json.JSONParser;
@@ -62,22 +62,17 @@ public class RSSCrawler extends Observable implements Runnable {
   //constants
   /** the interval at which the feeds are crawled */
   private static final long   TIMESTEP              = TimeUnit.HOURS.toMillis(1);
-  /** the path to the classifier */
-  private static final String SERIALIZED_CLASSIFIER = "classifiers/english.all.3class.distsim.crf.ser.gz";
   /** the developer key used for Google API requests */
   private static final String GOOGLE_API_KEY;
   static {
     try (final InputStream in = new FileInputStream("conf/google_api.properties")) {
       final Properties properties = new Properties();
+      properties.load(in);
       GOOGLE_API_KEY = properties.getProperty("key");
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
   }
-  
-  //PreparedStatement attributes
-  /** statement for inserting RSS articles */
-  private final PreparedStatement insertArticle;
   
   //attributes
   /** the classifier to use */
@@ -89,20 +84,15 @@ public class RSSCrawler extends Observable implements Runnable {
   
   /**
    * Constructs a new instance of this class.
-   * @throws IOException 
+   * @throws IOException when the classifier could not be instantiated
    */
   public RSSCrawler() throws IOException {
-    //Prepare the statements.
     try {
-      insertArticle = DatabaseUtils.getConnection().prepareStatement(
-          "INSERT INTO rss_articles VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    } catch (SQLException sqle) {
-      throw new IOException(sqle);
-    }
-    
-    //Get the classifier.
-    try {
-      classifier = CRFClassifier.getClassifier(SERIALIZED_CLASSIFIER);
+      final Properties properties = new Properties();
+      try (final InputStream in = new FileInputStream("conf/classifier.properties")) {
+        properties.load(in);
+      }
+      classifier = CRFClassifier.getClassifier(properties.getProperty("loadPath"));
     } catch (ClassCastException cce) {
       throw new IOException(cce);
     } catch (ClassNotFoundException cnfe) {
@@ -123,11 +113,16 @@ public class RSSCrawler extends Observable implements Runnable {
       final long startTimestamp = System.currentTimeMillis();
       
       //Crawl the RSS feeds.
-      crawl();
+      try {
+        crawl();
+      } catch (IOException ioe) {
+        throw new RuntimeException(ioe);
+      }
       
       //Finish flushing.
       final long finishTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTimestamp);
-      System.out.println("Finished crawling RSS feeds in " + finishTimeSeconds + " second" + (finishTimeSeconds == 1 ? "" : "s") + ".");
+      System.out.printf("Finished crawling RSS feeds in %s second%s.\n",
+          finishTimeSeconds, finishTimeSeconds == 1 ? "" : "s");
       
       //Notify the observers.
       setChanged();
@@ -137,7 +132,7 @@ public class RSSCrawler extends Observable implements Runnable {
       flushTimestamp += TIMESTEP;
       try {
         Thread.sleep(Math.max(0, flushTimestamp - System.currentTimeMillis()));
-      } catch (InterruptedException e) {
+      } catch (InterruptedException ie) {
         break;
       }
     }
@@ -145,277 +140,272 @@ public class RSSCrawler extends Observable implements Runnable {
   
   /**
    * Retrieves the feed URLs, accesses their streams, and stores the data.
+   * @throws IOException
    */
-  private synchronized void crawl() {
-    //Retrieve the feed URLs and crawl every one of them.
+  public void crawl() throws IOException {
     try (final PreparedStatement ps = DatabaseUtils.getConnection().prepareStatement(
-        "SELECT source_url FROM rss_feeds")) { 
+        "SELECT source_url FROM rss_feeds")) {
+      //Retrieve the feed URLs.
       final ResultSet rs = ps.executeQuery();
+      
+      //Crawl the feeds.
       while (rs.next()) {
-        //Get the current feed URL.
-        final String source_url;
-        try {
-          source_url = rs.getString("source_url");
-        } catch (SQLException sqle) {
-          sqle.printStackTrace();
-          continue;
-        }
-        
-        //Read the feed.
+        final String source_url = rs.getString("source_url");
         read(source_url);
       }
     } catch (SQLException sqle) {
-      throw new RuntimeException(sqle);
+      throw new IOException(sqle);
     }
   }
   
   /**
    * Reads the feed at the given URL.
-   * @param sourceURL URL to the feed 
+   * @param  sourceURL URL to the feed 
+   * @throws IOException when any of the articles could not be loaded or stored
    */
-  protected void read(String sourceURL) {
+  public void read(String sourceURL) throws IOException {
     //Check the URL.
     final URL feedURL;
     try {
       feedURL = new URL(sourceURL);
     } catch (MalformedURLException murle) {
-      murle.printStackTrace();
-      return;
+      throw new IOException(murle);
     }
     
     //Read the feed.
     final SyndFeed feed;
     try {
       feed = new HttpURLFeedFetcher(HashMapFeedInfoCache.getInstance()).retrieveFeed(feedURL);
-    } catch (IOException ioe) {
-      ioe.printStackTrace();
-      return;
     } catch (FeedException fe) {
-      fe.printStackTrace();
-      return;
+      throw new IOException(fe);
     } catch (FetcherException fe) {
-      throw new RuntimeException(fe);
+      throw new IOException(fe);
     }
     
     //Read the articles.
-    for (Object articleObject : feed.getEntries()) {
-      //Get the article.
-      if (!(articleObject instanceof SyndEntry)) {
-        continue;
-      }
-      final SyndEntry article = (SyndEntry) articleObject;
-      
-      //Get the relevant variables.
-      final String link        = article.getLink();
-      final String source_url  = sourceURL;
-      final long   timestamp   = article.getPublishedDate().getTime();
-      final String title       = article.getTitle();
-      final String description = article.getDescription().getValue();
-      
-      //Get the full text.
-      final URL linkURL;
-      try {
-        linkURL = new URL(link);
-      } catch (MalformedURLException murle) {
-        murle.printStackTrace();
-        continue;
-      }
-      final String text;
-      try {
-        text = ArticleExtractor.getInstance().getText(linkURL);
-      } catch (BoilerpipeProcessingException bpe) {
-        bpe.printStackTrace();
-        continue;
-      }
-      
-      //Extract the entities.
-      final Map<String, Set<String>>               namedEntityTypes = new TreeMap<>();
-      final List<Triple<String, Integer, Integer>> characterOffsets = classifier.classifyToCharacterOffsets(text);
-      for (Triple<String, Integer, Integer> characterOffset : characterOffsets) {
-        final String type        = characterOffset.first.toLowerCase();
-        final String namedEntity = text.substring(characterOffset.second, characterOffset.third);
-        Set<String> namedEntities = namedEntityTypes.get(type);
-        if (namedEntities == null) {
-          namedEntities = new LinkedHashSet<>();
-        }
-        namedEntities.add(namedEntity);
-        namedEntityTypes.put(type, namedEntities);
-      }
-      
-      //Store the entities.
-      final Map<String, Set<String>> normalizedNamedEntityTypes = new TreeMap<>();
-      final HttpRequestFactory       httpRequestFactory         = new NetHttpTransport().createRequestFactory();
-      final GenericUrl               searchURL                  = new GenericUrl("https://www.googleapis.com/freebase/v1/search");
-      for (Entry<String, Set<String>> namedEntityType : namedEntityTypes.entrySet()) {
-        final String type = namedEntityType.getKey();
-        if (!(type.equals("location") || type.equals("organization") || type.equals("person"))) {
+    try (final PreparedStatement insertArticle = DatabaseUtils.getConnection().prepareStatement(
+        "INSERT INTO rss_articles VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+      for (Object articleObject : feed.getEntries()) {
+        //Get the article.
+        final SyndEntry article = (SyndEntry) articleObject;
+        
+        //Get the relevant variables.
+        final String link        = article.getLink();
+        final String source_url  = sourceURL;
+        final long   timestamp   = article.getPublishedDate().getTime();
+        final String title       = article.getTitle();
+        final String description = article.getDescription().getValue();
+        
+        //Get the full text.
+        final URL linkURL;
+        try {
+          linkURL = new URL(link);
+        } catch (MalformedURLException murle) {
+          System.err.printf("Invalid article URL received from feed with the URL %s (%s).\n",
+              feedURL, murle.getMessage());
           continue;
         }
-        final Set<String> namedEntities           = namedEntityType.getValue();
-        final Set<String> normalizedNamedEntities = new LinkedHashSet<>();
-        for (String name : namedEntities) {
-          //Search Freebase.
-          searchURL.put("key",    GOOGLE_API_KEY);
-          searchURL.put("query",  name);
-          searchURL.put("filter", "(all type:" + type + ")");
-          searchURL.put("limit",  1);
-          HttpResponse httpResponse;
-          try {
-            httpResponse = httpRequestFactory.buildGetRequest(searchURL).execute();
-          } catch (IOException ioe) {
-            ioe.printStackTrace();
-            continue;
+        final String text;
+        try {
+          text = ArticleExtractor.getInstance().getText(linkURL);
+        } catch (BoilerpipeProcessingException bpe) {
+          throw new IOException(bpe);
+        }
+        
+        //Extract the entities.
+        final Map<String, Set<String>>               namedEntityTypes = new TreeMap<>();
+        final List<Triple<String, Integer, Integer>> characterOffsets = classifier.classifyToCharacterOffsets(text);
+        for (Triple<String, Integer, Integer> characterOffset : characterOffsets) {
+          final String type        = characterOffset.first.toLowerCase();
+          final String namedEntity = text.substring(characterOffset.second, characterOffset.third);
+          Set<String> namedEntities = namedEntityTypes.get(type);
+          if (namedEntities == null) {
+            namedEntities = new LinkedHashSet<>();
           }
-          final JSONObject searchResponseObject;
+          namedEntities.add(namedEntity);
+          namedEntityTypes.put(type, namedEntities);
+        }
+        
+        //Store the entities.
+        final Map<String, Set<String>> normalizedNamedEntityTypes = new TreeMap<>();
+        final HttpRequestFactory       httpRequestFactory         = new NetHttpTransport().createRequestFactory();
+        final GenericUrl               searchURL                  = new GenericUrl("https://www.googleapis.com/freebase/v1/search");
+        for (Entry<String, Set<String>> namedEntityType : namedEntityTypes.entrySet()) {
+          final String type = namedEntityType.getKey();
+          PreparedStatement insertEntity = null;
           try {
-            searchResponseObject = (JSONObject) JSONParser.parse(httpResponse.parseAsString());
-          } catch (ParseException pe) {
-            pe.printStackTrace();
-            continue;
-          } catch (IOException ioe) {
-            ioe.printStackTrace();
-            continue;
-          }
-          final JSONObject searchResultObject;
-          try {
-            searchResultObject = searchResponseObject
-                .get("result", JSONArray.class)
-                .get(0,        JSONObject.class);
-          } catch (IndexOutOfBoundsException ioobe) { //no matching result found
-            continue;
-          }
-          final String topicID = searchResultObject.get("mid",  String.class);
-                       name    = searchResultObject.get("name", String.class);
-          normalizedNamedEntities.add(name);
-          
-          //Update the database if necessary.
-          try (final PreparedStatement selectEntity = DatabaseUtils.getConnection().prepareStatement(
-              "SELECT * FROM entity_" + type + "s WHERE name = ?")) {
-            selectEntity.setString(1, name);
-            final ResultSet rs = selectEntity.executeQuery();
-            if (!rs.next()) { //empty result set
-              //Check Freebase.
-              final GenericUrl topicURL = new GenericUrl("https://www.googleapis.com/freebase/v1/topic" + topicID);
-              topicURL.put("key",    GOOGLE_API_KEY);
-              topicURL.put("filter", "suggest");
+            switch (type) {
+              case "location":
+                insertEntity = DatabaseUtils.getConnection().prepareStatement(
+                    "INSERT INTO entity_locations VALUES (?, ?, ?, ?)");
+                break;
+              case "organization":
+                insertEntity = DatabaseUtils.getConnection().prepareStatement(
+                    "INSERT INTO entity_organizations VALUES (?, ?)");
+                break;
+              case "person":
+                insertEntity = DatabaseUtils.getConnection().prepareStatement(
+                    "INSERT INTO entity_persons VALUES (?, ?, ?, ?, ?, ?)");
+                break;
+              default:
+                continue;
+            }
+            final Set<String> namedEntities           = namedEntityType.getValue();
+            final Set<String> normalizedNamedEntities = new LinkedHashSet<>();
+            for (String name : namedEntities) {
+              //Search Freebase.
+              searchURL.put("key",    GOOGLE_API_KEY);
+              searchURL.put("query",  name);
+              searchURL.put("filter", "(all type:" + type + ")");
+              searchURL.put("limit",  1);
+              final HttpResponse searchHTTPResponse;
               try {
-                httpResponse = httpRequestFactory.buildGetRequest(topicURL).execute();
-              } catch (IOException ioe) {
-                ioe.printStackTrace();
+                searchHTTPResponse = httpRequestFactory.buildGetRequest(searchURL).execute();
+              } catch (IOException ioe) { //occasional timeout
+                System.err.printf("Failed getting HTTP response for %s: %s\n",
+                    searchURL, ioe.getMessage());
                 continue;
               }
-              final JSONObject topicResponseObject;
+              final JSONObject searchResponseObject;
               try {
-                topicResponseObject = (JSONObject) JSONParser.parse(httpResponse.parseAsString());
+                searchResponseObject = (JSONObject) JSONParser.parse(searchHTTPResponse.parseAsString());
               } catch (ParseException pe) {
-                pe.printStackTrace();
-                continue;
-              } catch (IOException ioe) {
-                ioe.printStackTrace();
+                throw new IOException(pe);
+              }
+              final JSONObject searchResultObject;
+              try {
+                searchResultObject = searchResponseObject
+                    .get("result", JSONArray.class)
+                    .get(0,        JSONObject.class);
+              } catch (IndexOutOfBoundsException ioobe) { //no matching result found
                 continue;
               }
-              final JSONObject topicResultObject = topicResponseObject.get("property", JSONObject.class);
-              String entityDescription;
-              try {
-                entityDescription = topicResultObject
-                    .get("/common/topic/article", JSONObject.class)
-                    .get("values",                JSONArray.class)
-                    .get(0,                       JSONObject.class)
-                    .get("property",              JSONObject.class)
-                    .get("/common/document/text", JSONObject.class)
-                    .get("values",                JSONArray.class)
-                    .get(0,                       JSONObject.class)
-                    .get("value",                 String.class);
-              } catch (MissingResourceException mre) {
-                entityDescription = null;
+              final String topicID = searchResultObject.get("mid",  String.class);
+                           name    = searchResultObject.get("name", String.class);
+              if (!normalizedNamedEntities.add(name)) { //already checked
+                continue;
               }
               
-              //Store the result.
-              switch (type) {
-                case "location":
-                  final LatLng geoCoordinates = getGeoCoordinates(name);
-                  if (geoCoordinates != null) {
-                    try (final PreparedStatement insertEntityLocation = DatabaseUtils.getConnection().prepareStatement(
-                          "INSERT INTO entity_locations VALUES (?, ?, ?, ?)")) {
-                      insertEntityLocation.setString(1, name);
-                      insertEntityLocation.setString(2, entityDescription);
-                      insertEntityLocation.setDouble(3, geoCoordinates.getLat().doubleValue());
-                      insertEntityLocation.setDouble(4, geoCoordinates.getLng().doubleValue());
-                      insertEntityLocation.executeUpdate();
-                    }
-                  }
-                  break;
-                case "organization":
-                  try (final PreparedStatement insertEntityOrganization = DatabaseUtils.getConnection().prepareStatement(
-                      "INSERT INTO entity_organizations VALUES (?, ?)")) {
-                    insertEntityOrganization.setString(1, name);
-                    insertEntityOrganization.setString(2, entityDescription);
-                    insertEntityOrganization.executeUpdate();
-                  }
-                  break;
-                case "person":
-                  String image;
+              //Update the database if necessary.
+              try (final PreparedStatement selectEntity = DatabaseUtils.getConnection().prepareStatement(
+                  "SELECT * FROM entity_" + type + "s WHERE name = ?")) {
+                selectEntity.setString(1, name);
+                final ResultSet rs = selectEntity.executeQuery();
+                if (!rs.next()) { //entity not yet in the database
+                  //Check Freebase.
+                  final GenericUrl topicURL = new GenericUrl("https://www.googleapis.com/freebase/v1/topic" + topicID);
+                  topicURL.put("key",    GOOGLE_API_KEY);
+                  topicURL.put("filter", "suggest");
+                  final HttpResponse topicHTTPResponse;
                   try {
-                    image = topicResultObject
-                        .get("/common/topic/image", JSONObject.class)
-                        .get("values",              JSONArray.class)
-                        .get(0,                     JSONObject.class)
-                        .get("id",                  String.class);
-                  } catch (MissingResourceException mre) {
-                    image = null;
+                    topicHTTPResponse = httpRequestFactory.buildGetRequest(topicURL).execute();
+                  } catch (IOException ioe) { //occasional timeout
+                    System.err.printf("Failed getting HTTP response for %s: %s\n",
+                        topicURL, ioe.getMessage());
+                    continue;
                   }
-                  String notable_for;
+                  final JSONObject   topicResponseObject;
                   try {
-                    notable_for = topicResultObject
-                        .get("/common/topic/notable_for", JSONObject.class)
-                        .get("values",                    JSONArray.class)
-                        .get(0,                           JSONObject.class)
-                        .get("text",                      String.class);
-                  } catch (MissingResourceException mre) {
-                    notable_for = null;
+                    topicResponseObject = (JSONObject) JSONParser.parse(topicHTTPResponse.parseAsString());
+                  } catch (ParseException pe) {
+                    throw new IOException(pe);
                   }
-                  String date_of_birth;
+                  final JSONObject topicResultObject = topicResponseObject.get("property", JSONObject.class);
+                  String entityDescription;
                   try {
-                    date_of_birth = topicResultObject
-                        .get("/people/person/date_of_birth", JSONObject.class)
-                        .get("values",                       JSONArray.class)
-                        .get(0,                              JSONObject.class)
-                        .get("text",                         String.class);
+                    entityDescription = topicResultObject
+                        .get("/common/topic/article", JSONObject.class)
+                        .get("values",                JSONArray.class)
+                        .get(0,                       JSONObject.class)
+                        .get("property",              JSONObject.class)
+                        .get("/common/document/text", JSONObject.class)
+                        .get("values",                JSONArray.class)
+                        .get(0,                       JSONObject.class)
+                        .get("value",                 String.class);
                   } catch (MissingResourceException mre) {
-                    date_of_birth = null;
+                    entityDescription = null;
                   }
-                  String place_of_birth;
-                  try {
-                    place_of_birth = topicResultObject
-                        .get("/people/person/place_of_birth", JSONObject.class)
-                        .get("values",                        JSONArray.class)
-                        .get(0,                               JSONObject.class)
-                        .get("text",                          String.class);
-                  } catch (MissingResourceException mre) {
-                    place_of_birth = null;
+                  
+                  //Store the result.
+                  switch (type) {
+                    case "location":
+                      final LatLng geoCoordinates = getGeoCoordinates(name);
+                      if (geoCoordinates != null) {
+                        insertEntity.setString(1, name);
+                        insertEntity.setString(2, entityDescription);
+                        insertEntity.setDouble(3, geoCoordinates.getLat().doubleValue());
+                        insertEntity.setDouble(4, geoCoordinates.getLng().doubleValue());
+                        insertEntity.addBatch();
+                      }
+                      break;
+                    case "organization":
+                      insertEntity.setString(1, name);
+                      insertEntity.setString(2, entityDescription);
+                      insertEntity.addBatch();
+                      break;
+                    case "person":
+                      String image;
+                      try {
+                        image = topicResultObject
+                            .get("/common/topic/image", JSONObject.class)
+                            .get("values",              JSONArray.class)
+                            .get(0,                     JSONObject.class)
+                            .get("id",                  String.class);
+                      } catch (MissingResourceException mre) {
+                        image = null;
+                      }
+                      String notable_for;
+                      try {
+                        notable_for = topicResultObject
+                            .get("/common/topic/notable_for", JSONObject.class)
+                            .get("values",                    JSONArray.class)
+                            .get(0,                           JSONObject.class)
+                            .get("text",                      String.class);
+                      } catch (MissingResourceException mre) {
+                        notable_for = null;
+                      }
+                      String date_of_birth;
+                      try {
+                        date_of_birth = topicResultObject
+                            .get("/people/person/date_of_birth", JSONObject.class)
+                            .get("values",                       JSONArray.class)
+                            .get(0,                              JSONObject.class)
+                            .get("text",                         String.class);
+                      } catch (MissingResourceException mre) {
+                        date_of_birth = null;
+                      }
+                      String place_of_birth;
+                      try {
+                        place_of_birth = topicResultObject
+                            .get("/people/person/place_of_birth", JSONObject.class)
+                            .get("values",                        JSONArray.class)
+                            .get(0,                               JSONObject.class)
+                            .get("text",                          String.class);
+                      } catch (MissingResourceException mre) {
+                        place_of_birth = null;
+                      }
+                      insertEntity.setString(1, name);
+                      insertEntity.setString(2, entityDescription);
+                      insertEntity.setString(3, image);
+                      insertEntity.setString(4, notable_for);
+                      insertEntity.setString(5, date_of_birth);
+                      insertEntity.setString(6, place_of_birth);
+                      insertEntity.addBatch();
+                      break;
                   }
-                  try (final PreparedStatement insertEntityPerson = DatabaseUtils.getConnection().prepareStatement(
-                      "INSERT INTO entity_persons VALUES (?, ?, ?, ?, ?, ?)")) {
-                    insertEntityPerson.setString(1, name);
-                    insertEntityPerson.setString(2, entityDescription);
-                    insertEntityPerson.setString(3, image);
-                    insertEntityPerson.setString(4, notable_for);
-                    insertEntityPerson.setString(5, date_of_birth);
-                    insertEntityPerson.setString(6, place_of_birth);
-                    insertEntityPerson.executeUpdate();
-                  }
-                  break;
+                }
               }
             }
-          } catch (SQLException sqle) {
-            sqle.printStackTrace();
+            insertEntity.executeBatch();
+            normalizedNamedEntityTypes.put(type, normalizedNamedEntities);
+          } finally {
+            if (insertEntity != null) {
+              insertEntity.close();
+            }
           }
         }
-        normalizedNamedEntityTypes.put(type, normalizedNamedEntities);
-      }
-      
-      //Update the database table.
-      try {
+        
+        //Update the database table.
         insertArticle.setString(1, link);
         insertArticle.setString(2, source_url);
         insertArticle.setLong  (3, timestamp);
@@ -441,14 +431,16 @@ public class RSSCrawler extends Observable implements Runnable {
           insertArticle.setArray(i, namedEntitiesArray);
         }
         insertArticle.addBatch();
-      } catch (SQLException sqle) {
-        System.err.println(sqle.getMessage());
       }
-    }
-    try {
       insertArticle.executeBatch();
     } catch (SQLException sqle) {
-      System.err.println(sqle.getMessage());
+      //TODO
+      while (sqle != null) {
+        sqle = sqle.getNextException();
+        sqle.printStackTrace();
+      }
+      System.exit(0);
+      throw new IOException(sqle);
     }
   }
   
