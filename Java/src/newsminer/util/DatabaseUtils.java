@@ -12,7 +12,7 @@ import java.util.Properties;
  * Interacts with the database.
  * 
  * @author  Timo Guenther
- * @version 2014-05-25
+ * @version 2014-06-27
  */
 public abstract class DatabaseUtils {
   //constants
@@ -32,7 +32,7 @@ public abstract class DatabaseUtils {
    * @return the established database connection
    */
   public synchronized static Connection getConnection() {
-    //Establish a connection if it is not already established.
+    //Check if the connection has been established yet.
     if (connection == null) {
       throw new IllegalStateException();
     }
@@ -48,22 +48,20 @@ public abstract class DatabaseUtils {
    * @return the established database connection
    * @throws SQLException
    */
-  public synchronized static Connection getConnection(String sshUser, String sshPass) throws SQLException {
+  public synchronized static Connection getConnection(String sshUser, String sshPass) throws IOException {
     //Establish the connection if it is not already established.
     if (connection == null) {
       //Check for the PostgreSQL JDBC driver.
       try {
         Class.forName("org.postgresql.Driver");
       } catch (ClassNotFoundException cnfe) { //not installed
-        throw new SQLException(cnfe);
+        throw new IOException(cnfe);
       }
       
       //Get the database connection properties.
       final Properties properties = new Properties();
       try (final InputStream in = new FileInputStream(CONNECTION_PROPERTIES_FILE_PATH)) {
         properties.load(in);
-      } catch (IOException ioe) {
-        throw new SQLException(ioe);
       }
       
       //Access the SSH tunnel.
@@ -76,16 +74,19 @@ public abstract class DatabaseUtils {
         session.setPassword(properties.getProperty("password"));
         session.setConfig(FileUtils.getProperties(SSH_PROPERTIES_FILE_PATH));
         session.connect();
-      } catch (IOException ioe) {
-        throw new SQLException(ioe);
       } catch (JSchException jsche) {
-        throw new SQLException(jsche);
+        throw new IOException(jsche);
       }
       */
       
       //Establish the database connection.
-      final String url = "jdbc:postgresql://localhost:" + properties.getProperty("port") + "/" + properties.getProperty("name");
-      connection = DriverManager.getConnection(url, properties);
+      final String url = String.format("jdbc:postgresql://localhost:%s/%s",
+          properties.getProperty("port"), properties.getProperty("name"));
+      try {
+        connection = DriverManager.getConnection(url, properties);
+      } catch (SQLException ioe) {
+        throw new IOException(ioe);
+      }
     }
     
     //Return the connection.

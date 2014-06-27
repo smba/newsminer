@@ -2,7 +2,6 @@ package newsminer;
 
 import java.io.Console;
 import java.io.IOException;
-import java.sql.SQLException;
 
 import newsminer.rss.ArticleClusterer;
 import newsminer.rss.RSSCrawler;
@@ -12,7 +11,7 @@ import newsminer.util.DatabaseUtils;
  * Coordinates the News Miner components.
  * 
  * @author  Timo Guenther
- * @version 2014-06-15
+ * @version 2014-06-27
  */
 public abstract class NewsMiner {
   /**
@@ -41,8 +40,8 @@ public abstract class NewsMiner {
     //Connect to the database.
     try {
       DatabaseUtils.getConnection(sshUser, sshPassword);
-    } catch (SQLException sqle) {
-      throw new RuntimeException(sqle);
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
     }
     
     //Initialize the components.
