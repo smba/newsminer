@@ -1,6 +1,8 @@
 package newsminer.util;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -57,9 +59,9 @@ public abstract class DatabaseUtils {
       }
       
       //Get the database connection properties.
-      final Properties properties;
-      try {
-        properties = FileUtils.getProperties(CONNECTION_PROPERTIES_FILE_PATH);
+      final Properties properties = new Properties();
+      try (final InputStream in = new FileInputStream(CONNECTION_PROPERTIES_FILE_PATH)) {
+        properties.load(in);
       } catch (IOException ioe) {
         throw new SQLException(ioe);
       }

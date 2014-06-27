@@ -1,6 +1,8 @@
 package newsminer.rss;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Array;
@@ -34,17 +36,18 @@ import com.sun.syndication.fetcher.FetcherException;
 import com.sun.syndication.fetcher.impl.HashMapFeedInfoCache;
 import com.sun.syndication.fetcher.impl.HttpURLFeedFetcher;
 import com.sun.syndication.io.FeedException;
+
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
 import edu.stanford.nlp.ie.crf.CRFClassifier;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.Triple;
+import edu.ucla.sspace.util.Properties;
 import newsminer.json.JSONArray;
 import newsminer.json.JSONObject;
 import newsminer.json.JSONParser;
 import newsminer.util.DatabaseUtils;
-import newsminer.util.FileUtils;
 
 /***
  * Crawls RSS feeds and stores their articles in the database.
@@ -53,7 +56,7 @@ import newsminer.util.FileUtils;
  * 
  * @author  Stefan Muehlbauer
  * @author  Timo Guenther
- * @version 2014-06-26
+ * @version 2014-06-27
  */
 public class RSSCrawler extends Observable implements Runnable {
   //constants
@@ -64,8 +67,9 @@ public class RSSCrawler extends Observable implements Runnable {
   /** the developer key used for Google API requests */
   private static final String GOOGLE_API_KEY;
   static {
-    try {
-      GOOGLE_API_KEY = FileUtils.getProperties("conf/google_api.properties").getProperty("key");
+    try (final InputStream in = new FileInputStream("conf/google_api.properties")) {
+      final Properties properties = new Properties();
+      GOOGLE_API_KEY = properties.getProperty("key");
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
