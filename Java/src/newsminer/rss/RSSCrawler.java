@@ -56,7 +56,7 @@ import newsminer.util.DatabaseUtils;
  * 
  * @author  Stefan Muehlbauer
  * @author  Timo Guenther
- * @version 2014-06-27
+ * @version 2014-06-29
  */
 public class RSSCrawler extends Observable implements Runnable {
   //constants
@@ -282,6 +282,9 @@ public class RSSCrawler extends Observable implements Runnable {
               }
               final String topicID = searchResultObject.get("mid",  String.class);
                            name    = searchResultObject.get("name", String.class);
+              if (name.isEmpty()) {
+                continue;
+              }
               if (!normalizedNamedEntities.add(name)) { //already checked
                 continue;
               }
@@ -304,7 +307,7 @@ public class RSSCrawler extends Observable implements Runnable {
                         topicURL, ioe.getMessage());
                     continue;
                   }
-                  final JSONObject   topicResponseObject;
+                  final JSONObject topicResponseObject;
                   try {
                     topicResponseObject = (JSONObject) JSONParser.parse(topicHTTPResponse.parseAsString());
                   } catch (ParseException pe) {
@@ -323,6 +326,8 @@ public class RSSCrawler extends Observable implements Runnable {
                         .get(0,                       JSONObject.class)
                         .get("value",                 String.class);
                   } catch (MissingResourceException mre) {
+                    entityDescription = null;
+                  } catch (IndexOutOfBoundsException ioobe) {
                     entityDescription = null;
                   }
                   
@@ -353,6 +358,8 @@ public class RSSCrawler extends Observable implements Runnable {
                             .get("id",                  String.class);
                       } catch (MissingResourceException mre) {
                         image = null;
+                      } catch (IndexOutOfBoundsException ioobe) {
+                        image = null;
                       }
                       String notable_for;
                       try {
@@ -362,6 +369,8 @@ public class RSSCrawler extends Observable implements Runnable {
                             .get(0,                           JSONObject.class)
                             .get("text",                      String.class);
                       } catch (MissingResourceException mre) {
+                        notable_for = null;
+                      } catch (IndexOutOfBoundsException ioobe) {
                         notable_for = null;
                       }
                       String date_of_birth;
@@ -373,6 +382,8 @@ public class RSSCrawler extends Observable implements Runnable {
                             .get("text",                         String.class);
                       } catch (MissingResourceException mre) {
                         date_of_birth = null;
+                      } catch (IndexOutOfBoundsException ioobe) {
+                        date_of_birth = null;
                       }
                       String place_of_birth;
                       try {
@@ -382,6 +393,8 @@ public class RSSCrawler extends Observable implements Runnable {
                             .get(0,                               JSONObject.class)
                             .get("text",                          String.class);
                       } catch (MissingResourceException mre) {
+                        place_of_birth = null;
+                      } catch (IndexOutOfBoundsException ioobe) {
                         place_of_birth = null;
                       }
                       insertEntity.setString(1, name);
@@ -432,14 +445,21 @@ public class RSSCrawler extends Observable implements Runnable {
         }
         insertArticle.addBatch();
       }
-      insertArticle.executeBatch();
-    } catch (SQLException sqle) {
-      //TODO
-      while (sqle != null) {
-        sqle = sqle.getNextException();
-        sqle.printStackTrace();
+      try {
+        insertArticle.executeBatch();
+      } catch (SQLException sqle) {
+        SQLException next;
+        while ((next = sqle.getNextException()) != null) {
+          sqle = next;
+          final String sqlState = sqle.getSQLState();
+          if (sqlState.equals("23505")) { //article exists already
+            continue;
+          } else {
+            throw sqle;
+          }
+        }
       }
-      System.exit(0);
+    } catch (SQLException sqle) {
       throw new IOException(sqle);
     }
   }
@@ -447,16 +467,13 @@ public class RSSCrawler extends Observable implements Runnable {
   /**
    * Returns the geographical coordinates for the given location.
    * @param  location location as String, e.g. Braunschweig, Entenhausen, etc.
-   * @return latitude and longitude
+   * @return latitude and longitude; null if no result was found
    */
   private static LatLng getGeoCoordinates(String location) {
     final Geocoder             geocoder         = new Geocoder();
     final GeocoderRequest      geocoderRequest  = new GeocoderRequestBuilder().setAddress(location).getGeocoderRequest();
     final GeocodeResponse      geocoderResponse = geocoder.geocode(geocoderRequest);
     final List<GeocoderResult> results          = geocoderResponse.getResults();
-    if (results.size() == 0) {
-      return null;
-    }
-    return results.get(0).getGeometry().getLocation();
+    return results.isEmpty() ? null : results.get(0).getGeometry().getLocation();
   }
 }
