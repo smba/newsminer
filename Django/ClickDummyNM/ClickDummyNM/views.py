@@ -3,12 +3,18 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import RequestContext
 from django.shortcuts import render_to_response
+from ClickDummyNM.models import Locations, RssFeeds, RssArticles
 
 #from django.template import Template, Context
 #from django.template.loader import get_template
 
 def index(request):
     context = RequestContext(request)
+    #one_entry = Locations.objects.filter(name='Hallo')
+    #print one_entry
+    a = RssArticles.objects.all()
+    for article in a:
+        print article.entity_locations
     context_dict = {'content_text': "Welcome to NewsMiner+", 
                     'dossier':"/dossier/"}
     return render_to_response('index.html', context_dict, context)
