@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+{% load static %}
+
+<html>
+
+    <head>
+        <title>NewsMiner+</title>
+        <link rel="stylesheet" type="text/css" href="{% static "css/main.css" %}">
+    </head>
+
+    <body>
+    	<div id="head">
+    	</div>
+    	<div id ="headlinks"><a href="{{home}}">Home</a> | <strong>What is NewsMiner+?</strong> | <a href="{{impressum}}">Impressum</a></div>
+    	<div id="main">
+			
+			<div class="content">
+				<h3>What is NewsMiner+?</h3>
+				<p>
+					NewsMiner+ is a web blog providing mashups regarding recent topics. Imagine, as different
+					newspapers almost deal the same topics, it's rather complicated to get an overview over different
+					articles at first and the topic bakground at second.
+				</p>	
+				<p>
+					Technically, the application crawls a large collection of RSS feeds from all over the world, such as 
+					<em>Le Monde</em>, <em>The Guardian</em> or <em>The New York Times</em>.
+					After clustering the articles, all relevant entities are detected and the NewsMiner+ searches for 
+					additional informations to describe them, using <em>Freebase</em>, <em>GoogleMaps</em> and 
+					<em>Leaflet/Open Street Maps</em>.
+				</p>
+			</div>
+			
+			<div class="content">
+				<h3>What is the parrots' name?</h3>
+				<p>
+					Paul, the Parrot. Arr.
+				</p>	
+			</div>
+			
+			<center>
+				<img src="{% static "happygei.png" %}" alt="So much text to read...">
+			</center>
+			
+		</div>
+    </body>
+    <div id="bottom">
+	bottom</div>
+
+</html>

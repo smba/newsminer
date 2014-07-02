@@ -1,26 +1,128 @@
 <!DOCTYPE html>
-
+{% load leaflet_tags %}
 {% load static %}
 
 <html>
 
     <head>
         <title>NewsMiner+</title>
-	</head>
+        <link rel="stylesheet" type="text/css" href="{% static "css/main.css" %}">
+        
+        {% leaflet_js %}
+        {% leaflet_css %}
+		<link rel="stylesheet" href="../dist/leaflet.label.css" />
+		<script src="{% static "js/Label.js" %}"></script>
+		<script src="{% static "js/BaseMarkerMethods.js" %}"></script>
+		<script src="{% static "js/Marker.Label.js" %}"></script>
+		<script src="{% static "js/Map.Label.js" %}"></script>
+		
+		<script type="text/javascript" charset="utf-8">
+		  function showHide(elementid){
+		    if (document.getElementById(elementid).style.display == 'none'){
+		      document.getElementById(elementid).style.display = '';
+		    } else {
+		      document.getElementById(elementid).style.display = 'none';
+		    }
+		  }
+  		</script>
+		
+		<style>
+	        .leaflet-container {  /* all maps */
+	            width:  420px;
+	            height: 280px;
+	        }	
+	        .leaflet-label {
+				background: #C0D6E4;
+				background: #C0D6E4;
+				background-clip: padding-box;
+				border-color: rgba(102,117,127,0.15);
+				border-color: rgba(102,117,127,0.15);
+				border-radius: 4px;
+				border-style: solid;
+				border-width: 4px;
+				color: rgb(41, 47, 51);
+				display: block;
+				font: 12px/20px "Helvetica Neue", Arial, Helvetica, sans-serif;
+				font-weight: bold;
+				padding: 1px 6px;
+				position: absolute;
+				-webkit-user-select: none;
+				   -moz-user-select: none;
+				    -ms-user-select: none;
+				        user-select: none;
+				white-space: nowrap;
+				z-index: 6;
+			}
+    	</style>
+    	
+    	
+    	
+    </head>
 
     <body>
-        <h1>{{dossier_title}}</h1>
-        <img src="{% static "logogei.png" %}" alt="Picture of Paul" /> <!-- Images -->
-		<br />
-		{{article_text}}
-		<br /><br />
-		{{widget_1}}
-		<br /><br />
-		{{widget_2}}
-		<br /><br />
-		{{widget_3}}
-		<br /><br />
-		<a href="/">Home</a>
+    	   
+    	<div id="head">
+    	</div>
+    	<div id ="headlinks"><a href="{{home}}">Home</a> | <a href="{{what}}">What is NewsMiner+?</a> | <a href="{{impressum}}">Impressum</a></div>
+    	<div id="articles">
+     
+	    		<script>
+	    	function changeContent(id, msg) {
+	    		  var el = document.getElementById(id);
+	    		  if (id) {
+	    		    el.innerHTML = msg;
+	    		  }
+	    	}
+	    	</script>
+			{% for article in articles %}
+				<div class="article">
+				<a name = "{{article.link}}"></a>
+				<h2 class="article_title">&raquo;{{article.title}}&laquo;
+				
+				<div align="right">
+					<a href="#{{article.link}}" onclick="javascript:showHide('{{article.link}}');">
+						<img src="{% static "minepick_blue.png" %}"  width="3%" height="3%" />
+					</a>
+				</div>
+				
+				</h2>
+				
+				<p>
+					<a href="#{{article.link}}" onclick="changeContent('widget','Hallo')">Click here</a>
+					{{article.description}}
+				</p>
+				
+				
+				<div id="{{article.link}}" class="article_text" style="display:none">
+					{{article.text}}
+				</div>
+				
+				</div>
+				
+			{% endfor %}		
+   </div>
+		
+		<div id="widgets_wrap">
+			<script type="text/javascript">
+        	function map_init_basic (map, options) {
+        		{% for location in locations %}
+            	L.marker([{{location.latlng.0}},  {{location.latlng.1}}]).bindLabel("{{location.name}}", { noHide: false })
+            	.addTo(map);
+            	{% endfor %}
+            	var center = L.latLng({{map_center.0}}, {{map_center.1}});
+            	map.panTo(center);
+        	}
+    	</script>
+    	{% leaflet_map "yourmap" callback="window.map_init_basic" creatediv="True"%}		
+    	
+    	<div id="widget">
+    		widget area
+    	</div>
+    	
+		</div>
+		
+	<div id="bottom">
+	</div>
     </body>
 
 </html>

@@ -44,8 +44,10 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'dbarray',
     'leaflet',
     'dh5bp',
+    'ClickDummyNM',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -69,10 +71,10 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": "newsminer",
-        "USER": "elorie",
-        "PASSWORD": "",
+        "USER": "parrot",
+        "PASSWORD": "blackpearl",
         "HOST": "localhost",
-        "PORT": "",
+        "PORT": "5432",
     }
 }
 
@@ -97,7 +99,7 @@ STATIC_URL = '/static/'
 
 LEAFLET_CONFIG = {
     'DEFAULT_CENTER': (0.0, 0.0),
-    'DEFAULT_ZOOM': 5,
+    'DEFAULT_ZOOM': 4,
     'MIN_ZOOM': 1,
     'MAX_ZOOM': 21
 }

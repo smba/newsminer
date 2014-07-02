@@ -1,0 +1,158 @@
+body {
+	background-color: #C0D6E4;
+	color: #333333;
+	font-family: Verdana, Geneva, sans-serif;
+	font-size: 10pt;
+}
+::-webkit-scrollbar { 
+    display: none; 
+}
+p {
+	padding: 5px;
+}
+h1 {
+	padding: 10px;
+}
+
+#main {
+	overflow-y: scroll;
+	height: 500px;
+	float:left;
+	background-color: #F5F9FA;
+	margin-left: 15%;
+	margin-right: 15%;
+	width: 70%;
+	-moz-box-shadow:1px 1px 6px #292929; /* Firefox */
+	-webkit-box-shadow:1px 1px 6px #292929; /* Chrome, Safari */
+	-khtml-box-shadow:1px 1px 6px #292929; /* Konqueror */
+	box-shadow:1px 1px 6px #292929; /* CSS3 */
+}
+
+
+#bottom {
+	height: 120px;
+	background-color: #D7E4EC;
+}
+
+#head {
+	background-color: #EDF2F7;
+	height: 150px;
+	background-image:url('../logogei.png');
+	background-size: 14%;
+	background-repeat: no-repeat;
+	
+}
+
+
+
+#headlinks {
+	background-color: #D7E4EC;
+	padding: 10px;
+	text-align: right;
+}
+
+#headlinks a {
+	text-decoration: none;
+	color: #333333;
+}
+#headlinks a:BEFORE {
+	color: #333333;
+	text-decoration: none;
+}
+#headlinks a:AFTER {
+	color: #333333;
+	text-decoration: none;
+}
+#headlinks a:VISITED {
+	color: #333333;
+	text-decoration: none;
+}
+#headlinks a:HOVER {
+	color: #6699CC;
+}
+
+div .topic {
+	float: left;
+	background-color: #EDF2F7;
+	padding-left: 5px;
+	width: 49.2%;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #D7E4EC;
+}
+div .topic a {
+	text-decoration: none;
+	color: #333333;
+}
+div .topic a:BEFORE {
+	color: #333333;
+	text-decoration: none;
+}
+div .topic a:AFTER {
+	color: #333333;
+	text-decoration: none;
+}
+div .topic a:VISITED {
+	color: #333333;
+	text-decoration: none;
+}
+div .topic a:HOVER {
+	color: #6699CC;
+}
+
+#articles {
+	overflow-y: scroll;
+	float: left;
+	background-color: #F5F9FA;
+	margin-left: 10%;
+	scroll: auto;
+	width: 45%;
+	height: 600px;
+	-moz-box-shadow:1px 1px 6px #292929; /* Firefox */
+	-webkit-box-shadow:1px 1px 6px #292929; /* Chrome, Safari */
+	-khtml-box-shadow:1px 1px 6px #292929; /* Konqueror */
+	box-shadow:1px 1px 6px #292929; /* CSS3 */
+}
+#widgets_wrap {
+	background-color: lime;
+	height: 600px;
+	min-width: 420px;
+	float: left;
+	margin-left: 1%;
+	width: 420px;
+	margin-right: 10%;
+	-moz-box-shadow:1px 1px 6px #292929; /* Firefox */
+	-webkit-box-shadow:1px 1px 6px #292929; /* Chrome, Safari */
+	-khtml-box-shadow:1px 1px 6px #292929; /* Konqueror */
+	box-shadow:1px 1px 6px #292929; /* CSS3 */
+}
+#widget {
+	height: 250px;
+	background-color: gold;
+}
+div .article {
+	border-style: solid;
+	border-width: 1px;
+	border-color: #D7E4EC;
+}
+p .article {
+	padding-left: 20px;
+}
+.article_title {
+	font-family: Georgia, Serif;
+	padding-left: 5px;
+	color: #0B173B;
+	font-variant: small-caps;
+}
+.article_text {
+	padding-left: 30px;
+	padding-right: 20px;
+	color: #666666;
+	font-size: small;
+}
+div .content {
+	padding-left: 10px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #D7E4EC;
+}

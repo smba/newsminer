@@ -9,8 +9,11 @@ urlpatterns = patterns('',
     # url(r'^$', 'ClickDummyNM.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
     url(r'^$', views.index, name = 'index'),
-    url(r'^dossier', views.dossier, name = 'dossier'),
+    url(r'^dossier/(\d+)/$', views.dossier, name = 'dossier'),
+    url(r'^what', views.what, name = 'what'),
+    #url(r'^dossier', views.dossier, name = 'dossier'),
     url(r'^map', views.map, name = 'dossier'),
+    url(r'^impressum', views.impressum, name = 'impressum'),
     #url(r'^admin/', include(admin.site.urls)),
 )
 
