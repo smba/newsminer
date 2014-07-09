@@ -46,7 +46,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'dbarray',
     'leaflet',
-    'dh5bp',
+    #'dh5bp',
     'ClickDummyNM',
 )
 
