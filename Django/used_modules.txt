@@ -1,3 +1,5 @@
  pip install django-html5-boilerplate
  django-leaflet
  psycopg2
+dbarray
+textarrayfield

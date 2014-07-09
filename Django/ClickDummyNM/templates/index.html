@@ -1,5 +1,15 @@
 <!DOCTYPE html>
-
+{% extends 'base.html' %}
+{% block title %}NewsMiner+{% endblock %}
+{% block content %}
+    <h1>NewsMiner+</h1>
+	<br />
+	{{content_text}}
+	<br />
+	<ul>
+		<li><a href='{{dossier}}'>Dossier</a></li>
+	</ul>
+{% endblock %}
 {% load static %}
 
 <html>
