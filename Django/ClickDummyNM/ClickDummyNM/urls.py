@@ -17,4 +17,4 @@ urlpatterns = patterns('',
     #url(r'^admin/', include(admin.site.urls)),
 )
 
-urlpatterns += dh5bp_urls
+#urlpatterns += dh5bp_urls
