@@ -5,28 +5,84 @@ from django.shortcuts import render, render_to_response
 from django.template import RequestContext
 from warnings import catch_warnings
 
+import operator
+
 #from django.template import Template, Context
 #from django.template.loader import get_template
 
+"""
+View for the main page (index), which presents all recent 
+topics including title and stuff.
+"""
 def index(request):
     context = RequestContext(request)
     
-    #Determine clusters, which hold more than k articles
-    articles = RssArticles.objects.all()
-    dist = {}
-    for article in articles:
-        if article.cluster_id == None:
-            continue
-        elif article.cluster_id not in dist.keys():
-            dist[article.cluster_id] = 1
-        elif article.cluster_id in dist.keys():
-            dist[article.cluster_id] += 1
-    print dist
-    context_dict = {'content_text': "Welcome to NewsMiner+", 
+    """
+    Gets the clusters, which hold more than zero articles 
+    and returns their distribution.
+    @param param: k most frequent entities 
+    @return: dictionary with cluster id and amount of articles included AND
+            dictionary with cluster is as key and the most frequent entities (not exceeding k)
+                
+    """
+    def getClusters(k):
+        #At first, determine clusters, which hold more than zero articles
+        articles = RssArticles.objects.all()
+        distribution = {}
+        for article in articles:
+            if article.cluster_id == None:
+                continue
+            elif article.cluster_id not in distribution.keys():
+                distribution[article.cluster_id] = 1
+            elif article.cluster_id in distribution.keys():
+                distribution[article.cluster_id] += 1
+        
+        #At second, choose a appropriate title for each cluster,
+        #based on the most frequent entities occuring.
+        
+        #Determine the frequency of each entity
+        entitiesInCluster = {}
+        for article in articles:
+            if article.cluster_id not in entitiesInCluster.keys():
+                entitiesInCluster[article.cluster_id] = {}
+            #for location in article.entity_locations:
+            #    if location not in entitiesInCluster[article.cluster_id].keys():
+            #        entitiesInCluster[article.cluster_id][location] = 1
+            #    else:
+            #        entitiesInCluster[article.cluster_id][location] += 1
+            for organization in article.entity_organizations:
+                if organization not in entitiesInCluster[article.cluster_id].keys():
+                    entitiesInCluster[article.cluster_id][organization] = 1
+                else:
+                    entitiesInCluster[article.cluster_id][organization] += 1
+            for person in article.entity_persons:
+                if person not in entitiesInCluster[article.cluster_id].keys():
+                    entitiesInCluster[article.cluster_id][person] = 1
+                else:
+                    entitiesInCluster[article.cluster_id][person] += 1
+        print True
+        #Sort the frequency dicts and sort them descending by the second element, 
+        #finally fetch the first x elements, not exeeding k (x <= k).
+        for ckey in entitiesInCluster.keys():
+            entitiesInCluster[ckey] = sorted(entitiesInCluster[ckey].iteritems(), key=operator.itemgetter(1), reverse=True)[:k]
+        for ckey in entitiesInCluster.keys():
+            temp = entitiesInCluster[ckey]
+            entitiesInCluster[ckey] = []
+            for t in temp:
+                entitiesInCluster[ckey].append(t[0])
+        print entitiesInCluster[124]
+        return (distribution, entitiesInCluster)
+    
+    temp = getClusters(4)
+    dist = temp[0]
+    title = temp[1]
+    print title
+    context_dict = {'content_text': "Welcome to News Miner+", 
                     'dossier':"/dossier/",
                     'impressum': '/impressum/',
                     'what':'/what/',
-                    'dist':dist}
+                    'dist':dist,
+                    'title':title}
     return render_to_response('index.html', context_dict, context)
 
 def dossier(request, offset):

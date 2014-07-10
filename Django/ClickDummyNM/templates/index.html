@@ -14,10 +14,18 @@
     	<nav><strong>Home</strong> | <a href="{{what}}">What is NewsMiner+?</a> | <a href="{{impressum}}">Impressum</a></nav>
     	<section>
 			{% for d in dist %}
-			<div class="topic">
-			<a href='{{dossier}}{{d}}'><h3>Generic title for dossier {{d}}</h3></a>
-			<p>Cluster Nr.{{d}} having articles ... <a href='{{dossier}}{{d}}'>[more]</a></p>
-			</div>
+				<div class="topic">
+				<a href='{{dossier}}{{d}}'><h3>{{d}}
+					{% for word in title.items %}
+						{% if key = d %}
+							{% for word in val %}
+								#{{word}}&nbsp;
+							{% endfor %}
+						{% endif  %}
+					{% endfor %}
+				dossier {{d}}</h3></a>
+				<p>Cluster Nr.{{d}} having articles ... <a href='{{dossier}}{{d}}'>[more]</a></p>
+				</div>
 			
 			{% endfor %}
 		</section>
