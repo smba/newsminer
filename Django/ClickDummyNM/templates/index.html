@@ -1,15 +1,4 @@
 <!DOCTYPE html>
-{% extends 'base.html' %}
-{% block title %}NewsMiner+{% endblock %}
-{% block content %}
-    <h1>NewsMiner+</h1>
-	<br />
-	{{content_text}}
-	<br />
-	<ul>
-		<li><a href='{{dossier}}'>Dossier</a></li>
-	</ul>
-{% endblock %}
 {% load static %}
 
 <html>
@@ -20,10 +9,10 @@
     </head>
 
     <body>
-    	<div id="head">
-    	</div>
-    	<div id ="headlinks"><strong>Home</strong> | <a href="{{what}}">What is NewsMiner+?</a> | <a href="{{impressum}}">Impressum</a></div>
-    	<div id="main">
+    	<header>
+    	</header>
+    	<nav><strong>Home</strong> | <a href="{{what}}">What is NewsMiner+?</a> | <a href="{{impressum}}">Impressum</a></nav>
+    	<section>
 			{% for d in dist %}
 			<div class="topic">
 			<a href='{{dossier}}{{d}}'><h3>Generic title for dossier {{d}}</h3></a>
@@ -31,13 +20,10 @@
 			</div>
 			
 			{% endfor %}
-		<center>
-		<img src="{% static "happygei.png" %}" alt="...">
-		</center>
-	</div>
+		</section>
 	
-	<div id="bottom">
-	</div>
+	<footer>
+	</footer>
 	
     </body>
 

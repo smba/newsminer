@@ -10,12 +10,11 @@
     </head>
 
     <body>
-    	<div id="head">
-    	</div>
-    	<div id ="headlinks"><a href="{{home}}">Home</a> | <strong>What is NewsMiner+?</strong> | <a href="{{impressum}}">Impressum</a></div>
-    	<div id="main">
+    	<header>
+    	</header>
+    	<nav><a href="{{home}}">Home</a> | <strong>What is NewsMiner+?</strong> | <a href="{{impressum}}">Impressum</a></nav>
+    	<section>
 			
-			<div class="content">
 				<h3>What is NewsMiner+?</h3>
 				<p>
 					NewsMiner+ is a web blog providing mashups regarding recent topics. Imagine, as different
@@ -29,22 +28,15 @@
 					additional informations to describe them, using <em>Freebase</em>, <em>GoogleMaps</em> and 
 					<em>Leaflet/Open Street Maps</em>.
 				</p>
-			</div>
 			
-			<div class="content">
 				<h3>What is the parrots' name?</h3>
 				<p>
 					Paul, the Parrot. Arr.
 				</p>	
-			</div>
-			
-			<center>
-				<img src="{% static "happygei.png" %}" alt="So much text to read...">
-			</center>
-			
-		</div>
+				<img src="{% static "happygei.png" %}" alt="So much text to read...">	
+		</section>
     </body>
-    <div id="bottom">
-	bottom</div>
+    <footer>
+	</footer>
 
 </html>

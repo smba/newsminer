@@ -1,8 +1,8 @@
 from django.conf.urls import patterns, include, url
 from ClickDummyNM import views
 from django.contrib import admin
-from dh5bp.urls import urlpatterns as dh5bp_urls
-admin.autodiscover()
+#from dh5bp.urls import urlpatterns as dh5bp_urls
+#admin.autodiscover()
 
 urlpatterns = patterns('',
     # Examples:

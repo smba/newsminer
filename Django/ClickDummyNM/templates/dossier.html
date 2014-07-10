@@ -11,71 +11,17 @@
         {% leaflet_js %}
         {% leaflet_css %}
 		<link rel="stylesheet" href="../dist/leaflet.label.css" />
-		<script src="{% static "js/Label.js" %}"></script>
-		<script src="{% static "js/BaseMarkerMethods.js" %}"></script>
-		<script src="{% static "js/Marker.Label.js" %}"></script>
-		<script src="{% static "js/Map.Label.js" %}"></script>
 		
-		<script type="text/javascript" charset="utf-8">
-		  function showHide(elementid){
-		    if (document.getElementById(elementid).style.display == 'none'){
-		      document.getElementById(elementid).style.display = '';
-		    } else {
-		      document.getElementById(elementid).style.display = 'none';
-		    }
-		  }
-  		</script>
-		
-		<style>
-	        .leaflet-container {  /* all maps */
-	            width:  420px;
-	            height: 280px;
-	        }	
-	        .leaflet-label {
-				background: #C0D6E4;
-				background: #C0D6E4;
-				background-clip: padding-box;
-				border-color: rgba(102,117,127,0.15);
-				border-color: rgba(102,117,127,0.15);
-				border-radius: 4px;
-				border-style: solid;
-				border-width: 4px;
-				color: rgb(41, 47, 51);
-				display: block;
-				font: 12px/20px "Helvetica Neue", Arial, Helvetica, sans-serif;
-				font-weight: bold;
-				padding: 1px 6px;
-				position: absolute;
-				-webkit-user-select: none;
-				   -moz-user-select: none;
-				    -ms-user-select: none;
-				        user-select: none;
-				white-space: nowrap;
-				z-index: 6;
-			}
-    	</style>
-    	
-    	
-    	
     </head>
 
     <body>
     	   
-    	<div id="head">
-    	</div>
-    	<div id ="headlinks"><a href="{{home}}">Home</a> | <a href="{{what}}">What is NewsMiner+?</a> | <a href="{{impressum}}">Impressum</a></div>
-    	<div id="articles">
-     
-	    		<script>
-	    	function changeContent(id, msg) {
-	    		  var el = document.getElementById(id);
-	    		  if (id) {
-	    		    el.innerHTML = msg;
-	    		  }
-	    	}
-	    	</script>
+    	<header>
+    	</header>
+    	<nav><a href="{{home}}">Home</a> | <a href="{{what}}">What is NewsMiner+?</a> | <a href="{{impressum}}">Impressum</a></nav>
+    	<section>
 			{% for article in articles %}
-				<div class="article">
+			<article>
 				<a name = "{{article.link}}"></a>
 				<h2 class="article_title">&raquo;{{article.title}}&laquo;
 				
@@ -98,21 +44,12 @@
 				</div>
 				
 				</div>
-				
+			</article>
 			{% endfor %}		
    </div>
 		
-		<div id="widgets_wrap">
-			<script type="text/javascript">
-        	function map_init_basic (map, options) {
-        		{% for location in locations %}
-            	L.marker([{{location.latlng.0}},  {{location.latlng.1}}]).bindLabel("{{location.name}}", { noHide: false })
-            	.addTo(map);
-            	{% endfor %}
-            	var center = L.latLng({{map_center.0}}, {{map_center.1}});
-            	map.panTo(center);
-        	}
-    	</script>
+		<aside>
+			
     	{% leaflet_map "yourmap" callback="window.map_init_basic" creatediv="True"%}		
     	
     	<div id="widget">
@@ -123,6 +60,37 @@
 		
 	<div id="bottom">
 	</div>
+	<script src="{% static "js/Label.js" %}"></script>
+	<script src="{% static "js/BaseMarkerMethods.js" %}"></script>
+	<script src="{% static "js/Marker.Label.js" %}"></script>
+	<script src="{% static "js/Map.Label.js" %}"></script>
+	
+	<script type="text/javascript" charset="utf-8">
+	  function showHide(elementid){
+	    if (document.getElementById(elementid).style.display == 'none'){
+	      document.getElementById(elementid).style.display = '';
+	    } else {
+	      document.getElementById(elementid).style.display = 'none';
+	    }
+	  }
+	</script>
+    <script>
+    	function changeContent(id, msg) {
+    		  var el = document.getElementById(id);
+    		  if (id) {
+    		    el.innerHTML = msg;
+    		  }
+    	}
+    </script>
+	<script>
+    	function map_init_basic (map, options) {
+    		{% for location in locations %}
+        	L.marker([{{location.latlng.0}},  {{location.latlng.1}}]).bindLabel("{{location.name}}", { noHide: false })
+        	.addTo(map);
+        	{% endfor %}
+        	var center = L.latLng({{map_center.0}}, {{map_center.1}});
+        	map.panTo(center);
+    	}
+	</script>
     </body>
-
 </html>
