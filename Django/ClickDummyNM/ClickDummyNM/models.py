@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 
+"""
+@author: Stefan Muehlbauer
+Models for accessing the Postgres Database Scheme
+"""
+
 from __future__ import unicode_literals
-
 from django.db import models
-from dbarray import TextArrayField
+
+#@note: contrib.postgres.fields is only available in Django 1.8 so far.
 from django.contrib.postgres.fields import ArrayField
-#from django.contrib.postgres import 
 
 """
-@author     : Rebecca Finster, Stefan Muehlbauer
-@see        : pip django-dbarray
+Basic RSS feed class
 """
-
-
 class RssFeeds(models.Model):
     source_url = models.TextField(primary_key=True)
     name = models.TextField()
@@ -20,7 +21,9 @@ class RssFeeds(models.Model):
         managed = False
         db_table = 'rss_feeds'
 
-
+"""
+Basic RSS article class
+"""
 class RssArticles(models.Model):
     source_url = models.ForeignKey('RssFeeds', db_column='source_url')
     link = models.TextField(primary_key=True)
@@ -36,7 +39,10 @@ class RssArticles(models.Model):
     class Meta:
         managed = False
         db_table = 'rss_articles'
-    
+
+"""
+Basic article cluster class
+"""
 class RssArticleClusters(models.Model):
     class Meta:
         managed = False
@@ -47,6 +53,10 @@ class RssArticleClusters(models.Model):
     organizations = ArrayField(models.TextField())
     persons = ArrayField(models.TextField())
     
+"""
+Wraps locations
+@deprecated: Not in use.
+"""
 class Locations(models.Model):
     class Meta:
         managed = False
@@ -54,7 +64,10 @@ class Locations(models.Model):
     name = models.CharField(max_length=100, primary_key = True)
     latitude = models.FloatField()
     longitude = models.FloatField()
-    
+
+"""
+Wraps persons.
+"""
 class EntityPersons(models.Model):
     class Meta:
         managed = False
@@ -65,7 +78,10 @@ class EntityPersons(models.Model):
     notable_for = models.TextField()
     date_of_birth = models.TextField()
     place_of_birth = models.TextField()
-    
+
+"""
+Wraps organizations.
+"""  
 class EntityOrganizations(models.Model):
     name = models.TextField(primary_key=True)
     description = models.TextField()
@@ -73,6 +89,10 @@ class EntityOrganizations(models.Model):
         managed = False
         db_table = 'entity_organizations'
 
+"""
+Wraps locations.
+@see: ClickDummy.models.Locations
+"""
 class EntityLocations(models.Model):
     name = models.TextField(primary_key = True)
     description = models.TextField()
