@@ -10,6 +10,14 @@ import operator
 #from django.template import Template, Context
 #from django.template.loader import get_template
 
+context_dict = {
+                'dossier':'/dossier/',
+                'what':'/what/',
+                'impressum':'/impressum/',
+                'home':'/'
+                }
+global context_dict
+
 """
 View for the main page (index), which presents all recent 
 topics including title and stuff.
@@ -23,7 +31,7 @@ def index(request):
     @param param: k most frequent entities 
     @return: dictionary with cluster id and amount of articles included AND
             dictionary with cluster is as key and the most frequent entities (not exceeding k)
-                
+
     """
     def getClusters(k):
         #At first, determine clusters, which hold more than zero articles
@@ -45,11 +53,13 @@ def index(request):
         for article in articles:
             if article.cluster_id not in entitiesInCluster.keys():
                 entitiesInCluster[article.cluster_id] = {}
-            #for location in article.entity_locations:
-            #    if location not in entitiesInCluster[article.cluster_id].keys():
-            #        entitiesInCluster[article.cluster_id][location] = 1
-            #    else:
-            #        entitiesInCluster[article.cluster_id][location] += 1
+            '''    
+            for location in article.entity_locations:
+                if location not in entitiesInCluster[article.cluster_id].keys():
+                    entitiesInCluster[article.cluster_id][location] = 1
+                else:
+                    entitiesInCluster[article.cluster_id][location] += 1
+            '''
             for organization in article.entity_organizations:
                 if organization not in entitiesInCluster[article.cluster_id].keys():
                     entitiesInCluster[article.cluster_id][organization] = 1
@@ -60,7 +70,7 @@ def index(request):
                     entitiesInCluster[article.cluster_id][person] = 1
                 else:
                     entitiesInCluster[article.cluster_id][person] += 1
-        print True
+
         #Sort the frequency dicts and sort them descending by the second element, 
         #finally fetch the first x elements, not exeeding k (x <= k).
         for ckey in entitiesInCluster.keys():
@@ -74,102 +84,85 @@ def index(request):
         return (distribution, entitiesInCluster)
     
     temp = getClusters(4)
-    dist = temp[0]
-    title = temp[1]
-    print title
-    context_dict = {'content_text': "Welcome to News Miner+", 
-                    'dossier':"/dossier/",
-                    'impressum': '/impressum/',
-                    'what':'/what/',
-                    'dist':dist,
-                    'title':title}
-    return render_to_response('index.html', context_dict, context)
+    distribution = temp[0] #{cluster_id : a#articles}
+    topEntities = temp[1] #[...]
+    
+    #content
+    specific_context_dict = {
+                             'content_text' : "Welcome to News Miner+", 
+                             'distribution' : distribution,
+                             'topEntities' : topEntities
+                             }
+    
+    index_context_dict = dict(context_dict.items() + specific_context_dict.items())            
+    return render_to_response('index.html', index_context_dict, context)
 
-def dossier(request, offset):
+'''
+Generic view for the dossiers.
+@param param: cluster_id which will be used as link
+'''
+def dossier(request, cluster_id):
     context = RequestContext(request)
     
-    articles = RssArticles.objects.filter(cluster_id=offset)
-    locations_set = set()
-    for article in articles:
-        for location in article.entity_locations:
-            locations_set.add(location)
-    locations = []
-    for location in locations_set:
-        try:
-            match = EntityLocations.objects.filter(name=location)[0]
-            locations.append({"name":location, "latlng": (match.latitude, match.longitude)})
-        except IndexError:
-            continue
-        
+    articles = RssArticles.objects.filter(cluster_id=cluster_id)
     
-    context_dict = {'dossier_title': "Welcome to Dossier No " + str(offset), 
+    '''
+    Gets the locations and estimates the map center
+    '''
+    def getLocations():
+        locations_set = set()
+        for article in articles:
+            for location in article.entity_locations:
+                locations_set.add(location)
+        locations = []
+        for location in locations_set:
+            try:
+                match = EntityLocations.objects.filter(name=location)[0]
+                locations.append({"name":location, "latlng": (match.latitude, match.longitude)})
+            except IndexError:
+                continue
+        #center berechnen
+        i = 0.
+        lat = 0.0
+        lng = 0.0
+        for location in locations:
+            lat  += location["latlng"][0]
+            lng  += location["latlng"][1]
+            i += 1
+        map_center = (lat/i, lng/i)
+        return (locations, map_center)
+    
+    specific_context_dict = {
+                    'dossier_title': "Welcome to Dossier No " + str(cluster_id), 
                     'article_text':"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Option congue nihil imperdiet doming id quod mazim placerat facer",
                     'widget_1': "WIKI-Bild",
                     'widget_2': "WIKI-Box",
                     'widget_3': "Google-Maps",
                     'articles': articles,
-                    'home'    : '/',
-                    'impressum' : '/impressum/',
-                    'what'      : '/what/',
-                    'locations': locations,
+                    'locations': getLocations()[0],
+                    'map_center':getLocations()[1]
                     }
     
-    #center berechnen
-    i = 0.
-    lat = 0.0
-    lng = 0.0
-    for location in context_dict['locations']:
-        lat  += location["latlng"][0]
-        lng  += location["latlng"][1]
-        i += 1
-    context_dict["map_center"] = (lat/i, lng/i)
-    return render_to_response('dossier.html', context_dict, context)
+    dossier_context_dict = dict(context_dict.items() + specific_context_dict.items())
+    return render_to_response('dossier.html', dossier_context_dict, context)
 
-def map(request):
-    context = RequestContext(request)
-    #empty context_dict
-    context_dict = {
-                    'locations': [{
-                                   "name": 'Braunschweig',
-                                   "latlng": (52.16, 10,31)
-                                   },
-                                  {
-                                   "name": 'København',
-                                   "latlng": (55.41, 12.35)
-                                   },
-                                  {
-                                   "name": 'Gøteborg',
-                                   "latlng": (57.42, 11.57)
-                                   },
-                                  {
-                                   "name": "Basel",
-                                   "latlng": (47.34, 07.36)
-                                   }
-                                  ]
-                    }
-    #center berechnen
-    i = 0.
-    lat = 0.0
-    lng = 0.0
-    for location in context_dict['locations']:
-        lat  += location["latlng"][0]
-        lng  += location["latlng"][1]
-        i += 1
-    context_dict["map_center"] = (lat/i, lng/i)
-    
 
-    return render_to_response('map.html', context_dict, context)
-
+'''
+View for the impressum.
+'''
 def impressum(request):
-    context = RequestContext(request)
-    #empty context_dict
-    context_dict = {'home':'/',
-                    'what':'/what/'}
-    return render_to_response('impressum.html', context_dict, context)
+    context = RequestContext(request) 
+    specific_context_dict = {
+                             }
+    impressum_context_dict = dict(context_dict.items() + specific_context_dict.item()) 
+    return render_to_response('impressum.html', impressum_context_dict, context)
 
+'''
+View for the built page
+'''
 def what(request):
     context = RequestContext(request)
-    #empty context_dict
-    context_dict = {'home':'/',
-                    'impressum': '/impressum/'}
-    return render_to_response('what.html', context_dict, context)
+    specific_context_dict = {
+                             }
+    what_context_dict = dict(context_dict.items() + specific_context_dict.item())
+    return render_to_response('what.html', what_context_dict, context)

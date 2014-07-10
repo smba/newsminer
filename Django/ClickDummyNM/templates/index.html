@@ -13,10 +13,10 @@
     	</header>
     	<nav><strong>Home</strong> | <a href="{{what}}">What is NewsMiner+?</a> | <a href="{{impressum}}">Impressum</a></nav>
     	<section>
-			{% for d in dist %}
+			{% for d in distribution %}
 				<div class="topic">
 				<a href='{{dossier}}{{d}}'><h3>{{d}}
-					{% for word in title.items %}
+					{% for key, val in topEntities.items %}
 						{% if key = d %}
 							{% for word in val %}
 								#{{word}}&nbsp;
