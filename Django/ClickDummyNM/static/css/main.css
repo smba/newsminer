@@ -35,7 +35,7 @@ table {
 
 /* ======= General / Div ======= */ 
 body {
-background-color: #00f;
+background: url("../bg_grunge.jpg");
 color: #333333;
 font-family: Verdana, Geneva,
 sans-serif;

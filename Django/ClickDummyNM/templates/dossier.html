@@ -52,12 +52,15 @@
 		<aside>
 			
     	{% leaflet_map "yourmap" callback="window.map_init_basic" creatediv="True"%}		
-    	
+    	{% for widget in widgets %}
     	<div id="widget">
     		widget area
     	</div>
-    	
-		</div>
+    	{% endfor %}
+    	<div id="custom_widget">
+    		custom widget area
+    	</div>
+		</aside>
 		
 	<div id="bottom">
 	</div>
