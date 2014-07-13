@@ -47,8 +47,8 @@ font-size: 10pt;
 	float: left;
 	max-width: 50%;
 	overflow: scroll;
-	max-height: 800px;
-	height: 75%;
+	max-height: 660px;
+	/*height: 75%;*/
 	background: #eee;
 	-moz-box-shadow: 1px 1px 6px #292929; /* Firefox */ 
 	-webkit-box-shadow:1px 1px 6px #292929; /* Chrome, Safari */
@@ -63,9 +63,13 @@ header {
 }
 
 nav {
-background-color: #424242;
-height: 20px;
-color: #bbb;
+	background-color: #424242;
+	color: #bbb;
+	text-align: right;
+}
+
+nav ul {
+	height: 2em;
 }
 
 section {
@@ -89,6 +93,16 @@ h1 {
 	font-size: 4em;
 }
 
+header a {
+	text-decoration: none;
+	color: #bbb;
+}
+
+header a:hover {
+	font-weight: normal;
+	color: #333;
+}
+
 h2 {
 	font-family: 'Yanone Kaffeesatz', sans-serif;
 	font-size: 2em;
@@ -104,8 +118,25 @@ a:HOVER {
 	font-weight: bold;
 }
 
-nav a, footer a {
+nav a {
 	color: #bbb;
+}
+
+nav a:hover {
+	font-weight: normal;
+}
+
+nav ul li:hover {
+	background: #424242;
+}
+
+nav ul li {
+	float: right;
+	margin: 0 0.5%;
+	padding: 0.5% 0.5%;
+	background: #333;
+	-moz-border-radius: 10px 10px 0 0;
+	border-radius: 10px 10px 0 0;
 }
 
 /* ======= Various ======= */ 

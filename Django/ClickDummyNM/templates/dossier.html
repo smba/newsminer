@@ -21,7 +21,12 @@
 			<h1>NewsMiner+</h1>
     	</header>
 		<div id='wrapper'>
-    	<nav><strong>Home</strong> | <a href="{{what}}">What is NewsMiner+?</a> | <a href="{{impressum}}">Impressum</a></nav>
+    	<nav>
+			<ul>
+				<li><a href="{{what}}">What is NewsMiner+?</a></li>
+				<li><a href="{{impressum}}">Impressum</a></li>
+			</ul>
+		</nav>
     	<section>
 			{% for article in articles %}
 			<article>
