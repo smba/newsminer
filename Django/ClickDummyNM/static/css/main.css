@@ -1,3 +1,4 @@
+@import url(http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:400,700);
 /* ======= CSS-Reset ======= */ 
 html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a,
 abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var,
@@ -35,44 +36,76 @@ table {
 
 /* ======= General / Div ======= */ 
 body {
-background: url("../bg_grunge.jpg");
-color: #333333;
-font-family: Verdana, Geneva,
-sans-serif;
+background: url('../bg_wood.jpg');
+color: #333;
+font-family: Tahoma, 'Helvetica Neue', sans-serif;
 font-size: 10pt;
 }
 
+#wrapper {
+	margin: 0 1% 0 5%;
+	float: left;
+	max-width: 50%;
+	overflow: scroll;
+	max-height: 800px;
+	height: 75%;
+	background: #eee;
+	-moz-box-shadow: 1px 1px 6px #292929; /* Firefox */ 
+	-webkit-box-shadow:1px 1px 6px #292929; /* Chrome, Safari */
+	-khtml-box-shadow:1px 1px 6px #292929; /* Konqueror */ 
+	box-shadow:1px 1px 6px #292929; /* CSS3 */
+}
+
 header {
-background-color: #0f0;
+	padding: 0.5% 0 0 5%;
+	color: #bbb;
+	height: 60px;
 }
 
 nav {
-background-color: #f00;
+background-color: #424242;
+height: 20px;
+color: #bbb;
 }
 
 section {
-background-color: #000;
--moz-box-shadow: 1px 1px 6px #292929; /* Firefox */ 
--webkit-box-shadow:1px 1px 6px #292929; /* Chrome, Safari */
--khtml-box-shadow:1px 1px 6px #292929; /* Konqueror */ 
-box-shadow:1px 1px 6px #292929; /* CSS3 */
+
+}
+
+aside {
+	float: left;
+	width: 15%;
 }
 
 footer {
-background-color: #fff;
+	padding: 0.5% 0 0.5% 5%;
+	color: #bbb;
 }
 
 /* ======= Text-Styles ======= */ 
+
+h1 {
+	font-family: 'Yanone Kaffeesatz', sans-serif;
+	font-size: 4em;
+}
+
+h2 {
+	font-family: 'Yanone Kaffeesatz', sans-serif;
+	font-size: 2em;
+	margin-bottom: 0.5%;
+}
+
 a {
-text-decoration: none;
-color: #333333;
+	text-decoration: none;
+	color: #333;
 }
 
 a:HOVER {
-color: #6699CC;
+	font-weight: bold;
 }
 
-.article_title {
+nav a, footer a {
+	color: #bbb;
 }
 
 /* ======= Various ======= */ 
@@ -83,8 +116,6 @@ display: none;
 
 /* ======= Leaflet ======= */ 
 .leaflet-container {  /* all maps */
-    width:  420px;
-    height: 280px;
 }	
 .leaflet-label {
 	background: #C0D6E4;
@@ -115,43 +146,48 @@ display: none;
 }
 
 aside {
-background-color: lime;
 height: 600px;
 min-width: 420px;
 float: left;
 margin-left: 1%;
 width: 420px;
 margin-right: 10%;
--moz-box-shadow: 1px 1px 6px #292929; /* Firefox */ 
--webkit-box-shadow:1px 1px 6px #292929; /* Chrome, Safari */ 
--khtml-box-shadow:1px 1px 6px #292929; /* Konqueror */ box-shadow:1px 1px 6px #292929; /* CSS3 */
 }
 
-#widget {
-height: 250px;
-background-color: #666;
+.widget {
+	padding: 1%;
+	margin: 2%;
+	border: 7px solid white;
+	-moz-box-shadow: 1px 1px 6px #292929; /* Firefox */ 
+	-webkit-box-shadow:1px 1px 6px #292929; /* Chrome, Safari */
+	-khtml-box-shadow:1px 1px 6px #292929; /* Konqueror */ 
+	box-shadow:1px 1px 6px #292929; /* CSS3 */
+	background-color: #666;
+	color: #bbb;
 }
 
-article {
+.custom_widget {
+	margin: 2%;
+	padding: 1%;
+	border: 7px solid white;
+	-moz-box-shadow: 1px 1px 6px #292929; /* Firefox */ 
+	-webkit-box-shadow:1px 1px 6px #292929; /* Chrome, Safari */
+	-khtml-box-shadow:1px 1px 6px #292929; /* Konqueror */ 
+	box-shadow:1px 1px 6px #292929; /* CSS3 */
+	background-color: #666;
+	color: #bbb;
+}
 
+
+.dossierlist, article {
+	padding: 1%;
+	border-bottom: 1px solid #bbb;
 }
 
 /* ======= To Sort ======= */ 
-.topic {
-float: left;
-background-color: #EDF2F7;
-padding-left: 5px;
-width: 49.2%;
-border-style: solid;
-border-width: 1px;
-border-color: #D7E4EC;
-}
 
 .article_text {
-padding-left: 30px;
-padding-right: 20px;
-color: #666666;
-font-size: small;
+
 }
 
 div .content {

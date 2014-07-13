@@ -17,10 +17,11 @@
     </head>
 
     <body>
-    	   
     	<header>
+			<h1>NewsMiner+</h1>
     	</header>
-    	<nav><a href="{{home}}">Home</a> | <a href="{{what}}">What is NewsMiner+?</a> | <a href="{{impressum}}">Impressum</a></nav>
+		<div id='wrapper'>
+    	<nav><strong>Home</strong> | <a href="{{what}}">What is NewsMiner+?</a> | <a href="{{impressum}}">Impressum</a></nav>
     	<section>
 			{% for article in articles %}
 			<article>
@@ -42,27 +43,27 @@
 				<div id="{{article.link}}" class="article_text" style="display:none">
 					{% for word in article.text|split:' ' %}{% if word in location_match.keys %}<div id="map-navigation" class="map-navigation"><a href="#" data-zoom="12" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a></div> {% else %}{{word}} {% endif %}{% endfor %}	
 				</div>
-				
-				</div>
+				<a href="#{{article.link}}" onclick="javascript:showHide('{{article.link}}');"> [read more...]
+					</a>
 			</article>
-			{% endfor %}		
-   </div>
-		
+			{% endfor %}
+		</section>	
+		</div>	
 		<aside>
-			
-    	{% leaflet_map "yourmap" callback="window.map_init_basic" creatediv="True"%}		
+			<div class="widget">
+    			{% leaflet_map "yourmap" callback="window.map_init_basic" creatediv="True"%}	
+			</div>	
     	{% for widget in widgets %}
-    	<div id="widget">
-    		widget area
-    	</div>
-    	{% endfor %}
-    	<div id="custom_widget">
-    		custom widget area
-    	</div>
+    		<div class="widget">
+    			widget area
+    		</div>
+    		{% endfor %}
+    		<div class="custom_widget">
+    			custom widget area
+    		</div>
 		</aside>
-		
-	<div id="bottom">
-	</div>
+	<footer>
+	</footer>
 	<script src="{% static "js/Label.js" %}"></script>
 	<script src="{% static "js/BaseMarkerMethods.js" %}"></script>
 	<script src="{% static "js/Marker.Label.js" %}"></script>

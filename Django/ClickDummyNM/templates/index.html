@@ -9,13 +9,16 @@
     </head>
 
     <body>
+		
     	<header>
+			<h1>NewsMiner+</h1>
     	</header>
+		<div id='wrapper'>
     	<nav><strong>Home</strong> | <a href="{{what}}">What is NewsMiner+?</a> | <a href="{{impressum}}">Impressum</a></nav>
-    	<section>
+		<section>
 			{% for d in distribution %}
-				<div class="topic">
-				<a href='{{dossier}}{{d}}'><h3>{{d}}
+				<p class="dossierlist">
+				<a href='{{dossier}}{{d}}'>Dossier {{d}}:
 					{% for key, val in topEntities.items %}
 						{% if key = d %}
 							{% for word in val %}
@@ -23,16 +26,13 @@
 							{% endfor %}
 						{% endif  %}
 					{% endfor %}
-				dossier {{d}}</h3></a>
-				<p>Cluster Nr.{{d}} having articles ... <a href='{{dossier}}{{d}}'>[more]</a></p>
-				</div>
-			
+				[read more...]</a>
+				</p>
 			{% endfor %}
 		</section>
-	
-	<footer>
+		</div>
+	<footer>	
 	</footer>
-	
     </body>
 
 </html>
