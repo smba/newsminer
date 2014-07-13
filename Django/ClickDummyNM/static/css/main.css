@@ -36,15 +36,15 @@ table {
 
 /* ======= General / Div ======= */ 
 body {
-background: url('../bg_wood.jpg');
-color: #333;
-font-family: Tahoma, 'Helvetica Neue', sans-serif;
-font-size: 10pt;
+	background: url('../bg_wood.jpg');
+	color: #333;
+	font-family: Tahoma, 'Helvetica Neue', sans-serif;
+	font-size: 10pt;
 }
 
 #wrapper {
 	margin: 0 1% 0 5%;
-	padding: 0 0 0.5% 0;
+	padding: 0;
 	max-width: 50%;
 	float: left;
 	overflow: scroll;
@@ -68,10 +68,10 @@ section {
 }
 
 aside {
-	float: left;
 	width: 20%;
 	margin-left: 1%;
 	margin-right: 10%;
+	float: left;
 }
 /* ======= Nav/Footer ======= */
 
@@ -90,7 +90,7 @@ nav ul {
 
 nav ul li {
 	display: inline;
-	padding: 0.5em 0 0.5em 0;
+	padding: 0.5em;
 	margin: 0 0 0 0.5%;
 	-moz-border-radius: 10px 10px 0 0;
 	border-radius: 10px 10px 0 0;
@@ -102,40 +102,23 @@ nav ul li:hover {
 }
 
 footer {
-	display: block;
-	margin: 5% 1% 0 5%;
-	max-width: 50%;
+	padding: 1%;
 	color: #333;
-	height: 42em;
+	text-align: center;
 }
 
-footer ul li {
-	display: inline;
-	padding: 0 0 0.5em 0;
-	margin: 0 0.5% 0 0;
-	-moz-border-radius: 0 0 10px 10px;
-	border-radius: 0 0 10px 10px;
+footer:hover {
 	background: #bbb;
+	font-weight: bold;
 }
 
-footer ul li a, nav ul li a {
-	padding: 0 1%;
-	color: #333;
-	text-decoration: none;
-}
-
-footer a:hover, nav a:hover {
+nav a:hover {
 	font-weight: normal;
-}
-
-footer ul li:hover {
-	background: #bbb;
 }
 
 .active {
 	background: #eee;
 }
-
 
 /* ======= Text-Styles ======= */ 
 

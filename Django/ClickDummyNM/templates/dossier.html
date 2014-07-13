@@ -30,7 +30,6 @@
     	<section>
 			{% for article in articles %}
 			<article>
-				<a name = "{{article.link}}"></a>
 				<h2 class="article_title">{{article.title}}</h2>
 				<p>
 					{{article.description}}
@@ -52,6 +51,11 @@
 			</article>
 			{% endfor %}
 		</section>	
+		<a href='{% url 'index' %}'>
+		<footer>
+			EXIT
+		</footer>
+		</a>
 		</div>	
 		<aside>
 			<div class="widget">
@@ -66,11 +70,6 @@
     			custom widget area
     		</div>
 		</aside>
-	<footer>
-		<ul>
-			<li class='active'><a href='{% url 'index' %}'>Exit</a></li>
-		</ul>
-	</footer>
 	<script src="{% static "js/Label.js" %}"></script>
 	<script src="{% static "js/BaseMarkerMethods.js" %}"></script>
 	<script src="{% static "js/Marker.Label.js" %}"></script>
