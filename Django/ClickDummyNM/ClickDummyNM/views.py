@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ClickDummyNM.models import RssArticleClusters, RssArticles, EntityLocations
+from ClickDummyNM.models import RssArticleClusters, RssArticles, EntityLocations, EntityOrganizations, EntityPersons
 from django.http import HttpResponse
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
@@ -141,7 +141,43 @@ def dossier(request, cluster_id):
     #for article in articles:
     #    article.description = article.description.split(" ")
     #    article.text = article.text.split(" ")
+   
+    '''
+    Gets the Top k entities for presentation and the rest for selection.
+    '''
+    def getEntities(k):
+        persons = {}
+        organizations = {}
+        for article in articles:
+            for person in article.entity_persons:
+                if person not in persons.keys():
+                    persons[person] = 1
+                else:
+                    persons[person] += 1
+            for organization in article.entity_organizations:
+                if organization not in organizations.keys():
+                    organizations[organization] = 1
+                else:
+                    organizations[organization] += 1
+        entitiesDict = {}
+        for organization in organizations.keys():
+            entitiesDict[organization] = EntityOrganizations.objects.filter(name=organization)[0].__dict__
+            entitiesDict[organization]['type'] = 'organization'
+        for person in persons.keys():
+            entitiesDict[person] = EntityPersons.objects.filter(name=person)[0].__dict__
+            entitiesDict[person]['type'] = 'person'
             
+        allEntities = dict(organizations.items() + persons.items())
+        topK = sorted(allEntities.iteritems(), key=operator.itemgetter(1), reverse=True)[:k]
+        temp = []
+        for topk in topK:
+            temp.append(topk[0])
+        return temp, entitiesDict
+    
+    temp = getEntities(3)
+    topK = temp[0]
+    allEntities = temp[1]
+                 
     specific_context_dict = {
                     'dossier_title': "Welcome to Dossier No " + str(cluster_id), 
                     'article_text':"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Option congue nihil imperdiet doming id quod mazim placerat facer",
@@ -149,9 +185,10 @@ def dossier(request, cluster_id):
                     'articles': articles,
                     'locations': locations,
                     'map_center':map_center,
-                    'location_match':location_match
+                    'location_match':location_match,
+                    'topK': topK,
+                    'entities':allEntities
                     }
-    print location_match
     dossier_context_dict = dict(context_dict.items() + specific_context_dict.items())
     return render_to_response('dossier.html', dossier_context_dict, context)
 
