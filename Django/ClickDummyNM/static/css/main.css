@@ -44,11 +44,11 @@ font-size: 10pt;
 
 #wrapper {
 	margin: 0 1% 0 5%;
-	float: left;
+	padding: 0 0 0.5% 0;
 	max-width: 50%;
+	float: left;
 	overflow: scroll;
 	max-height: 660px;
-	/*height: 75%;*/
 	background: #eee;
 	-moz-box-shadow: 1px 1px 6px #292929; /* Firefox */ 
 	-webkit-box-shadow:1px 1px 6px #292929; /* Chrome, Safari */
@@ -62,29 +62,80 @@ header {
 	height: 60px;
 }
 
-nav {
-	background-color: #424242;
-	color: #bbb;
-	text-align: right;
-}
-
-nav ul {
-	height: 2em;
-}
-
 section {
+	
 
 }
 
 aside {
 	float: left;
-	width: 15%;
+	width: 20%;
+	margin-left: 1%;
+	margin-right: 10%;
+}
+/* ======= Nav/Footer ======= */
+
+nav {
+	margin: 0 1% 0 5%;
+	max-width: 50%;
+	color: #333;
+	height: 1.6em;
+}
+
+nav ul {
+	list-style: none;
+	margin: 0;
+	text-align: right;
+}
+
+nav ul li {
+	display: inline;
+	padding: 0.5em 0 0.5em 0;
+	margin: 0 0 0 0.5%;
+	-moz-border-radius: 10px 10px 0 0;
+	border-radius: 10px 10px 0 0;
+	background: #bbb;
+}
+
+nav ul li:hover {
+	background: #eee;
 }
 
 footer {
-	padding: 0.5% 0 0.5% 5%;
-	color: #bbb;
+	display: block;
+	margin: 5% 1% 0 5%;
+	max-width: 50%;
+	color: #333;
+	height: 42em;
 }
+
+footer ul li {
+	display: inline;
+	padding: 0 0 0.5em 0;
+	margin: 0 0.5% 0 0;
+	-moz-border-radius: 0 0 10px 10px;
+	border-radius: 0 0 10px 10px;
+	background: #bbb;
+}
+
+footer ul li a, nav ul li a {
+	padding: 0 1%;
+	color: #333;
+	text-decoration: none;
+}
+
+footer a:hover, nav a:hover {
+	font-weight: normal;
+}
+
+footer ul li:hover {
+	background: #bbb;
+}
+
+.active {
+	background: #eee;
+}
+
 
 /* ======= Text-Styles ======= */ 
 
@@ -106,7 +157,11 @@ header a:hover {
 h2 {
 	font-family: 'Yanone Kaffeesatz', sans-serif;
 	font-size: 2em;
-	margin-bottom: 0.5%;
+	margin: 1% 0;
+}
+
+p {
+	margin: 0.5% 0;
 }
 
 a {
@@ -116,27 +171,6 @@ a {
 
 a:HOVER {
 	font-weight: bold;
-}
-
-nav a {
-	color: #bbb;
-}
-
-nav a:hover {
-	font-weight: normal;
-}
-
-nav ul li:hover {
-	background: #424242;
-}
-
-nav ul li {
-	float: right;
-	margin: 0 0.5%;
-	padding: 0.5% 0.5%;
-	background: #333;
-	-moz-border-radius: 10px 10px 0 0;
-	border-radius: 10px 10px 0 0;
 }
 
 /* ======= Various ======= */ 
@@ -172,19 +206,6 @@ display: none;
 }
 
 /* ======= Dossier ======= */ 
-.dartcl {
-
-}
-
-aside {
-height: 600px;
-min-width: 420px;
-float: left;
-margin-left: 1%;
-width: 420px;
-margin-right: 10%;
-}
-
 .widget {
 	padding: 1%;
 	margin: 2%;
@@ -215,15 +236,7 @@ margin-right: 10%;
 	border-bottom: 1px solid #bbb;
 }
 
-/* ======= To Sort ======= */ 
-
-.article_text {
-
-}
-
-div .content {
-padding-left: 10px;
-border-style: solid;
-border-width: 1px;
-border-color: #D7E4EC;
+/* ======= what/impressum ======= */ 
+.text {
+	margin: 2%;
 }

@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 {% load static %}
 
 <html>
@@ -10,12 +9,20 @@
     </head>
 
     <body>
+		
     	<header>
+			<h1><a href="/">NewsMiner+</a></h1>
     	</header>
-    	<nav><a href="{{home}}">Home</a> | <strong>What is NewsMiner+?</strong> | <a href="{{impressum}}">Impressum</a></nav>
-    	<section>
-			
-				<h3>What is NewsMiner+?</h3>
+		<nav>
+			<ul>
+				<li><a href='{% url 'index' %}'>Dossiers</a></li>
+				<li class='active'><a href='{% url 'what' %}'>What is NewsMiner+?</a></li>
+				<li><a href='{% url 'impressum' %}'>Impressum</a></li>
+			</ul>
+		</nav>
+		<div id='wrapper'>
+    	<section class='text'>
+				<h2>What is NewsMiner+?</h2>
 				<p>
 					NewsMiner+ is a web blog providing mashups regarding recent topics. Imagine, as different
 					newspapers almost deal the same topics, it's rather complicated to get an overview over different
@@ -29,14 +36,15 @@
 					<em>Leaflet/Open Street Maps</em>.
 				</p>
 			
-				<h3>What is the parrots' name?</h3>
+				<h2>What is the parrots' name?</h2>
 				<p>
 					Paul, the Parrot. Arr.
 				</p>	
 				<img src="{% static "happygei.png" %}" alt="So much text to read...">	
 		</section>
-    </body>
-    <footer>
-	</footer>
+   		</div>
+   	<footer>	
+   	</footer>
+       </body>
 
-</html>
+   </html>

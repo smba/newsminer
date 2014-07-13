@@ -198,17 +198,11 @@ View for the impressum.
 '''
 def impressum(request):
     context = RequestContext(request) 
-    specific_context_dict = {
-                             }
-    impressum_context_dict = dict(context_dict.items() + specific_context_dict.item()) 
-    return render_to_response('impressum.html', impressum_context_dict, context)
+    return render_to_response('impressum.html', context)
 
 '''
-View for the built page
+View for the what page
 '''
 def what(request):
     context = RequestContext(request)
-    specific_context_dict = {
-                             }
-    what_context_dict = dict(context_dict.items() + specific_context_dict.item())
-    return render_to_response('what.html', what_context_dict, context)
+    return render_to_response('what.html', context)

@@ -9,10 +9,19 @@
     </head>
 
     <body>
+		
     	<header>
+			<h1><a href="/">NewsMiner+</a></h1>
     	</header>
-    	<nav><a href="{{home}}">Home</a> | <a href="{{what}}">What is NewsMiner+?</a> | <strong>Impressum</strong></nav>
-    	<section>
+		<nav>
+			<ul>
+				<li><a href='{% url 'index' %}'>Dossiers</a></li>
+				<li><a href='{% url 'what' %}'>What is NewsMiner+?</a></li>
+				<li class='active'><a href='{% url 'impressum' %}'>Impressum</a></li>
+			</ul>
+		</nav>
+		<div id='wrapper'>
+		<section class='text'>
 			<h2>Impressum</h2>
 			<h3>Angaben gemäß § 5 TMG:</h3>
 			<p>Institut für Informationssysteme, Technische Universität Braunschweig<br />
@@ -21,7 +30,7 @@
 			</p>
 			<h3>Vertreten durch:</h3>
 			<p>Stefan Mühlbauer<br />
-			Rebecce Finster<br />
+			Rebecca Finster<br />
 			Timo Günther</p>
 			<h3>Kontakt:</h3>
 			<table><tr>
@@ -36,8 +45,6 @@
 			Cork, Co. Cork, Ireland</p>
 			<p> </p>
 			<p>Quelle: <em><a rel="nofollow" href="http://www.e-recht24.de">http://www.e-recht24.de</a></em></p>
-			
-			
 			<h2>Haftungsausschluss (Disclaimer)</h2>
 			<p>
 			<strong>Haftung für Inhalte</strong><br>
@@ -55,8 +62,9 @@
 			</p>
 			
 			</section>
-    </body>
-    <footer>
-	</footer>
+   		</div>
+   	<footer>	
+   	</footer>
+       </body>
 
-</html>
+   </html>

@@ -18,33 +18,24 @@
 
     <body>
     	<header>
-			<h1>NewsMiner+</h1>
+			<h1><a href="/">NewsMiner+</a></h1>
     	</header>
-		<div id='wrapper'>
-    	<nav>
+		<nav>
 			<ul>
-				<li><a href="{{what}}">What is NewsMiner+?</a></li>
-				<li><a href="{{impressum}}">Impressum</a></li>
+				<li><a href='{% url 'what' %}'>What is NewsMiner+?</a></li>
+				<li><a href='{% url 'impressum' %}'>Impressum</a></li>
 			</ul>
 		</nav>
+		<div id='wrapper'>
     	<section>
 			{% for article in articles %}
 			<article>
 				<a name = "{{article.link}}"></a>
-				<h2 class="article_title">&raquo;{{article.title}}&laquo;
-				
-				<div align="right">
-					<a href="#{{article.link}}" onclick="javascript:showHide('{{article.link}}');">
-						<img src="{% static "minepick_blue.png" %}"  width="3%" height="3%" />
-					</a>
-				</div>
-				
-				</h2>
-				
+				<h2 class="article_title">{{article.title}}</h2>
 				<p>
 					{{article.description}}
 				</p>
-				
+				<br />
 				<div id="{{article.link}}" class="article_text" style="display:none">
 					{% for word in article.text|split:' ' %}
 						{% if word in location_match.keys %}
@@ -76,6 +67,9 @@
     		</div>
 		</aside>
 	<footer>
+		<ul>
+			<li class='active'><a href='{% url 'index' %}'>Exit</a></li>
+		</ul>
 	</footer>
 	<script src="{% static "js/Label.js" %}"></script>
 	<script src="{% static "js/BaseMarkerMethods.js" %}"></script>
