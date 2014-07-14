@@ -187,8 +187,10 @@ def dossier(request, cluster_id):
                     'map_center':map_center,
                     'location_match':location_match,
                     'topK': topK,
-                    'entities':allEntities
+                    'entities':allEntities,
+                    'entitiesKeys':allEntities.keys()
                     }
+    print allEntities.keys()
     dossier_context_dict = dict(context_dict.items() + specific_context_dict.items())
     return render_to_response('dossier.html', dossier_context_dict, context)
 
