@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 {% load leaflet_tags %}
 {% load dictionary_extras %}
+{% load getRange %}
 {% load splitter %}
 {% load static %}
 
@@ -32,17 +33,17 @@
 			<article>
 				<h2 class="article_title">{{article.title}}</h2>
 				<p>
-					{{article.description}}
+					{{article.description|striptags}}
 				</p>
 				<br />
 				<div id="{{article.link}}" class="article_text" style="display:none">
-					{% for word in article.text|split:' ' %}
+					{% for word in article.text|striptags|split:' ' %}
 						{% if word in location_match.keys %}
-							<div id="map-navigation" class="map-navigation">
-								<a href="#" data-zoom="12" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a>
-							</div>
+							<a href="#" id='map-navigation:{{forloop.counter}}' class="map-navigation" data-zoom="6.5" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> 
+						{% elif word in entities.keys %}
+							LOREM {{word}} 
 						{% else %}
-							{{word}}
+							{{word}} 
 						{% endif %}
 					{% endfor %}	
 				</div>
@@ -88,8 +89,7 @@
     		if (id) {
     			el.innerHTML = msg;
     		}
-    	}
-    	
+    	}	
     	function focusLocation(latitude, longitude) {
     		var newCenter = L.latLng(latitude, longitude);
         	map.panTo(newCenter)
@@ -101,17 +101,21 @@
         	{% endfor %}
         	var center = L.latLng({{map_center.0}}, {{map_center.1}});
         	map.panTo(center);
-        	document.getElementById('map-navigation').onclick = function(e) {
-        	    var pos = e.target.getAttribute('data-position');
-        	    var zoom = e.target.getAttribute('data-zoom');
-        	    if (pos && zoom) {
-        	        var loc = pos.split(',');
-        	        var z = parseInt(zoom);
-        	        map.setView(loc, z, {animation: true});
-        	        return false;
-        	    }
-        	}
-    	}
+		    /* http://stackoverflow.com/questions/10111668/find-all-elements-whose-id-begins-with-a-common-string */
+		 	var dates = document.querySelectorAll('*[id^="map-navigation"]');
+		   	for (i = 0; i < dates.length; i++) {
+		   	 	dates[i].onclick = function(e) {
+		   		 	var pos = e.target.getAttribute('data-position');
+		   		 	var zoom = e.target.getAttribute('data-zoom');
+		   		 	if (pos && zoom) {
+	   					 var loc = pos.split(',');
+						 var z = parseInt(zoom);
+		  				 map.setView(loc, z, {animation: true});
+		   				 return false;
+		  			}
+		   		}
+		   	 }
+		  } 
 	</script>
     </body>
 </html>
