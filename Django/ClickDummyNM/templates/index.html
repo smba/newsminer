@@ -17,14 +17,16 @@
 			<ul>
 				<li class='active'><a href='{% url 'index' %}'>Dossiers</a></li>
 				<li><a href='{% url 'what' %}'>What is NewsMiner+?</a></li>
-				<li><a href='{% url 'impressum' %}'>Impressum</a></li>
+				<li><a href='{% url 'impressum' %}'>Imprint</a></li>
 			</ul>
 		</nav>
 		<div id='wrapper'>
 		<section>
+			<ul class='cards'>
 			{% for d in distribution %}
-				<p class="dossierlist">
-				<a href='{{dossier}}{{d}}'>Dossier {{d}}:
+				<a href='{{dossier}}{{d}}'>
+					<li class="card-item">
+				Dossier {{d}}:
 					{% for key, val in topEntities.items %}
 						{% if key = d %}
 							{% for word in val %}
@@ -32,9 +34,11 @@
 							{% endfor %}
 						{% endif  %}
 					{% endfor %}
-				[read more...]</a>
-				</p>
+				[read more...]
+			</li>
+			</a>
 			{% endfor %}
+		</ul>
 		</section>
 		</div>
 	<footer>	
