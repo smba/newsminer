@@ -23,34 +23,26 @@
     	</header>
 		<nav>
 			<ul>
+				<li><a href='{% url 'index' %}'>Dossiers</a></li>
 				<li><a href='{% url 'what' %}'>What is NewsMiner+?</a></li>
-				<li><a href='{% url 'impressum' %}'>Imprint</a></li>
+				<li><a href='{% url 'impressum' %}'>Impressum</a></li>
 			</ul>
 		</nav>
 		<div id='wrapper'>
     	<section>
 			{% for article in articles %}
+			
 			<article>
 				<h2 class="article_title">{{article.title}}</h2>
-				<p>
-					{{article.description|striptags}}
-				</p>
-				<br />
+				{{article.description|striptags}}
+				
 				<div id="{{article.link}}" class="article_text" style="display:none">
-					{% for word in article.text|striptags|split:' ' %}
-						{% if word in location_match.keys %}
-							<a href="#" id='map-navigation:{{forloop.counter}}' class="map-navigation" data-zoom="6.5" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> 
-						{% elif word in entities.keys %}
-							LOREM {{word}} 
-						{% else %}
-							{{word}} 
-						{% endif %}
-					{% endfor %}	
+					{% for word in article.text|striptags|split:' ' %}{% if word in location_match.keys %}<a href="#" id='map-navigation:{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> {% elif word in entities.keys %}LOREM {{word}} {% else %}{{word}} {% endif %}{% endfor %}	
 				</div>
-				<a href="#{{article.link}}" onclick="javascript:showHide('{{article.link}}');"> [show/hide]
-					</a>
+				<a href="#{{article.link}}" onclick="javascript:showHide('{{article.link}}');"> [read more...]</a>
 			</article>
 			{% endfor %}
+			
 		</section>	
 		<a href='{% url 'index' %}'>
 		<footer>
@@ -62,10 +54,15 @@
 			<div class="widget">
     			{% leaflet_map "yourmap" callback="window.map_init_basic" creatediv="True"%}	
 			</div>	
-    	{% for widget in widgets %}
-    		<div class="widget">
-    			widget area
-    		</div>
+    		{% for entity in topK %}
+    			<div class="widget">
+    				{% if entities|access:entity|access:'type' == 'organization' %}
+    					{{entities|access:entity|access:'name'}}
+    					{{entities|access:entity|access:'description'}}
+    				{% elif entities|access:entity|access:'type' == 'person' %}
+    					{{entities|access:entity|access:'name'}} ({{entities|access:entity|access:'notable_for'}})
+    				{% endif %}
+    			</div>
     		{% endfor %}
     		<div class="custom_widget">
     			custom widget area
@@ -89,7 +86,8 @@
     		if (id) {
     			el.innerHTML = msg;
     		}
-    	}	
+    	}
+    	
     	function focusLocation(latitude, longitude) {
     		var newCenter = L.latLng(latitude, longitude);
         	map.panTo(newCenter)
@@ -101,21 +99,23 @@
         	{% endfor %}
         	var center = L.latLng({{map_center.0}}, {{map_center.1}});
         	map.panTo(center);
-		    /* http://stackoverflow.com/questions/10111668/find-all-elements-whose-id-begins-with-a-common-string */
-		 	var dates = document.querySelectorAll('*[id^="map-navigation"]');
-		   	for (i = 0; i < dates.length; i++) {
-		   	 	dates[i].onclick = function(e) {
-		   		 	var pos = e.target.getAttribute('data-position');
-		   		 	var zoom = e.target.getAttribute('data-zoom');
-		   		 	if (pos && zoom) {
-	   					 var loc = pos.split(',');
-						 var z = parseInt(zoom);
-		  				 map.setView(loc, z, {animation: true});
-		   				 return false;
-		  			}
-		   		}
-		   	 }
-		  } 
+        	
+        	/* http://stackoverflow.com/questions/10111668/find-all-elements-whose-id-begins-with-a-common-string */
+        	var dates = document.querySelectorAll('*[id^="map-navigation"]');
+        	
+        	for (i = 0; i < dates.length; i++) {
+        		dates[i].onclick = function(e) {
+            	    var pos = e.target.getAttribute('data-position');
+            	    var zoom = e.target.getAttribute('data-zoom');
+            	    if (pos && zoom) {
+            	        var loc = pos.split(',');
+            	        var z = parseInt(zoom);
+            	        map.setView(loc, z, {animation: true});
+            	        return false;
+            	    }
+            	}
+        	}	
+    	}
 	</script>
     </body>
 </html>
