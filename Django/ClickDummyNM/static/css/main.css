@@ -224,6 +224,7 @@ display: none;
 	box-shadow:1px 1px 6px #292929; /* CSS3 */
 	background-color: #666;
 	color: #bbb;
+	font-size: x-small;
 }
 
 .custom_widget {
@@ -236,6 +237,11 @@ display: none;
 	box-shadow:1px 1px 6px #292929; /* CSS3 */
 	background-color: #666;
 	color: #bbb;
+	font-size: x-small;
+}
+
+.entitiy_link {
+	text-decoration: underline;
 }
 
 
