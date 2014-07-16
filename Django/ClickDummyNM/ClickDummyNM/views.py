@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ClickDummyNM.models import RssArticleClusters, RssArticles, EntityLocations, EntityOrganizations, EntityPersons
+from ClickDummyNM.models import RssArticleClusters, RssFeeds, RssArticles, EntityLocations, EntityOrganizations, EntityPersons
 from django.http import HttpResponse
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
@@ -105,17 +105,31 @@ def dossier(request, cluster_id):
     context = RequestContext(request)
     
     articles = RssArticles.objects.filter(cluster_id=cluster_id)
-    
+    articlesCopy = []
+    for i in range(len(articles)):
+        temp = RssFeeds.objects.filter(source_url = articles[i].source_url.source_url)
+        articleDict = articles[i].__dict__
+        articleDict['newspaper'] = temp[0].name
+        articlesCopy.append(articleDict)
     '''
     Gets the locations and estimates the map center
     '''
-    def getLocations():
-        locations_set = set()
+    def getLocations(m):
+        locations_bag = {}
         for article in articles:
             for location in article.entity_locations:
-                locations_set.add(location)
+                if not location in locations_bag.keys():
+                    locations_bag[location] = 1
+                else:
+                    locations_bag[location] += 1
+        
+        loc_set = set()
+        for location in locations_bag.keys():
+            if not locations_bag[location] < m:
+                loc_set.add(location)
+        
         locations = []
-        for location in locations_set:
+        for location in loc_set:
             try:
                 match = EntityLocations.objects.filter(name=location)[0]
                 locations.append({"name":location, "latlng": (match.latitude, match.longitude)})
@@ -132,8 +146,8 @@ def dossier(request, cluster_id):
         map_center = (lat/i, lng/i)
         return (locations, map_center)
     
-    locations = getLocations()[0]
-    map_center = getLocations()[1]
+    locations = getLocations(2)[0]
+    map_center = getLocations(2)[1]
     
     location_match = {}
     for location in locations:
