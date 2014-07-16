@@ -135,19 +135,33 @@ def dossier(request, cluster_id):
                 locations.append({"name":location, "latlng": (match.latitude, match.longitude)})
             except IndexError:
                 continue
+            
         #center berechnen
-        i = 0.
-        lat = 0.0
-        lng = 0.0
-        for location in locations:
-            lat  += location["latlng"][0]
-            lng  += location["latlng"][1]
-            i += 1
-        map_center = (lat/i, lng/i)
+        distances = []
+        for i in range(len(locations)):
+            distances.append(range(len(locations)))
+        for i in range(len(locations)):
+            for j in range(len(locations)):
+                if i != j:
+                    x1 = locations[i]["latlng"][0]
+                    x2 = locations[j]["latlng"][0]
+                    y1 = locations[j]["latlng"][1]
+                    y2 = locations[j]["latlng"][1]
+                    distances[i][j] = ((x1-x2)**2 + (y1-y2)**2)**0.5
+                else:
+                    distances[i][j] = 0.0
+                    
+        min = sum(distances[0])
+        min_i = 0
+        for i in range(len(distances)):
+            if sum(distances[i]) < min:
+                min = sum(distances[i])
+                min_i = i
+        map_center = (locations[min_i]["latlng"][0], locations[min_i]["latlng"][1])
         return (locations, map_center)
     
-    locations = getLocations(2)[0]
-    map_center = getLocations(2)[1]
+    locations = getLocations(1)[0]
+    map_center = getLocations(1)[1]
     
     location_match = {}
     for location in locations:
