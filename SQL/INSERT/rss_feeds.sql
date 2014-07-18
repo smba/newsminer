@@ -1,4 +1,4 @@
-INSERT INTO rss_feeds(source_url, name, country) VALUES
+INSERT INTO rss_feeds VALUES
   ('http://america.aljazeera.com/content/ajam/articles.rss',                'Al Jazeera: America',           'qa'),
   ('http://feeds.bbci.co.uk/news/rss.xml',                                  'BBC: World',                    'uk'),
   ('http://www.theguardian.com/world/rss',                                  'The Guardian: World',           'uk'),
