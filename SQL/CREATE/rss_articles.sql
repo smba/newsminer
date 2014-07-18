@@ -1,11 +1,11 @@
 CREATE TABLE rss_articles
 (
   link text NOT NULL,
-  source_url integer NOT NULL,
+  source_url text NOT NULL,
   "timestamp" bigint NOT NULL,
   title text NOT NULL,
   description text NOT NULL,
-  text text,
+  text text NOT NULL,
   entity_locations text[] NOT NULL DEFAULT '{}'::text[],
   entity_organizations text[] NOT NULL DEFAULT '{}'::text[],
   entity_persons text[] NOT NULL DEFAULT '{}'::text[],

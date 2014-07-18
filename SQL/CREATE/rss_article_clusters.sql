@@ -1,6 +1,7 @@
 CREATE TABLE rss_article_clusters
 (
   id serial NOT NULL,
+  "timestamp" bigint NOT NULL,
   articles text[] NOT NULL DEFAULT '{}'::text[],
   entity_locations text[] NOT NULL DEFAULT '{}'::text[],
   entity_organizations text[] NOT NULL DEFAULT '{}'::text[],

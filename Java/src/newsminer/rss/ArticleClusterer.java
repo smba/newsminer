@@ -4,6 +4,7 @@ import newsminer.util.DatabaseUtils;
 import newsminer.util.TextUtils;
 
 import java.io.IOException;
+import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,7 +33,7 @@ import edu.ucla.sspace.vector.ScaledDoubleVector;
  * 
  * @author  Stefan Muehlbauer
  * @author  Timo Guenther
- * @version 2014-06-27
+ * @version 2014-07-18
  */
 public class ArticleClusterer implements Observer { //TODO Observable
   //constants
@@ -87,7 +88,7 @@ public class ArticleClusterer implements Observer { //TODO Observable
     final Set<String>  tagUniverse = new LinkedHashSet<>(); //column headers
           List<String> links       = new LinkedList<>();    //row headers
     try (final PreparedStatement selectArticles = DatabaseUtils.getConnection().prepareStatement(
-        "SELECT * FROM rss_articles")) {
+        "SELECT link, text FROM rss_articles")) {
       //Get the articles.
       final ResultSet rs = selectArticles.executeQuery();
       
@@ -116,40 +117,26 @@ public class ArticleClusterer implements Observer { //TODO Observable
     
     //Cluster.
     final Clustering         clustering = new HierarchicalAgglomerativeClustering();
-    final List<Set<Integer>> clusters   = clustering.cluster(matrix, clusteringProperties).clusters();
-    
-    //Remove the old clusters.
-    try (final PreparedStatement deleteClusters = DatabaseUtils.getConnection().prepareStatement(
-        "DELETE FROM rss_article_clusters")) {
-      deleteClusters.executeUpdate();
-    } catch (SQLException sqle) {
-      throw new IOException(sqle);
-    }
+    final List<Set<Integer>> clusters   = clustering.cluster(matrix, clusteringProperties).clusters(); //TODO order clusters
     
     //Store the clusters.
-    int id = 0;
     try (final PreparedStatement insertCluster = DatabaseUtils.getConnection().prepareStatement(
-        "INSERT INTO rss_article_clusters(id) VALUES (?)");
-        final PreparedStatement updateArticleCluster = DatabaseUtils.getConnection().prepareStatement(
-            "UPDATE rss_articles SET cluster_id = ? WHERE link = ?");) {
+        "INSERT INTO rss_article_clusters(timestamp, articles) VALUES (?, ?)")) {
+      final long timestamp = System.currentTimeMillis();
       for (Set<Integer> cluster : clusters) {
-        //Store a new cluster.
-        id++;
-        insertCluster.setInt(1, id);
-        insertCluster.addBatch();
-        
-        //Store the cluster elements with the new cluster.
         if (cluster.size() > 1) {
+          final List<String> articles = new LinkedList<>(); //TODO order articles by distance from centroid
           for (int index : cluster) {
             final String link = links.get(index);
-            updateArticleCluster.setInt   (1, id);
-            updateArticleCluster.setString(2, link);
-            updateArticleCluster.addBatch();
+            articles.add(link);
           }
+          final Array articlesArray = DatabaseUtils.getConnection().createArrayOf("text", articles.toArray());
+          insertCluster.setLong (1, timestamp);
+          insertCluster.setArray(2, articlesArray);
+          insertCluster.addBatch();
         }
       }
       insertCluster.executeBatch();
-      updateArticleCluster.executeBatch();
     } catch (SQLException sqle) {
       throw new IOException(sqle);
     }
