@@ -25,8 +25,8 @@ class RssFeeds(models.Model):
 Basic RSS article class
 """
 class RssArticles(models.Model):
-    source_url = models.ForeignKey('RssFeeds', db_column='source_url')
     link = models.TextField(primary_key=True)
+    source_url = models.ForeignKey('RssFeeds', db_column='source_url')
     timestamp = models.BigIntegerField()
     title = models.TextField()
     description = models.TextField()
@@ -49,10 +49,12 @@ class RssArticleClusters(models.Model):
         db_table = 'rss_article_clusters'
     id = models.IntegerField(primary_key = True)
     
+    articles = ArrayField(models.TextField()) #new
+    
     locations = ArrayField(models.TextField())
     organizations = ArrayField(models.TextField())
     persons = ArrayField(models.TextField())
-    
+                
 """
 Wraps locations
 @deprecated: Not in use.
