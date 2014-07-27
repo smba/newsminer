@@ -18,15 +18,20 @@ import java.util.Observer;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.lang.Math;
 
 import edu.ucla.sspace.clustering.Clustering;
 import edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering;
 import edu.ucla.sspace.common.Similarity.SimType;
+import edu.ucla.sspace.similarity.PearsonCorrelation;
+import edu.ucla.sspace.matrix.ArrayMatrix;
 import edu.ucla.sspace.matrix.AtomicGrowingSparseMatrix;
 import edu.ucla.sspace.matrix.Matrix;
+import edu.ucla.sspace.vector.AbstractVector;
 import edu.ucla.sspace.vector.CompactSparseVector;
 import edu.ucla.sspace.vector.DoubleVector;
 import edu.ucla.sspace.vector.ScaledDoubleVector;
+import edu.ucla.sspace.vector.Vector;
 
 /**
  * Clusters articles that cover the same topic.
@@ -119,17 +124,56 @@ public class ArticleClusterer implements Observer { //TODO Observable
     final Clustering         clustering = new HierarchicalAgglomerativeClustering();
     final List<Set<Integer>> clusters   = clustering.cluster(matrix, clusteringProperties).clusters(); //TODO order clusters
     
+    final PearsonCorrelation pearson = new edu.ucla.sspace.similarity.PearsonCorrelation();
+    
     //Store the clusters.
     try (final PreparedStatement insertCluster = DatabaseUtils.getConnection().prepareStatement(
         "INSERT INTO rss_article_clusters(timestamp, articles) VALUES (?, ?)")) {
       final long timestamp = System.currentTimeMillis();
       for (Set<Integer> cluster : clusters) {
         if (cluster.size() > 1) {
-          final List<String> articles = new LinkedList<>(); //TODO order articles by distance from centroid
-          for (int index : cluster) {
-            final String link = links.get(index);
-            articles.add(link);
+          final List<String> articles = new LinkedList<>(); 
+          
+          //build the similarity matrix
+          ArrayMatrix similarityMatrix = new ArrayMatrix(cluster.size(), cluster.size());
+          List<Integer> clusterList = new ArrayList<Integer>(cluster); 
+          
+          for (int i = 0; i < cluster.size(); i++) {
+            for (int j = i; j < cluster.size(); j++) {
+              if (i == j) {
+                continue;
+              } else {
+                DoubleVector a = matrix.getRowVector(clusterList.get(i));
+                DoubleVector b = matrix.getRowVector(clusterList.get(j));
+                similarityMatrix.set(i, j, pearsonDistance(pearson.sim(a, b)));
+                similarityMatrix.set(i, j, pearsonDistance(pearson.sim(b, a)));
+              }
+            }
           }
+          
+          //get vector with minimum sum
+          double minimum = Double.MAX_VALUE;
+          int min_id = -1;
+          for (int i = 0; i < similarityMatrix.rows(); i++) {
+            if (vectorSum(similarityMatrix.getRowVector(i)) < minimum) {
+              minimum = vectorSum(similarityMatrix.getRowVector(i));
+              min_id = i;
+            }
+          }
+          
+          int centroid = clusterList.get(min_id);
+          articles.add(links.get(centroid));
+          
+          for (int index : clusterList) {
+            if (index == centroid) {
+              continue;
+            } else {
+              final String link = links.get(index);
+              articles.add(link); 
+            }
+          }
+          //TODO centroid review
+          
           final Array articlesArray = DatabaseUtils.getConnection().createArrayOf("text", articles.toArray());
           insertCluster.setLong (1, timestamp);
           insertCluster.setArray(2, articlesArray);
@@ -163,4 +207,17 @@ public class ArticleClusterer implements Observer { //TODO Observable
     //Normalize the vector.
     return new ScaledDoubleVector(vector, 1.0/vector.magnitude());
   }
+  
+  private double pearsonDistance(double correlation) {
+    return (correlation < 0) ? Math.abs(correlation) : 1 - correlation;
+  }
+  private double vectorSum(Vector v) {
+    double sum = 0.0;
+    for (int i = 0; i < v.length(); i++) {
+      sum += (Double)v.getValue(i);
+    }
+    return sum;
+    
+  }
+  
 }
