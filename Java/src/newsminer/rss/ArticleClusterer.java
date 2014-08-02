@@ -9,6 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,35 +19,35 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Properties;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 import java.lang.Math;
 
+import edu.ucla.sspace.clustering.Assignments;
 import edu.ucla.sspace.clustering.Clustering;
 import edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering;
+import edu.ucla.sspace.common.Similarity;
 import edu.ucla.sspace.common.Similarity.SimType;
-import edu.ucla.sspace.similarity.PearsonCorrelation;
-import edu.ucla.sspace.matrix.ArrayMatrix;
 import edu.ucla.sspace.matrix.AtomicGrowingSparseMatrix;
 import edu.ucla.sspace.matrix.Matrix;
-import edu.ucla.sspace.vector.AbstractVector;
 import edu.ucla.sspace.vector.CompactSparseVector;
 import edu.ucla.sspace.vector.DoubleVector;
 import edu.ucla.sspace.vector.ScaledDoubleVector;
-import edu.ucla.sspace.vector.Vector;
 
 /**
  * Clusters articles that cover the same topic.
  * 
  * @author  Stefan Muehlbauer
  * @author  Timo Guenther
- * @version 2014-07-18
+ * @version 2014-08-02
  */
 public class ArticleClusterer implements Observer { //TODO Observable
   //constants
   /** function used to determine similarity */
-  private static final SimType SIM_FUNC  = SimType.PEARSON_CORRELATION;
+  private static final SimType SIMILARITY_TYPE  = SimType.PEARSON_CORRELATION;
   /** threshold value used in clustering */
-  private static final String  THRESHOLD = "0.27";
+  private static final String  THRESHOLD        = "0.27";
   
   //attributes
    /** properties for the clustering */
@@ -56,7 +58,7 @@ public class ArticleClusterer implements Observer { //TODO Observable
    */
   public ArticleClusterer() {
     clusteringProperties = new Properties();
-    clusteringProperties.put("edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering.simFunc",          SIM_FUNC);
+    clusteringProperties.put("edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering.simFunc",          SIMILARITY_TYPE);
     clusteringProperties.put("edu.ucla.sspace.clustering.HierarchicalAgglomerativeClustering.clusterThreshold", THRESHOLD);
   }
   
@@ -121,59 +123,42 @@ public class ArticleClusterer implements Observer { //TODO Observable
     links = new ArrayList<>(links); //faster lookup
     
     //Cluster.
-    final Clustering         clustering = new HierarchicalAgglomerativeClustering();
-    final List<Set<Integer>> clusters   = clustering.cluster(matrix, clusteringProperties).clusters(); //TODO order clusters
-    
-    final PearsonCorrelation pearson = new edu.ucla.sspace.similarity.PearsonCorrelation();
+    final Clustering         clustering         = new HierarchicalAgglomerativeClustering();
+    final Assignments        clusterAssignments = clustering.cluster(matrix, clusteringProperties);
+    final List<Set<Integer>> clusters           = clusterAssignments.clusters(); //TODO order clusters
+    final DoubleVector[]     clusterCentroids   = clusterAssignments.getSparseCentroids();
     
     //Store the clusters.
     try (final PreparedStatement insertCluster = DatabaseUtils.getConnection().prepareStatement(
         "INSERT INTO rss_article_clusters(timestamp, articles) VALUES (?, ?)")) {
       final long timestamp = System.currentTimeMillis();
-      for (Set<Integer> cluster : clusters) {
-        if (cluster.size() > 1) {
-          final List<String> articles = new LinkedList<>(); 
-          
-          //build the similarity matrix
-          ArrayMatrix similarityMatrix = new ArrayMatrix(cluster.size(), cluster.size());
-          List<Integer> clusterList = new ArrayList<Integer>(cluster); 
-          
-          for (int i = 0; i < cluster.size(); i++) {
-            for (int j = i; j < cluster.size(); j++) {
-              if (i == j) {
-                continue;
-              } else {
-                DoubleVector a = matrix.getRowVector(clusterList.get(i));
-                DoubleVector b = matrix.getRowVector(clusterList.get(j));
-                similarityMatrix.set(i, j, pearsonDistance(pearson.sim(a, b)));
-                similarityMatrix.set(i, j, pearsonDistance(pearson.sim(b, a)));
-              }
-            }
+      int clusterIndex = -1;
+      for (final Set<Integer> cluster : clusters) {
+        clusterIndex++;
+        final int clusterSize = cluster.size();
+        if (clusterSize > 1) {
+          //Get each vector's score, that is the similarity to the cluster centroid.
+          final DoubleVector         clusterCentroid = clusterCentroids[clusterIndex];
+          final Map<Integer, Double> clusterScores   = new LinkedHashMap<>(clusterSize);
+          for (final int articleIndex : cluster) {
+            final double score = Math.abs(Similarity.getSimilarity(SIMILARITY_TYPE, clusterCentroid, matrix.getRowVector(articleIndex)));
+            clusterScores.put(articleIndex, score);
           }
           
-          //get vector with minimum sum
-          double minimum = Double.MAX_VALUE;
-          int min_id = -1;
-          for (int i = 0; i < similarityMatrix.rows(); i++) {
-            if (vectorSum(similarityMatrix.getRowVector(i)) < minimum) {
-              minimum = vectorSum(similarityMatrix.getRowVector(i));
-              min_id = i;
+          //Sort the cluster by descending score.
+          final SortedSet<Integer> clusterSorted = new TreeSet<>(new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+              return clusterScores.get(o2).compareTo(clusterScores.get(o1));
             }
+          });
+          clusterSorted.addAll(clusterScores.keySet());
+          
+          //Store the cluster.
+          final List<String> articles = new ArrayList<>(clusterSize);
+          for (final int articleIndex : clusterSorted) {
+            articles.add(links.get(articleIndex));
           }
-          
-          int centroid = clusterList.get(min_id);
-          articles.add(links.get(centroid));
-          
-          for (int index : clusterList) {
-            if (index == centroid) {
-              continue;
-            } else {
-              final String link = links.get(index);
-              articles.add(link); 
-            }
-          }
-          //TODO centroid review
-          
           final Array articlesArray = DatabaseUtils.getConnection().createArrayOf("text", articles.toArray());
           insertCluster.setLong (1, timestamp);
           insertCluster.setArray(2, articlesArray);
@@ -188,17 +173,17 @@ public class ArticleClusterer implements Observer { //TODO Observable
   }
   
   /**
-   * Returns a vector with the occurrence count of the tag where it is found in the universe.
-   * @param  tagUniverse set of all tags
-   * @param  tagDistribution all tags and their occurrence count
-   * @return a vector with the occurrence count of the tag where it is found in the universe
+   * Returns a vector with the occurrence count of the key where it is found in the universe.
+   * @param  universe set of all possible keys
+   * @param  distribution a subset of the universe mapped to each key's occurrence count
+   * @return a vector with the occurrence count of the key where it is found in the universe
    */
-  private static DoubleVector getVector(Set<String> tagUniverse, Map<String, Integer> tagDistribution) {
+  private static DoubleVector getVector(Set<String> universe, Map<String, Integer> distribution) {
     //Build the vector.
-    final double[] array = new double[tagUniverse.size()];
+    final double[] array = new double[universe.size()];
     int i = 0;
-    for (String tag : tagUniverse) {
-      final Integer count = tagDistribution.get(tag);
+    for (Object key : universe) {
+      final Integer count = distribution.get(key);
       array[i] = count != null ? count : 0.0;
       i++;
     }
@@ -207,17 +192,4 @@ public class ArticleClusterer implements Observer { //TODO Observable
     //Normalize the vector.
     return new ScaledDoubleVector(vector, 1.0/vector.magnitude());
   }
-  
-  private double pearsonDistance(double correlation) {
-    return (correlation < 0) ? Math.abs(correlation) : 1 - correlation;
-  }
-  private double vectorSum(Vector v) {
-    double sum = 0.0;
-    for (int i = 0; i < v.length(); i++) {
-      sum += (Double)v.getValue(i);
-    }
-    return sum;
-    
-  }
-  
 }
