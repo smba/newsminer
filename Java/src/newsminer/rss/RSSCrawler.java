@@ -237,15 +237,15 @@ public class RSSCrawler extends Observable implements Runnable {
             switch (type) {
               case "location":
                 insertEntity = DatabaseUtils.getConnection().prepareStatement(
-                    "INSERT INTO entity_locations VALUES (?, ?, ?, ?)");
+                    "INSERT INTO entity_locations VALUES (?, ?, ?, ?, ?)");
                 break;
               case "organization":
                 insertEntity = DatabaseUtils.getConnection().prepareStatement(
-                    "INSERT INTO entity_organizations VALUES (?, ?)");
+                    "INSERT INTO entity_organizations VALUES (?, ?, ?)");
                 break;
               case "person":
                 insertEntity = DatabaseUtils.getConnection().prepareStatement(
-                    "INSERT INTO entity_persons VALUES (?, ?, ?, ?, ?, ?)");
+                    "INSERT INTO entity_persons VALUES (?, ?, ?, ?, ?, ?, ?)");
                 break;
               default:
                 continue;
@@ -280,7 +280,7 @@ public class RSSCrawler extends Observable implements Runnable {
               } catch (IndexOutOfBoundsException ioobe) { //no matching result found
                 continue;
               }
-              System.out.println(searchResultObject.toString(2)); //TODO
+              //System.out.println(searchResultObject.toString(2)); //TODO
               final String topicID    = searchResultObject.get("mid",   String.class);
                            name       = searchResultObject.get("name",  String.class);
               final double popularity = searchResultObject.get("score", Double.class);
