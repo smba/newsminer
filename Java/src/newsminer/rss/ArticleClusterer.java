@@ -178,7 +178,7 @@ public class ArticleClusterer implements Observer { //TODO Observable
    * @param  distribution a subset of the universe mapped to each key's occurrence count
    * @return a vector with the occurrence count of the key where it is found in the universe
    */
-  private static DoubleVector getVector(Set<String> universe, Map<String, Integer> distribution) {
+  private static DoubleVector getVector(Set<Object> universe, Map<Object, Integer> distribution) {
     //Build the vector.
     final double[] array = new double[universe.size()];
     int i = 0;
