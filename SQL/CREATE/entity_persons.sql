@@ -2,6 +2,7 @@ CREATE TABLE entity_persons
 (
   name text NOT NULL,
   description text,
+  popularity double precision NOT NULL,
   image text,
   notable_for text,
   date_of_birth text,

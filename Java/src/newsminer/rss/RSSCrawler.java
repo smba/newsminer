@@ -56,7 +56,7 @@ import newsminer.util.DatabaseUtils;
  * 
  * @author  Stefan Muehlbauer
  * @author  Timo Guenther
- * @version 2014-06-29
+ * @version 2014-08-02
  */
 public class RSSCrawler extends Observable implements Runnable {
   //constants
@@ -280,8 +280,10 @@ public class RSSCrawler extends Observable implements Runnable {
               } catch (IndexOutOfBoundsException ioobe) { //no matching result found
                 continue;
               }
-              final String topicID = searchResultObject.get("mid",  String.class);
-                           name    = searchResultObject.get("name", String.class);
+              System.out.println(searchResultObject.toString(2)); //TODO
+              final String topicID    = searchResultObject.get("mid",   String.class);
+                           name       = searchResultObject.get("name",  String.class);
+              final double popularity = searchResultObject.get("score", Double.class);
               if (name.isEmpty()) {
                 continue;
               }
@@ -338,14 +340,16 @@ public class RSSCrawler extends Observable implements Runnable {
                       if (geoCoordinates != null) {
                         insertEntity.setString(1, name);
                         insertEntity.setString(2, entityDescription);
-                        insertEntity.setDouble(3, geoCoordinates.getLat().doubleValue());
-                        insertEntity.setDouble(4, geoCoordinates.getLng().doubleValue());
+                        insertEntity.setDouble(3, popularity);
+                        insertEntity.setDouble(4, geoCoordinates.getLat().doubleValue());
+                        insertEntity.setDouble(5, geoCoordinates.getLng().doubleValue());
                         insertEntity.addBatch();
                       }
                       break;
                     case "organization":
                       insertEntity.setString(1, name);
                       insertEntity.setString(2, entityDescription);
+                      insertEntity.setDouble(3, popularity);
                       insertEntity.addBatch();
                       break;
                     case "person":
@@ -399,10 +403,11 @@ public class RSSCrawler extends Observable implements Runnable {
                       }
                       insertEntity.setString(1, name);
                       insertEntity.setString(2, entityDescription);
-                      insertEntity.setString(3, image);
-                      insertEntity.setString(4, notable_for);
-                      insertEntity.setString(5, date_of_birth);
-                      insertEntity.setString(6, place_of_birth);
+                      insertEntity.setDouble(3, popularity);
+                      insertEntity.setString(4, image);
+                      insertEntity.setString(5, notable_for);
+                      insertEntity.setString(6, date_of_birth);
+                      insertEntity.setString(7, place_of_birth);
                       insertEntity.addBatch();
                       break;
                   }
