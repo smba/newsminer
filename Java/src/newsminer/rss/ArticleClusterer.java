@@ -131,9 +131,11 @@ public class ArticleClusterer implements Observer { //TODO Observable
     
     //Store the clusters.
     try (final PreparedStatement insertCluster = DatabaseUtils.getConnection().prepareStatement(
-        "INSERT INTO rss_article_clusters(timestamp, articles) VALUES (?, ?)")) {
+        "INSERT INTO rss_article_clusters(timestamp, articles) VALUES (?, ?, ?, ?, ?, ?)")) {
       
-      final PreparedStatement getScore = DatabaseUtils.getConnection().prepareStatement("SELECT * FROM ? WHERE name = ?");
+      final PreparedStatement getLocationsScore = DatabaseUtils.getConnection().prepareStatement("SELECT * FROM entity_locations WHERE name = ?");
+      final PreparedStatement getOrganizationsScore = DatabaseUtils.getConnection().prepareStatement("SELECT * FROM entity_organizations WHERE name = ?");
+      final PreparedStatement getPersonsScore = DatabaseUtils.getConnection().prepareStatement("SELECT * FROM entity_persons WHERE name = ?");
       final long timestamp = System.currentTimeMillis();
       int clusterIndex = -1;
       for (final Set<Integer> cluster : clusters) {
@@ -172,20 +174,20 @@ public class ArticleClusterer implements Observer { //TODO Observable
           Set<String> clusterLocations = new TreeSet<String>();
           Set<String> clusterOrganizations = new TreeSet<String>();
           Set<String> clusterPersons = new TreeSet<String>();
-          List<LinkedList<String>> articleLocationsList = new LinkedList<LinkedList<String>>();
-          List<LinkedList<String>> articleOrganizationsList = new LinkedList<LinkedList<String>>();
-          List<LinkedList<String>> articlePersonsList = new LinkedList<LinkedList<String>>();
+          List<List<String>> articleLocationsList = new LinkedList<List<String>>();
+          List<List<String>> articleOrganizationsList = new LinkedList<List<String>>();
+          List<List<String>> articlePersonsList = new LinkedList<List<String>>();
           while (articleResultSet.next()) {
             String[] entityLocations = (String[])articleResultSet.getArray("entity_locations").getArray();
-            articleLocationsList.add((LinkedList<String>) Arrays.asList(entityLocations));
+            articleLocationsList.add((List<String>) Arrays.asList(entityLocations));
             clusterLocations.addAll(Arrays.asList(entityLocations));
             
             String[] entityOrganizations = (String[])articleResultSet.getArray("entity_organizations").getArray();
-            articleOrganizationsList.add((LinkedList<String>) Arrays.asList(entityOrganizations));
+            articleOrganizationsList.add((List<String>) Arrays.asList(entityOrganizations));
             clusterOrganizations.addAll(Arrays.asList(entityOrganizations));
             
             String[] entityPersons = (String[])articleResultSet.getArray("entity_persons").getArray();
-            articlePersonsList.add((LinkedList<String>) Arrays.asList(entityPersons));
+            articlePersonsList.add((List<String>) Arrays.asList(entityPersons));
             clusterPersons.addAll(Arrays.asList(entityPersons));
           }
           
@@ -193,15 +195,14 @@ public class ArticleClusterer implements Observer { //TODO Observable
           double locationsScore = 0.0;
           for (String clusterLocation : clusterLocations) {
             int occurence = 0;
-            for (LinkedList articleLocations : articleLocationsList) {
+            for (List articleLocations : articleLocationsList) {
               if (articleLocations.contains(clusterLocation)) {
                 occurence++;
               }
             }
             ///get score of location
-            getScore.setString(1, "entity_locations");
-            getScore.setString(1, clusterLocation);
-            ResultSet popularitySet = getScore.executeQuery();
+            getLocationsScore.setString(1, clusterLocation);
+            ResultSet popularitySet = getLocationsScore.executeQuery();
             double popularity = 0.0;
             while (popularitySet.next()) {
               popularity = popularitySet.getDouble("popularity");
@@ -214,15 +215,14 @@ public class ArticleClusterer implements Observer { //TODO Observable
           double organizationsScore = 0.0;
           for (String clusterOrganization : clusterOrganizations) {
             int occurence = 0;
-            for (LinkedList articleOrganizations : articleOrganizationsList) {
+            for (List articleOrganizations : articleOrganizationsList) {
               if (articleOrganizations.contains(clusterOrganization)) {
                 occurence++;
               }
             }
             ///get score of location
-            getScore.setString(1, "entity_organization");
-            getScore.setString(1, clusterOrganization);
-            ResultSet popularitySet = getScore.executeQuery();
+            getOrganizationsScore.setString(1, clusterOrganization);
+            ResultSet popularitySet = getOrganizationsScore.executeQuery();
             double popularity = 0.0;
             while (popularitySet.next()) {
               popularity = popularitySet.getDouble("popularity");
@@ -235,15 +235,14 @@ public class ArticleClusterer implements Observer { //TODO Observable
           double personsScore = 0.0;
           for (String clusterPerson : clusterPersons) {
             int occurence = 0;
-            for (LinkedList articlePersons : articlePersonsList) {
+            for (List articlePersons : articlePersonsList) {
               if (articlePersons.contains(clusterPerson)) {
                 occurence++;
               }
             }
             ///get score of location
-            getScore.setString(1, "entity_persons");
-            getScore.setString(1, clusterPerson);
-            ResultSet popularitySet = getScore.executeQuery();
+            getPersonsScore.setString(1, clusterPerson);
+            ResultSet popularitySet = getPersonsScore.executeQuery();
             double popularity = 0.0;
             while (popularitySet.next()) {
               popularity = popularitySet.getDouble("popularity");
@@ -254,7 +253,7 @@ public class ArticleClusterer implements Observer { //TODO Observable
           personsScore /= clusterPersons.size();
           
           final double score = (locationsScore*clusterLocations.size() + organizationsScore*clusterOrganizations.size() + personsScore*clusterPersons.size())/(clusterLocations.size()+clusterOrganizations.size()+clusterPersons.size());
-          
+          System.out.println(score);
           insertCluster.setLong (1, timestamp);
           insertCluster.setArray(2, articlesArray);
           
