@@ -48,7 +48,7 @@ public class ArticleClusterer implements Observer { //TODO Observable
   /** function used to determine similarity */
   private static final SimType SIMILARITY_TYPE  = SimType.PEARSON_CORRELATION;
   /** threshold value used in clustering */
-  private static final String  THRESHOLD        = "0.03";
+  private static final String  THRESHOLD        = "0.03"; //or .27
   
   //attributes
    /** properties for the clustering */
@@ -131,7 +131,7 @@ public class ArticleClusterer implements Observer { //TODO Observable
     
     //Store the clusters.
     try (final PreparedStatement insertCluster = DatabaseUtils.getConnection().prepareStatement(
-        "INSERT INTO rss_article_clusters(timestamp, articles) VALUES (?, ?, ?, ?, ?, ?)")) {
+        "INSERT INTO rss_article_clusters(timestamp, articles, entity_locations, entity_organizations, entity_persons, score) VALUES (?, ?, ?, ?, ?, ?)")) {
       
       final PreparedStatement getLocationsScore = DatabaseUtils.getConnection().prepareStatement("SELECT * FROM entity_locations WHERE name = ?");
       final PreparedStatement getOrganizationsScore = DatabaseUtils.getConnection().prepareStatement("SELECT * FROM entity_organizations WHERE name = ?");
@@ -253,7 +253,6 @@ public class ArticleClusterer implements Observer { //TODO Observable
           personsScore /= clusterPersons.size();
           
           final double score = (locationsScore*clusterLocations.size() + organizationsScore*clusterOrganizations.size() + personsScore*clusterPersons.size())/(clusterLocations.size()+clusterOrganizations.size()+clusterPersons.size());
-          System.out.println(score);
           insertCluster.setLong (1, timestamp);
           insertCluster.setArray(2, articlesArray);
           
@@ -263,7 +262,7 @@ public class ArticleClusterer implements Observer { //TODO Observable
           final Array clusterOrganizationsArray = DatabaseUtils.getConnection().createArrayOf("text", clusterOrganizations.toArray());
           insertCluster.setArray(4, clusterOrganizationsArray);
           
-          final Array clusterPersonsArray = DatabaseUtils.getConnection().createArrayOf("text", clusterOrganizations.toArray());
+          final Array clusterPersonsArray = DatabaseUtils.getConnection().createArrayOf("text", clusterPersons.toArray());
           insertCluster.setArray(5, clusterPersonsArray);
           
           insertCluster.setDouble(6, score);
