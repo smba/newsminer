@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -47,7 +48,7 @@ public class ArticleClusterer implements Observer { //TODO Observable
   /** function used to determine similarity */
   private static final SimType SIMILARITY_TYPE  = SimType.PEARSON_CORRELATION;
   /** threshold value used in clustering */
-  private static final String  THRESHOLD        = "0.27";
+  private static final String  THRESHOLD        = "0.03";
   
   //attributes
    /** properties for the clustering */
@@ -131,6 +132,8 @@ public class ArticleClusterer implements Observer { //TODO Observable
     //Store the clusters.
     try (final PreparedStatement insertCluster = DatabaseUtils.getConnection().prepareStatement(
         "INSERT INTO rss_article_clusters(timestamp, articles) VALUES (?, ?)")) {
+      
+      final PreparedStatement getScore = DatabaseUtils.getConnection().prepareStatement("SELECT * FROM ? WHERE name = ?");
       final long timestamp = System.currentTimeMillis();
       int clusterIndex = -1;
       for (final Set<Integer> cluster : clusters) {
@@ -159,9 +162,113 @@ public class ArticleClusterer implements Observer { //TODO Observable
           for (final int articleIndex : clusterSorted) {
             articles.add(links.get(articleIndex));
           }
+                    
           final Array articlesArray = DatabaseUtils.getConnection().createArrayOf("text", articles.toArray());
+          
+          //Score the cluster itself
+          final PreparedStatement getArticles = DatabaseUtils.getConnection().prepareStatement("SELECT * FROM rss_articles WHERE link = ANY(?)");
+          getArticles.setArray(1, articlesArray);
+          ResultSet articleResultSet = getArticles.executeQuery();
+          Set<String> clusterLocations = new TreeSet<String>();
+          Set<String> clusterOrganizations = new TreeSet<String>();
+          Set<String> clusterPersons = new TreeSet<String>();
+          List<LinkedList<String>> articleLocationsList = new LinkedList<LinkedList<String>>();
+          List<LinkedList<String>> articleOrganizationsList = new LinkedList<LinkedList<String>>();
+          List<LinkedList<String>> articlePersonsList = new LinkedList<LinkedList<String>>();
+          while (articleResultSet.next()) {
+            String[] entityLocations = (String[])articleResultSet.getArray("entity_locations").getArray();
+            articleLocationsList.add((LinkedList<String>) Arrays.asList(entityLocations));
+            clusterLocations.addAll(Arrays.asList(entityLocations));
+            
+            String[] entityOrganizations = (String[])articleResultSet.getArray("entity_organizations").getArray();
+            articleOrganizationsList.add((LinkedList<String>) Arrays.asList(entityOrganizations));
+            clusterOrganizations.addAll(Arrays.asList(entityOrganizations));
+            
+            String[] entityPersons = (String[])articleResultSet.getArray("entity_persons").getArray();
+            articlePersonsList.add((LinkedList<String>) Arrays.asList(entityPersons));
+            clusterPersons.addAll(Arrays.asList(entityPersons));
+          }
+          
+          //calculate score for each type of entities
+          double locationsScore = 0.0;
+          for (String clusterLocation : clusterLocations) {
+            int occurence = 0;
+            for (LinkedList articleLocations : articleLocationsList) {
+              if (articleLocations.contains(clusterLocation)) {
+                occurence++;
+              }
+            }
+            ///get score of location
+            getScore.setString(1, "entity_locations");
+            getScore.setString(1, clusterLocation);
+            ResultSet popularitySet = getScore.executeQuery();
+            double popularity = 0.0;
+            while (popularitySet.next()) {
+              popularity = popularitySet.getDouble("popularity");
+              break;
+            }
+            locationsScore += popularity * 1.0/clusterLocations.size() * (double)occurence/articleLocationsList.size();
+          }
+          locationsScore /= clusterLocations.size();
+          
+          double organizationsScore = 0.0;
+          for (String clusterOrganization : clusterOrganizations) {
+            int occurence = 0;
+            for (LinkedList articleOrganizations : articleOrganizationsList) {
+              if (articleOrganizations.contains(clusterOrganization)) {
+                occurence++;
+              }
+            }
+            ///get score of location
+            getScore.setString(1, "entity_organization");
+            getScore.setString(1, clusterOrganization);
+            ResultSet popularitySet = getScore.executeQuery();
+            double popularity = 0.0;
+            while (popularitySet.next()) {
+              popularity = popularitySet.getDouble("popularity");
+              break;
+            }
+            organizationsScore += popularity * 1.0/clusterOrganizations.size() * (double)occurence/articleOrganizationsList.size();
+          }
+          organizationsScore /= clusterOrganizations.size();
+          
+          double personsScore = 0.0;
+          for (String clusterPerson : clusterPersons) {
+            int occurence = 0;
+            for (LinkedList articlePersons : articlePersonsList) {
+              if (articlePersons.contains(clusterPerson)) {
+                occurence++;
+              }
+            }
+            ///get score of location
+            getScore.setString(1, "entity_persons");
+            getScore.setString(1, clusterPerson);
+            ResultSet popularitySet = getScore.executeQuery();
+            double popularity = 0.0;
+            while (popularitySet.next()) {
+              popularity = popularitySet.getDouble("popularity");
+              break;
+            }
+            personsScore += popularity * 1.0/clusterPersons.size() * (double)occurence/articlePersonsList.size();
+          }
+          personsScore /= clusterPersons.size();
+          
+          final double score = (locationsScore*clusterLocations.size() + organizationsScore*clusterOrganizations.size() + personsScore*clusterPersons.size())/(clusterLocations.size()+clusterOrganizations.size()+clusterPersons.size());
+          
           insertCluster.setLong (1, timestamp);
           insertCluster.setArray(2, articlesArray);
+          
+          final Array clusterLocationsArray = DatabaseUtils.getConnection().createArrayOf("text", clusterLocations.toArray());
+          insertCluster.setArray(3, clusterLocationsArray);
+          
+          final Array clusterOrganizationsArray = DatabaseUtils.getConnection().createArrayOf("text", clusterOrganizations.toArray());
+          insertCluster.setArray(4, clusterOrganizationsArray);
+          
+          final Array clusterPersonsArray = DatabaseUtils.getConnection().createArrayOf("text", clusterOrganizations.toArray());
+          insertCluster.setArray(5, clusterPersonsArray);
+          
+          insertCluster.setDouble(6, score);
+          
           insertCluster.addBatch();
         }
       }
