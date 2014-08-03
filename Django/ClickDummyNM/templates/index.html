@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
+{% load splitter %}
 
 <html>
 
@@ -23,24 +24,22 @@
 		<div id='wrapper'>
 		<section>
 			<ul class='cards'>
-			{% for d in distribution %}
-				<a href='{{dossier}}{{d}}'>
+			{% for cluster in clusterDatas %}
+				<a href='{{dossier}}{{cluster.id}}'>
 					<li class="card-item">
-				Dossier {{d}}:
-					{% for key, val in topEntities.items %}
-						{% if key = d %}
-							{% for word in val %}
-								#{{word}}&nbsp;
-							{% endfor %}
-						{% endif  %}
-					{% endfor %}
-			</li>
-			</a>
+						<h4>{{cluster.centroid.title}}</h4>
+						<dossier-teaser>{{cluster.centroid.description|striptags}}</dossier-teaser>
+					
+				</a><br>
+				<!-- <script type="text/javascript" src="//www.google.com/trends/embed.js?hl=en-US&q={{cluster.centroid.entity_locations.0}},+{{cluster.centroid.entity_locations.1}},+{{cluster.centroid.entity_locations.2}}&date=today+3-m&cmpt=q&content=1&cid=TIMESERIES_GRAPH_0&export=5&w=500&h=330"></script>
+				 -->
+				</li>
 			{% endfor %}
 		</ul>
 		</section>
 		</div>
 	<footer>	
+	tisch
 	</footer>
     </body>
 

@@ -35,7 +35,7 @@ class RssArticles(models.Model):
     entity_locations = ArrayField(models.TextField())
     entity_organizations = ArrayField(models.TextField())
     entity_persons = ArrayField(models.TextField())
-    cluster_id = models.IntegerField(blank=True)# models.ForeignKey('RssArticleClusters', blank)
+    #cluster_id = models.IntegerField(blank=True)# models.ForeignKey('RssArticleClusters', blank)
     class Meta:
         managed = False
         db_table = 'rss_articles'
@@ -51,9 +51,9 @@ class RssArticleClusters(models.Model):
     
     articles = ArrayField(models.TextField()) #new
     
-    locations = ArrayField(models.TextField())
-    organizations = ArrayField(models.TextField())
-    persons = ArrayField(models.TextField())
+    entity_locations = ArrayField(models.TextField())
+    entity_organizations = ArrayField(models.TextField())
+    entity_persons = ArrayField(models.TextField())
                 
 """
 Wraps locations
