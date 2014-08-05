@@ -7,5 +7,5 @@ def startNewsminer(sc):
         print "Starting newsminer"
         os.system("nohup java -jar newsminer.jar foo bar &")
         sc.enter(TIMESTEP, 1, startNewsMiner, (sc,1))
-s.enter(TIMESTEP, 1, startNewsMine, (sc,))
+s.enter(TIMESTEP, 1, startNewsMiner, (sc,))
 s.run()

@@ -261,7 +261,6 @@ public class RSSCrawler extends Observable implements Runnable {
             final Set<String> normalizedNamedEntities = new LinkedHashSet<>();
             for (String name : namedEntities) {
               //Search Freebase.
-              System.out.println(name);
               searchURL.put("key",    GOOGLE_API_KEY);
               searchURL.put("query",  name);
               searchURL.put("filter", "(all type:" + type + ")");
