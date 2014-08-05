@@ -96,7 +96,8 @@ public class ArticleClusterer implements Observer { //TODO Observable
     final Set<String>  tagUniverse = new LinkedHashSet<>(); //column headers
           List<String> links       = new LinkedList<>();    //row headers
     try (final PreparedStatement selectArticles = DatabaseUtils.getConnection().prepareStatement(
-        "SELECT link, text FROM rss_articles")) {
+        "WITH maximum AS (SELECT max(timestamp) FROM rss_articles) SELECT link, "
+        + "text FROM rss_articles, maximum WHERE timestamp = maximum.max")) {
       //Get the articles.
       final ResultSet rs = selectArticles.executeQuery();
       
@@ -252,7 +253,7 @@ public class ArticleClusterer implements Observer { //TODO Observable
           }
           personsScore /= clusterPersons.size();
           
-          final double score = (locationsScore*clusterLocations.size() + organizationsScore*clusterOrganizations.size() + personsScore*clusterPersons.size())/(clusterLocations.size()+clusterOrganizations.size()+clusterPersons.size());
+          final double score = (locationsScore*clusterLocations.size()*0 + organizationsScore*clusterOrganizations.size()*0 + personsScore*clusterPersons.size())/(clusterLocations.size()*0+clusterOrganizations.size()*0+clusterPersons.size());
           insertCluster.setLong (1, timestamp);
           insertCluster.setArray(2, articlesArray);
           
