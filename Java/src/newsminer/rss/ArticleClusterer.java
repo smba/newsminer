@@ -48,7 +48,7 @@ public class ArticleClusterer implements Observer { //TODO Observable
   /** function used to determine similarity */
   private static final SimType SIMILARITY_TYPE  = SimType.PEARSON_CORRELATION;
   /** threshold value used in clustering */
-  private static final String  THRESHOLD        = "0.03"; //or .27
+  private static final String  THRESHOLD        = "0.04"; //or .27
   
   //attributes
    /** properties for the clustering */
@@ -132,7 +132,7 @@ public class ArticleClusterer implements Observer { //TODO Observable
     
     //Store the clusters.
     try (final PreparedStatement insertCluster = DatabaseUtils.getConnection().prepareStatement(
-        "INSERT INTO rss_article_clusters(timestamp, articles, entity_locations, entity_organizations, entity_persons, score) VALUES (?, ?, ?, ?, ?, ?)")) {
+        "INSERT INTO rss_article_clusters(timestamp, articles, entity_locations, entity_organizations, entity_persons, score, common_entities) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
       
       final PreparedStatement getLocationsScore = DatabaseUtils.getConnection().prepareStatement("SELECT * FROM entity_locations WHERE name = ?");
       final PreparedStatement getOrganizationsScore = DatabaseUtils.getConnection().prepareStatement("SELECT * FROM entity_organizations WHERE name = ?");
@@ -178,7 +178,12 @@ public class ArticleClusterer implements Observer { //TODO Observable
           List<List<String>> articleLocationsList = new LinkedList<List<String>>();
           List<List<String>> articleOrganizationsList = new LinkedList<List<String>>();
           List<List<String>> articlePersonsList = new LinkedList<List<String>>();
+          Set<String> clusterSources = new TreeSet<String>();
+          
           while (articleResultSet.next()) {
+            
+            clusterSources.add(articleResultSet.getString("source_url"));
+            
             String[] entityLocations = (String[])articleResultSet.getArray("entity_locations").getArray();
             articleLocationsList.add((List<String>) Arrays.asList(entityLocations));
             clusterLocations.addAll(Arrays.asList(entityLocations));
@@ -192,68 +197,40 @@ public class ArticleClusterer implements Observer { //TODO Observable
             clusterPersons.addAll(Arrays.asList(entityPersons));
           }
           
-          //calculate score for each type of entities
-          double locationsScore = 0.0;
-          for (String clusterLocation : clusterLocations) {
-            int occurence = 0;
-            for (List articleLocations : articleLocationsList) {
-              if (articleLocations.contains(clusterLocation)) {
-                occurence++;
-              }
-            }
-            ///get score of location
-            getLocationsScore.setString(1, clusterLocation);
-            ResultSet popularitySet = getLocationsScore.executeQuery();
-            double popularity = 0.0;
-            while (popularitySet.next()) {
-              popularity = popularitySet.getDouble("popularity");
-              break;
-            }
-            locationsScore += popularity * 1.0/clusterLocations.size() * (double)occurence/articleLocationsList.size();
-          }
-          locationsScore /= clusterLocations.size();
+          final double score = Math.log(Math.pow(clusterSources.size(), 2));
+          double common_entities = 0.0;
           
-          double organizationsScore = 0.0;
-          for (String clusterOrganization : clusterOrganizations) {
-            int occurence = 0;
-            for (List articleOrganizations : articleOrganizationsList) {
-              if (articleOrganizations.contains(clusterOrganization)) {
-                occurence++;
+          for (String location : clusterLocations) {
+            boolean add = true;
+            for (List<String> locationList : articleLocationsList) {
+              if (!locationList.contains(location)) {
+                add = false;
+                break;
               }
+              if (add) { common_entities += 1; }
             }
-            ///get score of location
-            getOrganizationsScore.setString(1, clusterOrganization);
-            ResultSet popularitySet = getOrganizationsScore.executeQuery();
-            double popularity = 0.0;
-            while (popularitySet.next()) {
-              popularity = popularitySet.getDouble("popularity");
-              break;
-            }
-            organizationsScore += popularity * 1.0/clusterOrganizations.size() * (double)occurence/articleOrganizationsList.size();
           }
-          organizationsScore /= clusterOrganizations.size();
-          
-          double personsScore = 0.0;
-          for (String clusterPerson : clusterPersons) {
-            int occurence = 0;
-            for (List articlePersons : articlePersonsList) {
-              if (articlePersons.contains(clusterPerson)) {
-                occurence++;
+          for (String organization : clusterOrganizations) {
+            boolean add = true;
+            for (List<String> organizationList : articleOrganizationsList) {
+              if (!organizationList.contains(organization)) {
+                add = false;
+                break;
               }
+              if (add) { common_entities += 1; }
             }
-            ///get score of location
-            getPersonsScore.setString(1, clusterPerson);
-            ResultSet popularitySet = getPersonsScore.executeQuery();
-            double popularity = 0.0;
-            while (popularitySet.next()) {
-              popularity = popularitySet.getDouble("popularity");
-              break;
-            }
-            personsScore += popularity * 1.0/clusterPersons.size() * (double)occurence/articlePersonsList.size();
           }
-          personsScore /= clusterPersons.size();
+          for (String person : clusterPersons) {
+            boolean add = true;
+            for (List<String> personList : articleLocationsList) {
+              if (!personList.contains(person)) {
+                add = false;
+                break;
+              }
+              if (add) { common_entities += 1; }
+            }
+          }
           
-          final double score = (locationsScore*clusterLocations.size()*0 + organizationsScore*clusterOrganizations.size()*0 + personsScore*clusterPersons.size())/(clusterLocations.size()*0+clusterOrganizations.size()*0+clusterPersons.size());
           insertCluster.setLong (1, timestamp);
           insertCluster.setArray(2, articlesArray);
           
@@ -267,6 +244,10 @@ public class ArticleClusterer implements Observer { //TODO Observable
           insertCluster.setArray(5, clusterPersonsArray);
           
           insertCluster.setDouble(6, score);
+          
+          common_entities = Math.log(common_entities);
+          
+          insertCluster.setDouble(7, common_entities);
           
           insertCluster.addBatch();
         }
