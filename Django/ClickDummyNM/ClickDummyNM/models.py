@@ -54,6 +54,9 @@ class RssArticleClusters(models.Model):
     entity_locations = ArrayField(models.TextField())
     entity_organizations = ArrayField(models.TextField())
     entity_persons = ArrayField(models.TextField())
+    
+    score = models.FloatField()
+    common_entities = models.FloatField()
                 
 """
 Wraps locations
