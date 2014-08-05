@@ -21,6 +21,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.runner.manipulation.Sortable;
+
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
@@ -155,6 +157,8 @@ public class RSSCrawler extends Observable implements Runnable {
       }
     } catch (SQLException sqle) {
       throw new IOException(sqle);
+    } catch (java.lang.NullPointerException nulp) {
+      System.err.println("Could not read rss feed");
     }
   }
   
@@ -164,6 +168,7 @@ public class RSSCrawler extends Observable implements Runnable {
    * @throws IOException when any of the articles could not be loaded or stored
    */
   public void read(String sourceURL) throws IOException {
+    System.out.println(sourceURL);
     //Check the URL.
     final URL feedURL;
     try {
@@ -181,9 +186,11 @@ public class RSSCrawler extends Observable implements Runnable {
     } catch (FetcherException fe) {
       throw new IOException(fe);
     }
-    
+    final long beginTimestamp = System.currentTimeMillis();
     //Read the articles.
-    try (final PreparedStatement insertArticle = DatabaseUtils.getConnection().prepareStatement(
+    try (
+        
+        final PreparedStatement insertArticle = DatabaseUtils.getConnection().prepareStatement(
         "INSERT INTO rss_articles VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
       for (Object articleObject : feed.getEntries()) {
         //Get the article.
@@ -254,6 +261,7 @@ public class RSSCrawler extends Observable implements Runnable {
             final Set<String> normalizedNamedEntities = new LinkedHashSet<>();
             for (String name : namedEntities) {
               //Search Freebase.
+              System.out.println(name);
               searchURL.put("key",    GOOGLE_API_KEY);
               searchURL.put("query",  name);
               searchURL.put("filter", "(all type:" + type + ")");
@@ -426,7 +434,7 @@ public class RSSCrawler extends Observable implements Runnable {
         //Update the database table.
         insertArticle.setString(1, link);
         insertArticle.setString(2, source_url);
-        insertArticle.setLong  (3, timestamp);
+        insertArticle.setLong  (3, beginTimestamp);
         insertArticle.setString(4, title);
         insertArticle.setString(5, description);
         insertArticle.setString(6, text);
