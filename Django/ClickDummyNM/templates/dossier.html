@@ -68,6 +68,7 @@
     						{{entities|access:entity|access:'name'}} <a href="#" onclick="javascript:showHide('widget-description-{{forloop.counter}}');">[show/hide]</a>
     					</div>
     					<div class='widget-content' id="widget-description-{{forloop.counter}}" style="display:none">
+    						<img src="https://usercontent.googleapis.com/freebase/v1/image{{entities|access:entity|access:'image'}}" alt="https://www.googleapis.com/freebase/v1/image/m/03s72mc" style="float:left; margin:5px;">
     						{{entities|access:entity|access:'description'}}
     					</div>
     				{% endif %}
