@@ -27,9 +27,7 @@ def index(request):
                                               +"FROM rss_article_clusters, timel "
                                               +"WHERE rss_article_clusters.timestamp = timel.latest_timestamp) "
                                               +"SELECT id, articles FROM rss_article_clusters, stats "
-                                              +"WHERE array_length(entity_locations, 1) < 30 AND "
-                                              +"array_length(articles, 1) > 2 "
-                                              +"ORDER BY score DESC")
+                                              +"ORDER BY score DESC, common_entities DESC")
     clusterDatas = []
     for cluster in clusters:
         clusterData = {}
