@@ -67,11 +67,32 @@ section {
 }
 
 aside {
-	width: 20%;
+	width: 33%;
 	margin-left: 1%;
 	margin-right: 10%;
 	float: left;
 }
+
+.text {
+    background-color: #fefefe;
+    list-style: none;
+    margin: 0;
+    padding: 6px;
+}
+
+.text-item {
+    transition: all .2s linear;
+	-moz-transition: all .2s linear;
+	-webkit-transition: all .2s linear;
+	-o-transition: all .2s linear;
+    
+    background-color: #f9f9f9;
+    margin: 0 0 3px;
+    padding: 25px 35px;
+    position: relative;
+    z-index: 0;
+}
+
 /* ======= Nav/Footer ======= */
 
 nav {
@@ -97,7 +118,7 @@ nav ul li {
 }
 
 nav ul li:hover {
-	background: #eee;
+	background: #fefefe;
 }
 
 footer {
@@ -116,7 +137,7 @@ nav a:hover {
 }
 
 .active {
-	background: #eee;
+	background: #fefefe;
 }
 
 /* ======= Text-Styles ======= */ 
@@ -133,7 +154,7 @@ header a {
 
 header a:hover {
 	font-weight: normal;
-	color: #333;
+	color: #B66118;
 }
 
 h2 {
@@ -181,6 +202,10 @@ a:hover {
 	font-weight: normal;
 }
 
+.text-item a:hover {
+	font-style: italic;
+}
+
 /* ======= Various ======= */ 
 ::-webkit-scrollbar {
 display: none;
@@ -192,9 +217,7 @@ display: none;
 }	
 .leaflet-label {
 	background: #C0D6E4;
-	background: #C0D6E4;
 	background-clip: padding-box;
-	border-color: rgba(102,117,127,0.15);
 	border-color: rgba(102,117,127,0.15);
 	border-radius: 4px;
 	border-style: solid;
@@ -222,9 +245,8 @@ display: none;
 	-webkit-box-shadow:1px 1px 6px #292929; /* Chrome, Safari */
 	-khtml-box-shadow:1px 1px 6px #292929; /* Konqueror */ 
 	box-shadow:1px 1px 6px #292929; /* CSS3 */
-	background-color: #666;
-	color: #bbb;
-	font-size: x-small;
+	background-color: #f9f9f9;
+	font-size: 80%;
 }
 
 .custom_widget {
@@ -235,22 +257,14 @@ display: none;
 	-webkit-box-shadow:1px 1px 6px #292929; /* Chrome, Safari */
 	-khtml-box-shadow:1px 1px 6px #292929; /* Konqueror */ 
 	box-shadow:1px 1px 6px #292929; /* CSS3 */
-	background-color: #666;
-	color: #bbb;
-	font-size: x-small;
+	background-color: #f9f9f9;
+	font-size: 80%;
 }
 
-.entitiy_link {
-	text-decoration: underline;
+.entity_link {
+	font-weight: bold;
 }
 
-
-.dossierlist, article {
-	padding: 1%;
-	border-bottom: 1px solid #bbb;
-}
-
-/* ======= what/impressum ======= */ 
-.text {
-	margin: 2%;
+.widget-title {
+	font-weight: bold;
 }

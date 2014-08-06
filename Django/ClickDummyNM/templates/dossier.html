@@ -29,15 +29,15 @@
 			</ul>
 		</nav>
 		<div id='wrapper'>
-    	<section>
+    	<section class='text'>
 			{% for article in articles %}
 			
-			<article style="font-size:small;">
+			<article class='text-item'>
 				<h2 class="article_title">{{article.title}}</h2>
 				<t style="font-variant:small-caps;">«{{article.newspaper}}»</t> 
-				{% for word in article.description|striptags|split:' ' %}{% if word in location_match.keys %}<a href="#" class="entitiy_link" id='map-navigation:d{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> {% elif word in entities.keys %} <a href='#' class="entitiy_link" onclick="changeContent('custom_widget', '{{entities|access:word|access:'name'}}')">{{word}}</a> {% else %}{{word}} {% endif %}{% endfor %}	
+				{% for word in article.description|striptags|split:' ' %}{% if word in location_match.keys %}<a href="#" class="entity_link" id='map-navigation:d{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> {% elif word in entities.keys %} <a href='#' class="entity_link" onclick="changeContent('custom_widget', '{{entities|access:word|access:'name'}}')">{{word}}</a> {% else %}{{word}} {% endif %}{% endfor %}	
 				<div id="{{article.link}}" class="article_text" style="display:none">
-					{% for word in article.text|striptags|split:' ' %}{% if word in location_match.keys %}<a href="#" class="entitiy_link" id='map-navigation:{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> {% elif word in entities.keys %} <a href='#' class="entitiy_link" onclick="changeContent('custom_widget','{{entities|access:word|access:'name'}}')">{{word}}</a> {% else %}{{word}} {% endif %}{% endfor %}	
+					{% for word in article.text|striptags|split:' ' %}{% if word in location_match.keys %}<a href="#" class="entity_link" id='map-navigation:{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> {% elif word in entities.keys %} <a href='#' class="entity_link" onclick="changeContent('custom_widget','{{entities|access:word|access:'name'}}')">{{word}}</a> {% else %}{{word}} {% endif %}{% endfor %}	
 				</div>
 				<a href="#{{article.link}}" onclick="javascript:showHide('{{article.link}}');"> [read more...]</a>
 			</article>
@@ -57,24 +57,29 @@
     		{% for entity in topK %}
     			<div class="widget">
     				{% if entities|access:entity|access:'type' == 'organization' %}
-    					<div id="widget-name-{{forloop.counter}}">
-    						{{entities|access:entity|access:'name'}} <a href="#" onclick="javascript:showHide('widget-description-{{forloop.counter}}');">[more]</a>
+    					<div class='widget-title' id="widget-name-{{forloop.counter}}">
+    						{{entities|access:entity|access:'name'}} <a href="#" onclick="javascript:showHide('widget-description-{{forloop.counter}}');">[show/hide]</a>
     					</div>
-    					<div id="widget-description-{{forloop.counter}}" style="display:none">
+    					<div class='widget-content' id="widget-description-{{forloop.counter}}" style="display:none">
     						{{entities|access:entity|access:'description'}}
     					</div>
     				{% elif entities|access:entity|access:'type' == 'person' %}
-    					<div id="widget-name-{{forloop.counter}}">
-    						{{entities|access:entity|access:'name'}} <a href="#" onclick="javascript:showHide('widget-description-{{forloop.counter}}');">[more]</a>
+    					<div class='widget-title' id="widget-name-{{forloop.counter}}">
+    						{{entities|access:entity|access:'name'}} <a href="#" onclick="javascript:showHide('widget-description-{{forloop.counter}}');">[show/hide]</a>
     					</div>
-    					<div id="widget-description-{{forloop.counter}}" style="display:none">
+    					<div class='widget-content' id="widget-description-{{forloop.counter}}" style="display:none">
     						{{entities|access:entity|access:'description'}}
     					</div>
     				{% endif %}
     			</div>
     		{% endfor %}
     		<div id="custom_widget" class="custom_widget">
-    			custom widget area
+				<div class='widget-title'>
+					custom widget area
+				</div>
+				<div style="display:none">
+					foo
+				</div>
     		</div>
 		</aside>
 	<script src="{% static "js/Label.js" %}"></script>
