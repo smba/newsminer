@@ -149,17 +149,20 @@ public class RSSCrawler extends Observable implements Runnable {
         "SELECT source_url FROM rss_feeds")) {
       //Retrieve the feed URLs.
       final ResultSet rs = ps.executeQuery();
-      
+      final long beginTimestamp = System.currentTimeMillis();
       //Crawl the feeds.
       while (rs.next()) {
         final String source_url = rs.getString("source_url");
-        read(source_url);
+        try {
+          read(source_url, beginTimestamp);
+        } catch (Exception nulp) {
+          System.err.println("Could not read rss feed " + source_url);
+          continue;
+        }
       }
     } catch (SQLException sqle) {
       throw new IOException(sqle);
-    } catch (java.lang.NullPointerException nulp) {
-      System.err.println("Could not read rss feed");
-    }
+    } 
   }
   
   /**
@@ -167,7 +170,7 @@ public class RSSCrawler extends Observable implements Runnable {
    * @param  sourceURL URL to the feed 
    * @throws IOException when any of the articles could not be loaded or stored
    */
-  public void read(String sourceURL) throws IOException {
+  public void read(String sourceURL, long beginTimestamp) throws IOException {
     System.out.println(sourceURL);
     //Check the URL.
     final URL feedURL;
@@ -186,7 +189,6 @@ public class RSSCrawler extends Observable implements Runnable {
     } catch (FetcherException fe) {
       throw new IOException(fe);
     }
-    final long beginTimestamp = System.currentTimeMillis();
     //Read the articles.
     try (
         
