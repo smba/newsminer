@@ -97,7 +97,7 @@ public class ArticleClusterer implements Observer { //TODO Observable
           List<String> links       = new LinkedList<>();    //row headers
     try (final PreparedStatement selectArticles = DatabaseUtils.getConnection().prepareStatement(
         "WITH maximum AS (SELECT max(timestamp) FROM rss_articles) SELECT link, "
-        + "text FROM rss_articles, maximum WHERE timestamp = maximum.max")) {
+        + "text FROM rss_articles, maximum WHERE timestamp > maximum.max - 86400")) { //24h
       //Get the articles.
       final ResultSet rs = selectArticles.executeQuery();
       
