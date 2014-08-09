@@ -49,6 +49,7 @@ public class ArticleClusterer implements Observer { //TODO Observable
   private static final SimType SIMILARITY_TYPE  = SimType.PEARSON_CORRELATION;
   /** threshold value used in clustering */
   private static final String  THRESHOLD        = "0.04"; //or .27
+  private static final long timeframe = TimeUnit.HOURS.toMillis(24); //24 hours
   
   //attributes
    /** properties for the clustering */
@@ -97,7 +98,7 @@ public class ArticleClusterer implements Observer { //TODO Observable
           List<String> links       = new LinkedList<>();    //row headers
     try (final PreparedStatement selectArticles = DatabaseUtils.getConnection().prepareStatement(
         "WITH maximum AS (SELECT max(timestamp) FROM rss_articles) SELECT link, "
-        + "text FROM rss_articles, maximum WHERE timestamp > maximum.max - 86400")) { //24h
+        + "text FROM rss_articles, maximum WHERE timestamp > maximum.max - " + timeframe)) { 
       //Get the articles.
       final ResultSet rs = selectArticles.executeQuery();
       
