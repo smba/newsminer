@@ -35,9 +35,9 @@
 			<article class='text-item'>
 				<h2 class="article_title">{{article.title}}</h2>
 				<t style="font-variant:small-caps;">«{{article.newspaper}}»</t> 
-				{% for word in article.description|striptags|split:' ' %}{% if word in location_match.keys %}<a href="#" class="entity_link" id='map-navigation:d{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> {% elif word in entities.keys %} <a href='#' class="entity_link" onclick="changeContent('custom_widget', '{{entities|access:word|access:'name'}}')">{{word}}</a> {% else %}{{word}} {% endif %}{% endfor %}	
+				{% for word in article.description|striptags|split:' ' %}{% if word in location_match.keys %}<a href="#" class="entity_link" id='map-navigation:d{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> {% elif word in entities.keys %} <a href='#' class="entity_link" onclick="changeContent('custom-widget-title', '{{entities|access:word|access:'name'}}');changeContent('custom-widget-description', '{{entities|access:word|access:'description'}}')">{{word}}</a> {% else %}{{word}} {% endif %}{% endfor %}	
 				<div id="{{article.link}}" class="article_text" style="display:none">
-					{% for word in article.text|striptags|split:' ' %}{% if word in location_match.keys %}<a href="#" class="entity_link" id='map-navigation:{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> {% elif word in entities.keys %} <a href='#' class="entity_link" onclick="changeContent('custom_widget','{{entities|access:word|access:'name'}}')">{{word}}</a> {% else %}{{word}} {% endif %}{% endfor %}	
+					{% for word in article.text|striptags|split:' ' %}{% if word in location_match.keys %}<a href="#" class="entity_link" id='map-navigation:{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> {% elif word in entities.keys %} <a href='#' class="entity_link" onclick="changeContent('custom-widget-title','{{entities|access:word|access:'name'}}');changeContent('custom-widget-description', '{{entities|access:word|access:'description'}}">{{word}}</a> {% else %}{{word}} {% endif %}{% endfor %}	
 				</div>
 				<a href="#{{article.link}}" onclick="javascript:showHide('{{article.link}}');"> [read more...]</a>
 			</article>
@@ -74,12 +74,17 @@
     				{% endif %}
     			</div>
     		{% endfor %}
+    		
+    		<!-- customized widget -->
     		<div id="custom_widget" class="custom_widget">
 				<div class='widget-title'>
-					custom widget area
+					<div id="custom-widget-title" style="display:inline;">
+						Custom Widget
+					</div>
+					<a href="#" onclick="javascript:showHide('custom-widget-description');">[show/hide]</a>
 				</div>
-				<div style="display:none">
-					foo
+				<div style="display:none" id="custom-widget-description">
+					
 				</div>
     		</div>
     		
