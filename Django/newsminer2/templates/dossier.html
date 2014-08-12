@@ -44,58 +44,58 @@
 			{% endfor %}
 			
 			</section>		
-			<aside class='aside-content'>
-				<div class="widget">
-	    			{% leaflet_map "yourmap" callback="window.map_init_basic" creatediv="True"%}	
-				</div>	
-	    		{% for entity in topK %}
-	    			<div class="widget">
-	    				{% if entities|access:entity|access:'type' == 'organization' %}
-	    					<div class='widget-title' id="widget-name-{{forloop.counter}}">
-	    						{{entities|access:entity|access:'name'}} <a href="#" onclick="javascript:showHide('widget-description-{{forloop.counter}}');">[show/hide]</a>
-	    					</div>
-	    					<div class='widget-content' id="widget-description-{{forloop.counter}}" style="display:none">
-	    						{{entities|access:entity|access:'description'}}
-	    					</div>
-	    				{% elif entities|access:entity|access:'type' == 'person' %}
-	    					<div class='widget-title' id="widget-name-{{forloop.counter}}">
-	    						{{entities|access:entity|access:'name'}} <a href="#" onclick="javascript:showHide('widget-description-{{forloop.counter}}');">[show/hide]</a>
-	    					</div>
-	    					<div class='widget-content' id="widget-description-{{forloop.counter}}" style="display:none">
-	    						<img src="https://usercontent.googleapis.com/freebase/v1/image{{entities|access:entity|access:'image'}}" alt="https://www.googleapis.com/freebase/v1/image/m/03s72mc" style="float:left; margin:5px;">
-	    						{{entities|access:entity|access:'description'}}
-	    					</div>
-	    				{% endif %}
-	    			</div>
-	    		{% endfor %}
-    		
-	    		<!-- customized widget -->
-	    		<div id="custom_widget" class="custom_widget">
-					<div class='widget-title'>
-						<div id="custom-widget-title" style="display:inline;">
-							Custom Widget
-						</div>
-						<a href="#" onclick="javascript:showHide('custom-widget-description');">[show/hide]</a>
-					</div>
-					<div style="display:none" id="custom-widget-description">
-					
-					</div>
-	    		</div>
-    		
-	    		<!-- popularity widget -->
-	    		<div class="widget">
-	    			<div class='widget-title' id="widget-name-{{forloop.counter}}">
-	    						Popularity <a href="#" onclick="javascript:showHide('popularity_widget');">[show/hide]</a>
-	    			</div>
-	    			<div class='widget-content' id="popularity_widget" style="display:none">
-	    				{% with articles|access:0 as article %}  
-	    				<script type="text/javascript" src="//www.google.com/trends/embed.js?hl=en-US&q={{article.entity_persons|access:0}},+{{article.entity_persons|access:1}}&date=today+1-m&gprop=news&cmpt=q&content=1&cid=TIMESERIES_GRAPH_0&export=5&w=500&h=330"></script>
-	    				{% endwith %}
-	    			</div>
-	    		</div>
-    		
-			</aside>
 		</main>
+		<aside class='aside-content'>
+			<div class="widget">
+    			{% leaflet_map "yourmap" callback="window.map_init_basic" creatediv="True"%}	
+			</div>	
+    		{% for entity in topK %}
+    			<div class="widget">
+    				{% if entities|access:entity|access:'type' == 'organization' %}
+    					<div class='widget-title' id="widget-name-{{forloop.counter}}">
+    						{{entities|access:entity|access:'name'}} <a href="#" onclick="javascript:showHide('widget-description-{{forloop.counter}}');">[show/hide]</a>
+    					</div>
+    					<div class='widget-content' id="widget-description-{{forloop.counter}}" style="display:none">
+    						{{entities|access:entity|access:'description'}}
+    					</div>
+    				{% elif entities|access:entity|access:'type' == 'person' %}
+    					<div class='widget-title' id="widget-name-{{forloop.counter}}">
+    						{{entities|access:entity|access:'name'}} <a href="#" onclick="javascript:showHide('widget-description-{{forloop.counter}}');">[show/hide]</a>
+    					</div>
+    					<div class='widget-content' id="widget-description-{{forloop.counter}}" style="display:none">
+    						<img src="https://usercontent.googleapis.com/freebase/v1/image{{entities|access:entity|access:'image'}}" alt="https://www.googleapis.com/freebase/v1/image/m/03s72mc" style="float:left; margin:5px;">
+    						{{entities|access:entity|access:'description'}}
+    					</div>
+    				{% endif %}
+    			</div>
+    		{% endfor %}
+    		
+    		<!-- customized widget -->
+    		<div id="custom_widget" class="custom_widget">
+				<div class='widget-title'>
+					<div id="custom-widget-title" style="display:inline;">
+						Custom Widget
+					</div>
+					<a href="#" onclick="javascript:showHide('custom-widget-description');">[show/hide]</a>
+				</div>
+				<div style="display:none" id="custom-widget-description">
+					
+				</div>
+    		</div>
+    		
+    		<!-- popularity widget -->
+    		<div class="widget">
+    			<div class='widget-title' id="widget-name-{{forloop.counter}}">
+    						Popularity <a href="#" onclick="javascript:showHide('popularity_widget');">[show/hide]</a>
+    			</div>
+    			<div class='widget-content' id="popularity_widget" style="display:none">
+    				{% with articles|access:0 as article %}  
+    				<script type="text/javascript" src="//www.google.com/trends/embed.js?hl=en-US&q={{article.entity_persons|access:0}},+{{article.entity_persons|access:1}}&date=today+1-m&gprop=news&cmpt=q&content=1&cid=TIMESERIES_GRAPH_0&export=5&w=500&h=330"></script>
+    				{% endwith %}
+    			</div>
+    		</div>
+    		
+		</aside>
 		</div>
 	<script src="{% static "js/Label.js" %}"></script>
 	<script src="{% static "js/BaseMarkerMethods.js" %}"></script>
