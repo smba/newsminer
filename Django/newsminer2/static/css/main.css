@@ -45,176 +45,224 @@ body {
   font-size: 1rem;
 } 
 
-#wrapper {
-	margin: 0 1% 0 5%;
-	padding: 0;
-	max-width: 50%;
-	float: left;
-	overflow: scroll;
-	max-height: 660px;
-	background: #eee;
-	-moz-box-shadow: 1px 1px 6px #292929; /* Firefox */ 
-	-webkit-box-shadow:1px 1px 6px #292929; /* Chrome, Safari */
-	-khtml-box-shadow:1px 1px 6px #292929; /* Konqueror */ 
-	box-shadow:1px 1px 6px #292929; /* CSS3 */
+/*
+==============================================
+	IMAGES
+==============================================
+*/
+
+img,
+figure {
+	-ms-interpolation-mode: bicubic;
+	max-width: 100%;
+	height: auto;
+	width: auto\9;
 }
 
-header {
-	padding: 0.5% 0 0 5%;
-	color: #bbb;
-	height: 60px;
-}
+/*
+==============================================
+	TYPOGRAPHY
+==============================================
+*/
 
-section {
-	
-
-}
-
-aside {
-	width: 33%;
-	margin-left: 1%;
-	margin-right: 10%;
-	float: left;
-}
-
-.text {
-    background-color: #fefefe;
-    list-style: none;
-    margin: 0;
-    padding: 6px;
-}
-
-.text-item {
-    transition: all .2s linear;
-	-moz-transition: all .2s linear;
-	-webkit-transition: all .2s linear;
-	-o-transition: all .2s linear;
-    
-    background-color: #f9f9f9;
-    margin: 0 0 3px;
-    padding: 25px 35px;
-    position: relative;
-    z-index: 0;
-}
-
-/* ======= Nav/Footer ======= */
-
-nav {
-	margin: 0 1% 0 5%;
-	max-width: 50%;
-	color: #333;
-	height: 1.95em;
-}
-
-nav ul {
-	list-style: none;
+h1,
+h2 {
+  color: #151d28;
+	font-family: 'Yanone Kaffeesatz', Arial, Helvetica, sans-serif;
+	line-height: 1.35;
 	margin: 0;
-	text-align: right;
+	text-rendering: optimizelegibility;
 }
-
-nav ul li {
-	display: inline;
-	padding: 0.5em;
-	margin: 0 0 0 0.5%;
-	-moz-border-radius: 10px 10px 0 0;
-	border-radius: 10px 10px 0 0;
-	background: #bbb;
-}
-
-nav ul li:hover {
-	background: #fefefe;
-}
-
-footer {
-	padding: 1%;
-	color: #333;
-	text-align: center;
-}
-
-footer:hover {
-	background: #bbb;
-	font-weight: bold;
-}
-
-nav a:hover {
-	font-weight: normal;
-}
-
-.active {
-	background: #fefefe;
-}
-
-/* ======= Text-Styles ======= */ 
 
 h1 {
-	font-family: 'Yanone Kaffeesatz', sans-serif;
-	font-size: 4em;
-}
-
-header a {
-	text-decoration: none;
-	color: #C88B18;
-}
-
-header a:hover {
-	font-weight: normal;
-	color: #B66118;
+  font-size: 28px;
+  font-size: 1.75rem;
+  margin-bottom: .75em;
 }
 
 h2 {
-	font-family: 'Yanone Kaffeesatz', sans-serif;
-	font-size: 2em;
-	margin: 1% 0;
+  font-size: 24px;
+  font-size: 1.5rem;
+  margin-bottom: .5em;
 }
 
-p {
-	margin: 0.5% 0;
+h3 {
+  font: 600 16px 'Roboto', Arial, Helvetica, sans-serif;
+  font-size: 1rem;
+  margin-bottom: .25em;
 }
+
+p { margin: 0 0 1.5em; }
+
+strong,
+b {	font-weight: 600; }
+
+em,
+i {	font-style: italic; }
+
+small {
+	font-size: 16px;
+	font-size: 1rem;
+}
+
+.logo {
+  float: left;
+  font-size: 42px;
+  font-size: 2.625rem;
+  line-height: inherit;
+  margin: 15px 0 0;
+}
+
+.main-content {
+  line-height: 1.75;
+}
+
+/*
+==============================================
+	LINKS
+==============================================
+*/
 
 a {
-	text-decoration: none;
-	color: #333;
-}
-
-a:hover {
-	font-weight: bold;
-}
-
-.cards {
-    background-color: #fefefe;
-    list-style: none;
-    margin: 0;
-    padding: 6px;
-}
-
-.card-item {
-    transition: all .2s linear;
+	transition: all .2s linear;
 	-moz-transition: all .2s linear;
 	-webkit-transition: all .2s linear;
 	-o-transition: all .2s linear;
-    
-    background-color: #f9f9f9;
-    margin: 0 0 3px;
-    padding: 25px 35px;
-    position: relative;
-    z-index: 0;
+	color: #000000;
+  text-decoration: none;
+}
+a:hover { color: #333333; }
+
+.logo a { color: #c88b18; }
+
+/* NAVIGATION
+---------------------------------------------- */
+.main-navigation a {
+  -webkit-border-top-left-radius: 10px;
+  -webkit-border-top-right-radius: 10px;
+  -moz-border-radius-topleft: 10px;
+  -moz-border-radius-topright: 10px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  
+  background-color: #f9f9f9;
+  display: inline-block;
+  padding: 15px 10px 14px;
+}
+.main-navigation a:hover,
+.main-navigation a.active {
+  color: #000000;
+  background-color: #dddddd;
 }
 
-.card-item:HOVER {
-	background: #424242;
-	color: #eee;
-	font-weight: normal;
+/*
+==============================================
+	LAYOUT
+==============================================
+*/
+
+.wrapper {
+  margin: 20px auto 25px;
+  max-width: 1024px;
+  width: 98%;
 }
 
-.text-item a:hover {
-	font-style: italic;
+/* MAIN HEADER
+---------------------------------------------- */
+.main-header {
+  padding: 0 33.5% 0 0;
 }
 
-/* ======= Various ======= */ 
-::-webkit-scrollbar {
-display: none;
+.main-navigation {
+  float: right;
+  padding: 15px 0 0;
+}
+.main-navigation ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.main-navigation li {
+  display: block;
+  float: left;
+  margin: 0 0 0 5px;
 }
 
+/* MAIN CONTENT
+---------------------------------------------- */
+.main-content {
+  background-color: #dddddd;
+  float: left;
+  padding: 20px 20px 5px;
+  width: 66.5%;
+}
+
+.main-content .article-item {
+  margin: 0 -10px 1em;
+  padding: 10px;
+}
+.main-content .article-item:hover { background-color: #eeeeee; }
+
+.aside-content {
+  background-color: #dddddd;
+  float: right;
+  padding: 15px;
+  width: 32.5%;
+}
+
+
+/* MAIN FOOTER
+---------------------------------------------- */
+
+
+/*
+==============================================
+	Non-Semantic Helper Classes
+==============================================
+*/
+
+.clearfix:before, .clearfix:after { content: ""; display: table; }
+.clearfix:after { clear: both; }
+.clearfix { *zoom: 1; }
+
+/*
+	=====================================================================
+	=                                                                   =
+	=                      T A B L E T - landscape                 		=
+	=                                                                   =
+	=====================================================================
+*/
+
+@media only screen and (min-width: 1024px){
+
+.logo {
+  font-size: 60px;
+  font-size: 3.75rem;
+  margin: 0;
+}
+
+/*
+==============================================
+	LAYOUT
+==============================================
+*/
+
+.wrapper {
+  margin-top: 50px;
+  width: 88%;
+}
+
+/* MAIN HEADER
+---------------------------------------------- */
+.main-header { padding: 0 30.5% 0 0; }
+
+/* MAIN CONTENT
+---------------------------------------------- */
+.main-content { width: 69.5%; }
+
+.aside-content { width: 29.5%; }
+  
+}
 
 /* ======= Leaflet ======= */ 
 .leaflet-container {  /* all maps */
