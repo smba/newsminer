@@ -17,38 +17,33 @@
     </head>
 
     <body>
-    	<header>
-			<h1><a href="/">NewsMiner+</a></h1>
-    	</header>
-		<nav>
-			<ul>
+		<div class='wrapper'>
+    	<header class='main-header clearfix'>
+			<h1 class='logo'><a href="/">NewsMiner+</a></h1>
+			<nav role='navigation' class='main-navigation'>
+				<ul class='clearfix'>
 				<li><a href='{% url 'index' %}'>Dossiers</a></li>
 				<li><a href='{% url 'what' %}'>What is NewsMiner+?</a></li>
 				<li><a href='{% url 'impressum' %}'>Impressum</a></li>
 			</ul>
-		</nav>
-		<div id='wrapper'>
-    	<section class='text'>
+			</nav>
+    	</header>
+		<main role='main' class='main-content clearfix'>
+			<section class='main-content'>
+				
 			{% for article in articles %}
-			
-			<article class='text-item'>
+			<article class="article-item">
 				<h2 class="article_title">{{article.title}}</h2>
-				<t style="font-variant:small-caps;">«{{article.newspaper}}»</t> 
+				<p>«{{article.newspaper}}»</p> 
 				{% for word in article.description|striptags|split:' ' %}{% if word in location_match.keys %}<a href="#" class="entity_link" id='map-navigation:d{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> {% elif word in entities.keys %} <a href='#' class="entity_link" onclick="changeContent('custom-widget-title', '{{entities|access:word|access:'name'}}');changeContent('custom-widget-description', '{{entities|access:word|access:'description'}}')">{{word}}</a> {% else %}{{word}} {% endif %}{% endfor %}	
-				<div id="{{article.link}}" class="article_text" style="display:none">
+				<p id="{{article.link}}" class="article_text">
 					{% for word in article.text|striptags|split:' ' %}{% if word in location_match.keys %}<a href="#" class="entity_link" id='map-navigation:{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> {% elif word in entities.keys %} <a href='#' class="entity_link" onclick="changeContent('custom-widget-title','{{entities|access:word|access:'name'}}');changeContent('custom-widget-description', '{{entities|access:word|access:'description'}}">{{word}}</a> {% else %}{{word}} {% endif %}{% endfor %}	
-				</div>
+				</p>
 				<a href="#{{article.link}}" onclick="javascript:showHide('{{article.link}}');"> [read more...]</a>
 			</article>
 			{% endfor %}
 			
-		</section>	
-		<a href='{% url 'index' %}'>
-		<footer>
-			EXIT
-		</footer>
-		</a>
-		</div>	
+		</section>		
 		<aside>
 			<div class="widget">
     			{% leaflet_map "yourmap" callback="window.map_init_basic" creatediv="True"%}	
@@ -100,6 +95,8 @@
     		</div>
     		
 		</aside>
+	</main>
+</div>
 	<script src="{% static "js/Label.js" %}"></script>
 	<script src="{% static "js/BaseMarkerMethods.js" %}"></script>
 	<script src="{% static "js/Marker.Label.js" %}"></script>
