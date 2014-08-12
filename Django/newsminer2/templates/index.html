@@ -10,36 +10,31 @@
     </head>
 
     <body>
-		
-    	<header>
-			<h1><a href="/">NewsMiner+</a></h1>
+		<div class='wrapper'>
+    	<header class='main-header clearfix'>
+			<h1 class='logo'><a href="/">NewsMiner+</a></h1>
+			<nav role='navigation' class='main-navigation'>
+				<ul class='clearfix'>
+					<li class='active'><a href='{% url 'index' %}'>Dossiers</a></li>
+					<li><a href='{% url 'what' %}'>What is NewsMiner+?</a></li>
+					<li><a href='{% url 'impressum' %}'>Imprint</a></li>
+				</ul>
+			</nav>
     	</header>
-		<nav>
-			<ul>
-				<li class='active'><a href='{% url 'index' %}'>Dossiers</a></li>
-				<li><a href='{% url 'what' %}'>What is NewsMiner+?</a></li>
-				<li><a href='{% url 'impressum' %}'>Imprint</a></li>
-			</ul>
-		</nav>
-		<div id='wrapper'>
-		<section>
-			<ul class='cards'>
+		<main role='main' class='main-contents clearfix'>
+			<section class='main-content'>
 			{% for cluster in clusterDatas %}
 				<a href='{{dossier}}{{cluster.id}}'>
-					<li class="card-item">
-						<h4>{{cluster.centroid.title}}</h4>
-						<dossier-teaser>{{cluster.centroid.description|striptags}}</dossier-teaser>
-					
-				</a><br>
+					<article class="article-item">
+						<h2>{{cluster.centroid.title}}</h2>
+					</article>
+				</a><br />
 				<!-- <script type="text/javascript" src="//www.google.com/trends/embed.js?hl=en-US&q={{cluster.centroid.entity_locations.0}},+{{cluster.centroid.entity_locations.1}},+{{cluster.centroid.entity_locations.2}}&date=today+3-m&cmpt=q&content=1&cid=TIMESERIES_GRAPH_0&export=5&w=500&h=330"></script>
 				 -->
-				</li>
 			{% endfor %}
-		</ul>
 		</section>
-		</div>
-	<footer>	
-	</footer>
-    </body>
+	</main>
+	</div>
+ </body>
 
 </html>
