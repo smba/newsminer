@@ -1,12 +1,12 @@
 from django.conf.urls import patterns, include, url
-from ClickDummyNM import views
+from newsminer2 import views
 from django.contrib import admin
 #from dh5bp.urls import urlpatterns as dh5bp_urls
 #admin.autodiscover()
 
 urlpatterns = patterns('',
     # Examples:
-    # url(r'^$',               'ClickDummyNM.views.home', name='home'),
+    # url(r'^$',               'newsminer2.views.home', name='home'),
     # url(r'^blog/',           include('blog.urls')),
     url(r'^$',               views.index,   name = 'index'),
     url(r'^dossier/(\d+)/$', views.dossier, name = 'dossier'),

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ClickDummyNM.models import RssArticleClusters, RssFeeds, RssArticles, EntityLocations, EntityOrganizations, EntityPersons
+from newsminer2.models import RssArticleClusters, RssFeeds, RssArticles, EntityLocations, EntityOrganizations, EntityPersons
 from django.http import HttpResponse
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext

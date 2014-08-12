@@ -1,5 +1,5 @@
 """
-Django settings for ClickDummyNM project.
+Django settings for newsminer2 project.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/1.6/topics/settings/
@@ -47,7 +47,7 @@ INSTALLED_APPS = (
     'dbarray',
     'leaflet',
     #'dh5bp',
-    'ClickDummyNM',
+    'newsminer2',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -59,9 +59,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'ClickDummyNM.urls'
+ROOT_URLCONF = 'newsminer2.urls'
 
-WSGI_APPLICATION = 'ClickDummyNM.wsgi.application'
+WSGI_APPLICATION = 'newsminer2.wsgi.application'
 
 
 # Database
