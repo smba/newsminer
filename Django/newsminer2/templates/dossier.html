@@ -44,6 +44,7 @@
 			{% endfor %}
 			
 			</section>		
+		</main>
 		<aside>
 			<div class="widget">
     			{% leaflet_map "yourmap" callback="window.map_init_basic" creatediv="True"%}	
@@ -95,7 +96,6 @@
     		</div>
     		
 		</aside>
-		</main>
 		</div>
 	<script src="{% static "js/Label.js" %}"></script>
 	<script src="{% static "js/BaseMarkerMethods.js" %}"></script>
