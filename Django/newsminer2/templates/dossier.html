@@ -14,6 +14,8 @@
         {% leaflet_js %}
         {% leaflet_css %}
 		
+		
+		
     </head>
 
     <body>
@@ -94,13 +96,24 @@
     				{% endwith %}
     			</div>
     		</div>
-    		
+    		    		
+    		<!-- personstats widget -->
+    		<div class="widget">
+    			<div class='widget-title' id="widget-name">
+    						Peoples <a href="#" onclick="javascript:showHide('persons_widget');">[show/hide]</a>
+    			</div>
+    			<div class='widget-content' id="persons_widget" style="display:none">
+    				Hallo
+    			</div>
+    		</div>
 		</aside>
 		</div>
 	<script src="{% static "js/Label.js" %}"></script>
 	<script src="{% static "js/BaseMarkerMethods.js" %}"></script>
 	<script src="{% static "js/Marker.Label.js" %}"></script>
 	<script src="{% static "js/Map.Label.js" %}"></script>
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script src="https://code.jquery.com/jquery-1.6.2.min.js"></script>
 	
 	<script type="text/javascript" charset="utf-8">
 	  	function showHide(elementid){
@@ -145,5 +158,30 @@
         	}	
     	}
 	</script>
+	<script type="text/javascript">
+	google.load("visualization", "1", {packages:["corechart"]});
+    google.setOnLoadCallback(drawChart);
+    function drawChart() {
+      var data = google.visualization.arrayToDataTable([
+        ['Name', 'Count'],
+        ['Baraack Obame',  1000],
+        ['Wladimir Putin',  460],
+        ['Angela Merkel',  660]
+      ]);
+
+      var options = {
+        title: 'Company Performance',
+        'width':240
+      };
+
+      function resize () {
+          var chart = new google.visualization.BarChart(document.getElementById('persons_widget'));
+          chart.draw(data, options);
+        }
+
+        window.onload = resize();
+        window.onresize = resize;
+    }
+   </script>
     </body>
 </html>
