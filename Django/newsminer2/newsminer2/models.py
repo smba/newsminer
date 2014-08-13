@@ -17,6 +17,7 @@ Basic RSS feed class
 class RssFeeds(models.Model):
     source_url = models.TextField(primary_key=True)
     name = models.TextField()
+    country = models.CharField(max_length=2)
     class Meta:
         managed = False
         db_table = 'rss_feeds'

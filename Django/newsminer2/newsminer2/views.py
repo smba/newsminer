@@ -37,7 +37,7 @@ def index(request):
     specific_context_dict = {
                              'clusterDatas' : clusterDatas,
                              }
-    print clusterDatas
+    #print clusterDatas
     index_context_dict = dict(context_dict.items() + specific_context_dict.items())
     return render_to_response('index.html', index_context_dict, context)
 
@@ -104,7 +104,7 @@ def index2(request):
             entitiesInCluster[ckey] = []
             for t in temp:
                 entitiesInCluster[ckey].append(t[0])
-        print entitiesInCluster[124]
+        #print entitiesInCluster[124]
         return (distribution, entitiesInCluster)
     
     temp = getClusters(4)
@@ -137,6 +137,7 @@ def dossier(request, cluster_id):
         temp = RssFeeds.objects.filter(source_url=articles[i].source_url.source_url)
         articleDict = articles[i].__dict__
         articleDict['newspaper'] = temp[0].name
+        articleDict['country'] = temp[0].country
         articlesCopy.append(articleDict)
     '''
     Gets the locations and estimates the map center
@@ -222,17 +223,34 @@ def dossier(request, cluster_id):
             entitiesDict[person] = EntityPersons.objects.filter(name=person)[0].__dict__
             entitiesDict[person]['type'] = 'person'
             
+        topPersons = sorted(persons.iteritems(), key=operator.itemgetter(1), reverse=True)[:k]
         allEntities = dict(organizations.items() + persons.items())
         topK = sorted(allEntities.iteritems(), key=operator.itemgetter(1), reverse=True)[:k]
         temp = []
         for topk in topK:
             temp.append(topk[0])
-        return temp, entitiesDict
+        return temp, entitiesDict, topPersons
     
     temp = getEntities(3)
     topK = temp[0]
     allEntities = temp[1]
-                 
+    
+     
+    topPersons = temp[2]
+    
+    def getPersonDistribution():
+        personlist = topPersons
+        person_dist = {}
+        for article in articles:
+            person_dist[article.link] = []
+        for article in articles:
+            for person in personlist:
+                i = article.text.count(person[0])
+                person_dist[article.link].append(i)
+        return person_dist
+    person_dist = getPersonDistribution() 
+    print "Person dist", person_dist
+    persons = person_dist.keys()
     specific_context_dict = {
                     'dossier_title': "Welcome to Dossier No " + str(cluster_id),
                     'article_text':"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Option congue nihil imperdiet doming id quod mazim placerat facer",
@@ -243,9 +261,12 @@ def dossier(request, cluster_id):
                     'location_match':location_match,
                     'topK': topK,
                     'entities':allEntities,
-                    'entitiesKeys':allEntities.keys()
+                    'entitiesKeys':allEntities.keys(),
+                    'persons':persons,
+                    'topPersons':topPersons,
+                    'person_dist':person_dist
                     }
-    print allEntities.keys()
+    #print allEntities.keys()
     dossier_context_dict = dict(context_dict.items() + specific_context_dict.items())
     return render_to_response('dossier.html', dossier_context_dict, context)
 

@@ -36,7 +36,7 @@
 			{% for article in articles %}
 			<article class="article-item">
 				<h2 class="article_title">{{article.title}}</h2>
-				<p>«{{article.newspaper}}»</p> 
+				<p>«{{article.newspaper}}» <img src="{% static 'flags/' %}{{article.country}}_16.png"></p> 
 				{% for word in article.description|striptags|split:' ' %}{% if word in location_match.keys %}<a href="#" class="entity_link" id='map-navigation:d{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> {% elif word in entities.keys %} <a href='#' class="entity_link" onclick="changeContent('custom-widget-title', '{{entities|access:word|access:'name'}}');changeContent('custom-widget-description', '{{entities|access:word|access:'description'}}')">{{word}}</a> {% else %}{{word}} {% endif %}{% endfor %}	
 				<p id="{{article.link}}" class="article_text">
 					{% for word in article.text|striptags|split:' ' %}{% if word in location_match.keys %}<a href="#" class="entity_link" id='map-navigation:{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> {% elif word in entities.keys %} <a href='#' class="entity_link" onclick="changeContent('custom-widget-title','{{entities|access:word|access:'name'}}');changeContent('custom-widget-description', '{{entities|access:word|access:'description'}}">{{word}}</a> {% else %}{{word}} {% endif %}{% endfor %}	
@@ -103,7 +103,7 @@
     						Peoples <a href="#" onclick="javascript:showHide('persons_widget');">[show/hide]</a>
     			</div>
     			<div class='widget-content' id="persons_widget" style="display:none">
-    				Hallo
+    				
     			</div>
     		</div>
 		</aside>
@@ -164,24 +164,27 @@
     function drawChart() {
       var data = google.visualization.arrayToDataTable([
         ['Name', 'Count'],
-        ['Baraack Obame',  1000],
-        ['Wladimir Putin',  460],
-        ['Angela Merkel',  660]
+        {% for key, value in topPersons %}
+        ['{{key}}', {{value}}],
+        {% endfor %}
       ]);
 
       var options = {
-        title: 'Company Performance',
+        title: 'People mentioned',
         'width':240
       };
-
+	
+      
+      
       function resize () {
           var chart = new google.visualization.BarChart(document.getElementById('persons_widget'));
           chart.draw(data, options);
         }
-
+      
         window.onload = resize();
         window.onresize = resize;
     }
+   
    </script>
     </body>
 </html>
