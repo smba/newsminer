@@ -9,20 +9,19 @@
     </head>
 
     <body>
-		
-    	<header>
-			<h1><a href="/">NewsMiner+</a></h1>
-    	</header>
-		<nav>
-			<ul>
+		<div class='wrapper'>
+    	<header class='main-header clearfix'>
+			<h1 class='logo'><a href="/">NewsMiner+</a></h1>
+			<nav role='navigation' class='main-navigation'>
+				<ul class='clearfix'>
 				<li><a href='{% url 'index' %}'>Dossiers</a></li>
 				<li class='active'><a href='{% url 'what' %}'>What is NewsMiner+?</a></li>
 				<li><a href='{% url 'impressum' %}'>Imprint</a></li>
-			</ul>
-		</nav>
-		<div id='wrapper'>
-    	<section class='text'>
-				<article class='text-item'>
+					</ul>
+				</nav>
+	    	</header>
+			<main role='main' class='main-content clearfix'>
+				<section class='main-content'>
 				<h2>What is NewsMiner+?</h2>
 				<p>
 					NewsMiner+ is a web blog providing mashups regarding recent topics. Imagine, as different
@@ -37,11 +36,9 @@
 					Leaflet/Open Street Maps.
 				</p>
 				<center><img src="{% static "happygei.png" %}" alt="So much text to read..."></center>	
-			</article>
-		</section>
-   		</div>
-   	<footer>	
-   	</footer>
-       </body>
+					</section>
+				</main>
+				</div>
+			 </body>
 
-   </html>
+			</html>
