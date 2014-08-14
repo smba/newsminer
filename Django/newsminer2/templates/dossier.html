@@ -163,7 +163,8 @@
 	<script type="text/javascript">
 	google.load("visualization", "1", {packages:["corechart"]});
     google.setOnLoadCallback(drawChart);
-    function drawChart() {
+    
+	function drawChart() {
       var data = google.visualization.arrayToDataTable([
         ['Name', 'Count'],
         {% for key, value in topPersons %}
@@ -173,18 +174,21 @@
 
       var options = {
         title: 'People mentioned',
-        'width':240
-      };
-      
-      function resize () {
+        'width':240;
+      }   
+	 }
+     
+	 function resize () {
           var chart = new google.visualization.BarChart(document.getElementById('persons_widget'));
           chart.draw(data, options);
         }
 		
 		window.onload = resize();
 
-		window.onresize = resize;
-	}
+		window.onresize = resize();
+
 	</script>
-    </body>
+
+</body>
+
 </html>
