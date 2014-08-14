@@ -53,7 +53,7 @@
 			</div>	
     		
 			{% for entity in topK %}
-    			<div class="widget">
+    			<div class="freebase widget">
     				{% if entities|access:entity|access:'type' == 'organization' %}
     					<div class='widget-title' id="widget-name-{{forloop.counter}}">
     						{{entities|access:entity|access:'name'}} <a href="#" onclick="javascript:showHide('widget-description-{{forloop.counter}}');">[show/hide]</a>
@@ -74,7 +74,7 @@
     		{% endfor %}
     		
     		<!-- popularity widget -->
-    		<div class="widget">
+    		<div class="popularity widget">
     			<div class='widget-title' id="widget-name-{{forloop.counter}}">
     						Popularity <a href="#" onclick="javascript:showHide('popularity_widget');">[show/hide]</a>
     			</div>
@@ -86,7 +86,7 @@
     		</div>
     		    		
     		<!-- personstats widget -->
-    		<div class="widget">
+    		<div class="persons widget">
     			<div class='widget-title' id="widget-name">
     						Peoples <a href="#" onclick="javascript:showHide('persons_widget');">[show/hide]</a>
     			</div>
@@ -96,7 +96,7 @@
     		</div>
     		
 			<!-- customized widget -->
-    		<div id="custom_widget" class="custom_widget">
+    		<div class="custom_widget" id="custom_widget">
 				<div class='widget-title'>
 					<div id="custom-widget-title" style="display:inline;">
 						Custom Widget
