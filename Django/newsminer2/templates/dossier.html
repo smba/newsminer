@@ -37,8 +37,8 @@
 			<article class="article-item">
 				<h2 class="article_title">{{article.title}}</h2>
 				<p>«{{article.newspaper}}» <img src="{% static 'flags/' %}{{article.country}}_16.png"></p> 
-				{% for word in article.description|striptags|split:' ' %}{% if word in location_match.keys %}<a href="#" class="entity_link" id='map-navigation:d{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> {% elif word in entities.keys %} <a href='#' class="entity_link" onclick="changeContent('custom-widget-title', '{{entities|access:word|access:'name'}}');changeContent('custom-widget-description', '{{entities|access:word|access:'description'}}')">{{word}}</a> {% else %}{{word}} {% endif %}{% endfor %}	
-				<p id="{{article.link}}" class="article_text">
+				<p class="article_description" style="display:none">{% for word in article.description|striptags|split:' ' %}{% if word in location_match.keys %}<a href="#" class="entity_link" id='map-navigation:d{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> {% elif word in entities.keys %} <a href='#' class="entity_link" onclick="changeContent('custom-widget-title', '{{entities|access:word|access:'name'}}');changeContent('custom-widget-description', '{{entities|access:word|access:'description'}}')">{{word}}</a> {% else %}{{word}} {% endif %}{% endfor %}</p>	
+				<p id="{{article.link}}" class="article_text" style="display:none">
 					{% for word in article.text|striptags|split:' ' %}{% if word in location_match.keys %}<a href="#" class="entity_link" id='map-navigation:{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> {% elif word in entities.keys %} <a href='#' class="entity_link" onclick="changeContent('custom-widget-title','{{entities|access:word|access:'name'}}');changeContent('custom-widget-description', '{{entities|access:word|access:'description'}}">{{word}}</a> {% else %}{{word}} {% endif %}{% endfor %}	
 				</p>
 				<a href="#{{article.link}}" onclick="javascript:showHide('{{article.link}}');"> [read more...]</a>
@@ -80,7 +80,7 @@
     			</div>
     			<div class='widget-content' id="popularity_widget" style="display:none">
     				{% with articles|access:0 as article %}  
-    				<script type="text/javascript" src="//www.google.com/trends/embed.js?hl=en-US&q={{article.entity_persons|access:0}},+{{article.entity_persons|access:1}}&date=today+1-m&gprop=news&cmpt=q&content=1&cid=TIMESERIES_GRAPH_0&export=5&w=500&h=330"></script>
+    				<script type="text/javascript" src="//www.google.com/trends/embed.js?hl=en-US&q={{article.entity_persons|access:0}},+{{article.entity_persons|access:1}}&date=today+1-m&gprop=news&cmpt=q&content=1&cid=TIMESERIES_GRAPH_0&export=5&w=220&h=160"></script>
     				{% endwith %}
     			</div>
     		</div>
