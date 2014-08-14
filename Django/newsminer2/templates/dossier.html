@@ -51,7 +51,8 @@
 			<div class="widget">
     			{% leaflet_map "yourmap" callback="window.map_init_basic" creatediv="True"%}	
 			</div>	
-    		{% for entity in topK %}
+    		
+			{% for entity in topK %}
     			<div class="widget">
     				{% if entities|access:entity|access:'type' == 'organization' %}
     					<div class='widget-title' id="widget-name-{{forloop.counter}}">
@@ -71,19 +72,6 @@
     				{% endif %}
     			</div>
     		{% endfor %}
-    		
-    		<!-- customized widget -->
-    		<div id="custom_widget" class="custom_widget">
-				<div class='widget-title'>
-					<div id="custom-widget-title" style="display:inline;">
-						Custom Widget
-					</div>
-					<a href="#" onclick="javascript:showHide('custom-widget-description');">[show/hide]</a>
-				</div>
-				<div style="display:none" id="custom-widget-description">
-					
-				</div>
-    		</div>
     		
     		<!-- popularity widget -->
     		<div class="widget">
@@ -106,6 +94,19 @@
     				
     			</div>
     		</div>
+    		
+			<!-- customized widget -->
+    		<div id="custom_widget" class="custom_widget">
+				<div class='widget-title'>
+					<div id="custom-widget-title" style="display:inline;">
+						Custom Widget
+					</div>
+					<a href="#" onclick="javascript:showHide('custom-widget-description');">[show/hide]</a>
+				</div>
+				<div style="display:none" id="custom-widget-description">
+					
+				</div>
+    		</div>
 		</aside>
 		</div>
 	<script src="{% static "js/Label.js" %}"></script>
@@ -123,27 +124,28 @@
 	      		document.getElementById(elementid).style.display = 'none';
 	    	}
 	  	}
+		
     	function changeContent(id, msg) {
      		var el = document.getElementById(id);
     		if (id) {
     			el.innerHTML = msg;
     		}
-    	}	
+    	}
+			
     	function focusLocation(latitude, longitude) {
     		var newCenter = L.latLng(latitude, longitude);
         	map.panTo(newCenter)
     	}
+		
     	function map_init_basic (map, options) {
     		{% for location in locations %}
-        	L.marker([{{location.latlng.0}},  {{location.latlng.1}}]).bindLabel("{{location.name}}", { noHide: false })
-        	.addTo(map);
+        		L.marker([{{location.latlng.0}},  {{location.latlng.1}}]).bindLabel("{{location.name}}", { noHide: false }).addTo(map);
         	{% endfor %}
         	var center = L.latLng({{map_center.0}}, {{map_center.1}});
         	map.panTo(center);
         	
         	/* http://stackoverflow.com/questions/10111668/find-all-elements-whose-id-begins-with-a-common-string */
         	var dates = document.querySelectorAll('*[id^="map-navigation"]');
-        	
         	for (i = 0; i < dates.length; i++) {
         		dates[i].onclick = function(e) {
             	    var pos = e.target.getAttribute('data-position');
@@ -153,10 +155,10 @@
             	        var z = parseInt(zoom);
             	        map.setView(loc, z, {animation: true});
             	        return false;
-            	    }
+            	    	}
             	}
-        	}	
-    	}
+        	}
+		}	
 	</script>
 	<script type="text/javascript">
 	google.load("visualization", "1", {packages:["corechart"]});
@@ -165,7 +167,7 @@
       var data = google.visualization.arrayToDataTable([
         ['Name', 'Count'],
         {% for key, value in topPersons %}
-        ['{{key}}', {{value}}],
+        	['{{key}}', {{value}}],
         {% endfor %}
       ]);
 
@@ -173,18 +175,16 @@
         title: 'People mentioned',
         'width':240
       };
-	
-      
       
       function resize () {
           var chart = new google.visualization.BarChart(document.getElementById('persons_widget'));
           chart.draw(data, options);
         }
-      
-        window.onload = resize();
-        window.onresize = resize;
-    }
-   
-   </script>
+		
+		window.onload = resize();
+
+		window.onresize = resize;
+	}
+	</script>
     </body>
 </html>
