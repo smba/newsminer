@@ -21,7 +21,9 @@ import java.util.Observer;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.lang.Math;
 
@@ -38,18 +40,20 @@ import edu.ucla.sspace.vector.ScaledDoubleVector;
 
 /**
  * Clusters articles that cover the same topic.
+ * Gets called when the {@link RSSCrawler} instance has finished crawling.
  * 
  * @author  Stefan Muehlbauer
  * @author  Timo Guenther
- * @version 2014-08-02
+ * @version 2014-08-15
  */
-public class ArticleClusterer implements Observer { //TODO Observable
+public class ArticleClusterer implements Observer {
   //constants
   /** function used to determine similarity */
-  private static final SimType SIMILARITY_TYPE  = SimType.PEARSON_CORRELATION;
+  private static final SimType SIMILARITY_TYPE = SimType.PEARSON_CORRELATION;
   /** threshold value used in clustering */
-  private static final String  THRESHOLD        = "0.04"; //or .27
-  private static final long timeframe = TimeUnit.HOURS.toMillis(24); //24 hours
+  private static final String  THRESHOLD       = "0.04";
+  /** the span of time of one clustering */
+  private static final long    timeframe       = TimeUnit.HOURS.toMillis(24);
   
   //attributes
    /** properties for the clustering */
@@ -87,7 +91,7 @@ public class ArticleClusterer implements Observer { //TODO Observable
   }
 
   /**
-   * Clusters the articles and stores the result.
+   * Clusters the articles within the current time-frame and stores the result.
    * @return the amount of clusters found
    * @throws IOException when the articles could not be loaded or the clusters could not be stored
    */
@@ -97,9 +101,11 @@ public class ArticleClusterer implements Observer { //TODO Observable
     final Set<String>  tagUniverse = new LinkedHashSet<>(); //column headers
           List<String> links       = new LinkedList<>();    //row headers
     try (final PreparedStatement selectArticles = DatabaseUtils.getConnection().prepareStatement(
-        "WITH maximum AS (SELECT max(timestamp) FROM rss_articles) SELECT link, "
-        + "text FROM rss_articles, maximum WHERE timestamp > maximum.max - " + timeframe)) { 
-      //Get the articles.
+        "WITH maximum AS (SELECT max(timestamp) FROM rss_articles) "
+        + "SELECT link, text "
+        + "FROM rss_articles, maximum "
+        + "WHERE timestamp > maximum.max - " + timeframe)) {
+      //Get the newest articles.
       final ResultSet rs = selectArticles.executeQuery();
       
       //Add each article as one row.
@@ -128,23 +134,19 @@ public class ArticleClusterer implements Observer { //TODO Observable
     //Cluster.
     final Clustering         clustering         = new HierarchicalAgglomerativeClustering();
     final Assignments        clusterAssignments = clustering.cluster(matrix, clusteringProperties);
-    final List<Set<Integer>> clusters           = clusterAssignments.clusters(); //TODO order clusters
+    final List<Set<Integer>> clusters           = clusterAssignments.clusters();
     final DoubleVector[]     clusterCentroids   = clusterAssignments.getSparseCentroids();
     
     //Store the clusters.
     try (final PreparedStatement insertCluster = DatabaseUtils.getConnection().prepareStatement(
         "INSERT INTO rss_article_clusters(timestamp, articles, entity_locations, entity_organizations, entity_persons, score, common_entities) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
-      
-      final PreparedStatement getLocationsScore = DatabaseUtils.getConnection().prepareStatement("SELECT * FROM entity_locations WHERE name = ?");
-      final PreparedStatement getOrganizationsScore = DatabaseUtils.getConnection().prepareStatement("SELECT * FROM entity_organizations WHERE name = ?");
-      final PreparedStatement getPersonsScore = DatabaseUtils.getConnection().prepareStatement("SELECT * FROM entity_persons WHERE name = ?");
       final long timestamp = System.currentTimeMillis();
       int clusterIndex = -1;
       for (final Set<Integer> cluster : clusters) {
         clusterIndex++;
         final int clusterSize = cluster.size();
         if (clusterSize > 1) {
-          //Get each vector's score, that is the similarity to the cluster centroid.
+          //Get each article's score, that is the corresponding vector's similarity to the cluster centroid.
           final DoubleVector         clusterCentroid = clusterCentroids[clusterIndex];
           final Map<Integer, Double> clusterScores   = new LinkedHashMap<>(clusterSize);
           for (final int articleIndex : cluster) {
@@ -152,7 +154,7 @@ public class ArticleClusterer implements Observer { //TODO Observable
             clusterScores.put(articleIndex, score);
           }
           
-          //Sort the cluster by descending score.
+          //Sort the articles of the cluster by descending score.
           final SortedSet<Integer> clusterSorted = new TreeSet<>(new Comparator<Integer>() {
             @Override
             public int compare(Integer o1, Integer o2) {
@@ -161,95 +163,69 @@ public class ArticleClusterer implements Observer { //TODO Observable
           });
           clusterSorted.addAll(clusterScores.keySet());
           
-          //Store the cluster.
+          //Get the corresponding article links.
           final List<String> articles = new ArrayList<>(clusterSize);
           for (final int articleIndex : clusterSorted) {
             articles.add(links.get(articleIndex));
           }
-                    
           final Array articlesArray = DatabaseUtils.getConnection().createArrayOf("text", articles.toArray());
           
-          //Score the cluster itself
-          final PreparedStatement getArticles = DatabaseUtils.getConnection().prepareStatement("SELECT * FROM rss_articles WHERE link = ANY(?)");
-          getArticles.setArray(1, articlesArray);
-          ResultSet articleResultSet = getArticles.executeQuery();
-          Set<String> clusterLocations = new TreeSet<String>();
-          Set<String> clusterOrganizations = new TreeSet<String>();
-          Set<String> clusterPersons = new TreeSet<String>();
-          List<List<String>> articleLocationsList = new LinkedList<List<String>>();
-          List<List<String>> articleOrganizationsList = new LinkedList<List<String>>();
-          List<List<String>> articlePersonsList = new LinkedList<List<String>>();
-          Set<String> clusterSources = new TreeSet<String>();
-          
-          while (articleResultSet.next()) {
+          //Get the common entities, that is the entities shared by the cluster and its articles.
+          final Map<String, Set<String>> clusterEntityTypes = new TreeMap<>();
+          try (final PreparedStatement selectClusterArticles = DatabaseUtils.getConnection().prepareStatement(
+              "SELECT * FROM rss_articles WHERE link = ANY(?)")) {
+            //Get this cluster's articles.
+            selectClusterArticles.setArray(1, articlesArray);
+            final ResultSet clusterArticlesRS = selectClusterArticles.executeQuery();
             
-            clusterSources.add(articleResultSet.getString("source_url"));
-            
-            String[] entityLocations = (String[])articleResultSet.getArray("entity_locations").getArray();
-            articleLocationsList.add((List<String>) Arrays.asList(entityLocations));
-            clusterLocations.addAll(Arrays.asList(entityLocations));
-            
-            String[] entityOrganizations = (String[])articleResultSet.getArray("entity_organizations").getArray();
-            articleOrganizationsList.add((List<String>) Arrays.asList(entityOrganizations));
-            clusterOrganizations.addAll(Arrays.asList(entityOrganizations));
-            
-            String[] entityPersons = (String[])articleResultSet.getArray("entity_persons").getArray();
-            articlePersonsList.add((List<String>) Arrays.asList(entityPersons));
-            clusterPersons.addAll(Arrays.asList(entityPersons));
-          }
-          
-          final double score = Math.log(Math.pow(clusterSources.size(), 2));
-          double common_entities = 0.0;
-          
-          for (String location : clusterLocations) {
-            boolean add = true;
-            for (List<String> locationList : articleLocationsList) {
-              if (!locationList.contains(location)) {
-                add = false;
-                break;
+            //Add each article's entities to the cluster's articles.
+            while (clusterArticlesRS.next()) {
+              for (final String type : new String[] {"location", "organization", "person"}) {
+                final List<String> articleEntities = Arrays.asList((String[]) clusterArticlesRS.getArray("entity_" + type + "s").getArray());
+                Set<String> clusterEntities = clusterEntityTypes.get(type);
+                if (clusterEntities == null) {
+                  clusterEntities = new LinkedHashSet<String>();
+                  clusterEntityTypes.put(type, clusterEntities);
+                }
+                clusterEntities.addAll(articleEntities);
               }
-              if (add) { common_entities += 1; }
-            }
-          }
-          for (String organization : clusterOrganizations) {
-            boolean add = true;
-            for (List<String> organizationList : articleOrganizationsList) {
-              if (!organizationList.contains(organization)) {
-                add = false;
-                break;
-              }
-              if (add) { common_entities += 1; }
-            }
-          }
-          for (String person : clusterPersons) {
-            boolean add = true;
-            for (List<String> personList : articleLocationsList) {
-              if (!personList.contains(person)) {
-                add = false;
-                break;
-              }
-              if (add) { common_entities += 1; }
             }
           }
           
+          //Get the common entity count.
+          int commonEntities = 0;
+          for (Entry<String, Set<String>> clusterEntityType : clusterEntityTypes.entrySet()) {
+            final Set<String> namedEntities = clusterEntityType.getValue();
+            commonEntities += namedEntities.size();
+          }
+          final double common_entities = Math.log(commonEntities);
+          
+          //Get the cluster's score.
+          final double score = Math.log(Math.pow(articles.size(), 2));
+          
+          //Store the cluster.
           insertCluster.setLong (1, timestamp);
           insertCluster.setArray(2, articlesArray);
-          
-          final Array clusterLocationsArray = DatabaseUtils.getConnection().createArrayOf("text", clusterLocations.toArray());
-          insertCluster.setArray(3, clusterLocationsArray);
-          
-          final Array clusterOrganizationsArray = DatabaseUtils.getConnection().createArrayOf("text", clusterOrganizations.toArray());
-          insertCluster.setArray(4, clusterOrganizationsArray);
-          
-          final Array clusterPersonsArray = DatabaseUtils.getConnection().createArrayOf("text", clusterPersons.toArray());
-          insertCluster.setArray(5, clusterPersonsArray);
-          
+          for (Entry<String, Set<String>> clusterEntityType : clusterEntityTypes.entrySet()) {
+            final String      type                 = clusterEntityType.getKey();
+            final Set<String> clusterEntities      = clusterEntityType.getValue();
+            final Array       clusterEntitiesArray = DatabaseUtils.getConnection().createArrayOf("text", clusterEntities.toArray());
+            int i = -1;
+            switch (type) {
+              case "location":
+                i = 3;
+                break;
+              case "organization":
+                i = 4;
+                break;
+              case "person":
+                i = 5;
+                break;
+            }
+            insertCluster.setArray(i, clusterEntitiesArray);
+          }
           insertCluster.setDouble(6, score);
-          
-          common_entities = Math.log(common_entities);
-          
           insertCluster.setDouble(7, common_entities);
-          
           insertCluster.addBatch();
         }
       }

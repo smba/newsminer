@@ -1,5 +1,6 @@
 package newsminer.rss;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,8 +21,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
-
-import org.junit.runner.manipulation.Sortable;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequestFactory;
@@ -54,16 +53,16 @@ import newsminer.util.DatabaseUtils;
 /***
  * Crawls RSS feeds and stores their articles in the database.
  * The URLs to the feeds are taken from the database.
- * Notifies the observers once all feeds have been crawled.
+ * Notifies the observers ({@link ArticleClusterer} once all feeds have been crawled.
  * 
  * @author  Stefan Muehlbauer
  * @author  Timo Guenther
- * @version 2014-08-02
+ * @version 2014-08-15
  */
 public class RSSCrawler extends Observable implements Runnable {
   //constants
   /** the interval at which the feeds are crawled */
-  private static final long   TIMESTEP              = TimeUnit.HOURS.toMillis(1);
+  private static final long   TIMESTEP       = TimeUnit.HOURS.toMillis(1);
   /** the developer key used for Google API requests */
   private static final String GOOGLE_API_KEY;
   static {
@@ -89,6 +88,7 @@ public class RSSCrawler extends Observable implements Runnable {
    * @throws IOException when the classifier could not be instantiated
    */
   public RSSCrawler() throws IOException {
+    //Get the classifier.
     try {
       final Properties properties = new Properties();
       try (final InputStream in = new FileInputStream("conf/classifier.properties")) {
@@ -99,6 +99,18 @@ public class RSSCrawler extends Observable implements Runnable {
       throw new IOException(cce);
     } catch (ClassNotFoundException cnfe) {
       throw new IOException (cnfe);
+    }
+    
+    //Prevent the error message "Could not find fetcher.properties on classpath".
+    boolean fetcherPropertiesExists = false;
+    final String[] classpaths = System.getProperty("java.class.path").split(File.pathSeparator);
+    for (String classpath : classpaths) {
+      if (new File(classpath, "fetcher.properties").exists()) {
+        fetcherPropertiesExists = true;
+      }
+    }
+    if (!fetcherPropertiesExists) {
+      new File(classpaths[0], "fetcher.properties").createNewFile();
     }
   }
   
@@ -149,14 +161,14 @@ public class RSSCrawler extends Observable implements Runnable {
         "SELECT source_url FROM rss_feeds")) {
       //Retrieve the feed URLs.
       final ResultSet rs = ps.executeQuery();
-      final long beginTimestamp = System.currentTimeMillis();
+      
       //Crawl the feeds.
       while (rs.next()) {
         final String source_url = rs.getString("source_url");
         try {
-          read(source_url, beginTimestamp);
-        } catch (Exception nulp) {
-          System.err.println("Could not read rss feed " + source_url);
+          read(source_url);
+        } catch (Exception nulp) { //TODO Do not catch Exception! Should this be NullPointerException? If so: Check for null before it gets thrown.
+          System.err.println("Could not read RSS feed: " + source_url);
           continue;
         }
       }
@@ -170,8 +182,7 @@ public class RSSCrawler extends Observable implements Runnable {
    * @param  sourceURL URL to the feed 
    * @throws IOException when any of the articles could not be loaded or stored
    */
-  public void read(String sourceURL, long beginTimestamp) throws IOException {
-    System.out.println(sourceURL);
+  public void read(String sourceURL) throws IOException {
     //Check the URL.
     final URL feedURL;
     try {
@@ -189,10 +200,9 @@ public class RSSCrawler extends Observable implements Runnable {
     } catch (FetcherException fe) {
       throw new IOException(fe);
     }
+    
     //Read the articles.
-    try (
-        
-        final PreparedStatement insertArticle = DatabaseUtils.getConnection().prepareStatement(
+    try (final PreparedStatement insertArticle = DatabaseUtils.getConnection().prepareStatement(
         "INSERT INTO rss_articles VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
       for (Object articleObject : feed.getEntries()) {
         //Get the article.
@@ -201,7 +211,7 @@ public class RSSCrawler extends Observable implements Runnable {
         //Get the relevant variables.
         final String link        = article.getLink();
         final String source_url  = sourceURL;
-        final long   timestamp   = article.getPublishedDate().getTime();
+        final long   timestamp   = flushTimestamp;
         final String title       = article.getTitle();
         final String description = article.getDescription().getValue();
         
@@ -289,7 +299,6 @@ public class RSSCrawler extends Observable implements Runnable {
               } catch (IndexOutOfBoundsException ioobe) { //no matching result found
                 continue;
               }
-              //System.out.println(searchResultObject.toString(2)); //TODO
               final String topicID    = searchResultObject.get("mid",   String.class);
                            name       = searchResultObject.get("name",  String.class);
               final double popularity = searchResultObject.get("score", Double.class);
@@ -435,7 +444,7 @@ public class RSSCrawler extends Observable implements Runnable {
         //Update the database table.
         insertArticle.setString(1, link);
         insertArticle.setString(2, source_url);
-        insertArticle.setLong  (3, beginTimestamp);
+        insertArticle.setLong  (3, timestamp);
         insertArticle.setString(4, title);
         insertArticle.setString(5, description);
         insertArticle.setString(6, text);
