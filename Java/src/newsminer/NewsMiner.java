@@ -10,7 +10,7 @@ import newsminer.util.DatabaseUtils;
  * Coordinates the News Miner components.
  * 
  * @author  Timo Guenther
- * @version 2014-07-01
+ * @version 2014-08-15
  */
 public abstract class NewsMiner {
   /**
@@ -20,7 +20,7 @@ public abstract class NewsMiner {
   public static void main(String[] args) {
     //Initialize the components.
     System.out.println("Initializing.");
-    DatabaseUtils.getConnection();
+    DatabaseUtils.getConnectionPool();
     final RSSCrawler       rssCrawler;
     final ArticleClusterer articleClusterer;
     try {

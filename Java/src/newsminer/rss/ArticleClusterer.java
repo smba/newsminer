@@ -5,6 +5,7 @@ import newsminer.util.TextUtils;
 
 import java.io.IOException;
 import java.sql.Array;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -100,11 +101,12 @@ public class ArticleClusterer implements Observer {
     final Matrix       matrix      = new AtomicGrowingSparseMatrix();
     final Set<String>  tagUniverse = new LinkedHashSet<>(); //column headers
           List<String> links       = new LinkedList<>();    //row headers
-    try (final PreparedStatement selectArticles = DatabaseUtils.getConnection().prepareStatement(
-        "WITH maximum AS (SELECT max(timestamp) FROM rss_articles) "
-        + "SELECT link, text "
-        + "FROM rss_articles, maximum "
-        + "WHERE timestamp > maximum.max - " + timeframe)) {
+    try (final Connection        con            = DatabaseUtils.getConnectionPool().getConnection();
+         final PreparedStatement selectArticles = con.prepareStatement(
+             "WITH maximum AS (SELECT max(timestamp) FROM rss_articles) "
+             + "SELECT link, text "
+             + "FROM rss_articles, maximum "
+             + "WHERE timestamp > maximum.max - " + timeframe)) {
       //Get the newest articles.
       final ResultSet rs = selectArticles.executeQuery();
       
@@ -138,8 +140,9 @@ public class ArticleClusterer implements Observer {
     final DoubleVector[]     clusterCentroids   = clusterAssignments.getSparseCentroids();
     
     //Store the clusters.
-    try (final PreparedStatement insertCluster = DatabaseUtils.getConnection().prepareStatement(
-        "INSERT INTO rss_article_clusters(timestamp, articles, entity_locations, entity_organizations, entity_persons, score, common_entities) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+    try (final Connection        con           = DatabaseUtils.getConnectionPool().getConnection();
+         final PreparedStatement insertCluster = con.prepareStatement(
+             "INSERT INTO rss_article_clusters(timestamp, articles, entity_locations, entity_organizations, entity_persons, score, common_entities) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
       final long timestamp = System.currentTimeMillis();
       int clusterIndex = -1;
       for (final Set<Integer> cluster : clusters) {
@@ -168,11 +171,11 @@ public class ArticleClusterer implements Observer {
           for (final int articleIndex : clusterSorted) {
             articles.add(links.get(articleIndex));
           }
-          final Array articlesArray = DatabaseUtils.getConnection().createArrayOf("text", articles.toArray());
+          final Array articlesArray = con.createArrayOf("text", articles.toArray());
           
           //Get the common entities, that is the entities shared by the cluster and its articles.
           final Map<String, Set<String>> clusterEntityTypes = new TreeMap<>();
-          try (final PreparedStatement selectClusterArticles = DatabaseUtils.getConnection().prepareStatement(
+          try (final PreparedStatement selectClusterArticles = con.prepareStatement(
               "SELECT * FROM rss_articles WHERE link = ANY(?)")) {
             //Get this cluster's articles.
             selectClusterArticles.setArray(1, articlesArray);
@@ -209,7 +212,7 @@ public class ArticleClusterer implements Observer {
           for (Entry<String, Set<String>> clusterEntityType : clusterEntityTypes.entrySet()) {
             final String      type                 = clusterEntityType.getKey();
             final Set<String> clusterEntities      = clusterEntityType.getValue();
-            final Array       clusterEntitiesArray = DatabaseUtils.getConnection().createArrayOf("text", clusterEntities.toArray());
+            final Array       clusterEntitiesArray = con.createArrayOf("text", clusterEntities.toArray());
             int i = -1;
             switch (type) {
               case "location":

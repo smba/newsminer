@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Array;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -157,24 +158,25 @@ public class RSSCrawler extends Observable implements Runnable {
    * @throws IOException
    */
   public void crawl() throws IOException {
-    try (final PreparedStatement ps = DatabaseUtils.getConnection().prepareStatement(
-        "SELECT source_url FROM rss_feeds")) {
+    try (final Connection        con = DatabaseUtils.getConnectionPool().getConnection();
+         final PreparedStatement ps  = con.prepareStatement(
+             "SELECT source_url FROM rss_feeds")) {
       //Retrieve the feed URLs.
-      final ResultSet rs = ps.executeQuery();
+      final ResultSet         rs = ps.executeQuery();
       
-      //Crawl the feeds.
+      //Crawl each feed.
       while (rs.next()) {
-        final String source_url = rs.getString("source_url");
+        final String sourceURL = rs.getString("source_url");
         try {
-          read(source_url);
-        } catch (Exception nulp) { //TODO Do not catch Exception! Should this be NullPointerException? If so: Check for null before it gets thrown.
-          System.err.println("Could not read RSS feed: " + source_url);
+          read(sourceURL);
+        } catch (IOException ioe) {
+          System.err.println(ioe.getMessage());
           continue;
         }
       }
     } catch (SQLException sqle) {
       throw new IOException(sqle);
-    } 
+    }
   }
   
   /**
@@ -202,8 +204,9 @@ public class RSSCrawler extends Observable implements Runnable {
     }
     
     //Read the articles.
-    try (final PreparedStatement insertArticle = DatabaseUtils.getConnection().prepareStatement(
-        "INSERT INTO rss_articles VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+    try (final Connection        con           = DatabaseUtils.getConnectionPool().getConnection();
+         final PreparedStatement insertArticle = con.prepareStatement(
+             "INSERT INTO rss_articles VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
       for (Object articleObject : feed.getEntries()) {
         //Get the article.
         final SyndEntry article = (SyndEntry) articleObject;
@@ -220,7 +223,7 @@ public class RSSCrawler extends Observable implements Runnable {
         try {
           linkURL = new URL(link);
         } catch (MalformedURLException murle) {
-          System.err.printf("Invalid article URL received from feed with the URL %s (%s).\n",
+          System.err.printf("Invalid article URL received from feed with the URL %s: %s\n",
               feedURL, murle.getMessage());
           continue;
         }
@@ -255,15 +258,15 @@ public class RSSCrawler extends Observable implements Runnable {
           try {
             switch (type) {
               case "location":
-                insertEntity = DatabaseUtils.getConnection().prepareStatement(
+                insertEntity = con.prepareStatement(
                     "INSERT INTO entity_locations VALUES (?, ?, ?, ?, ?)");
                 break;
               case "organization":
-                insertEntity = DatabaseUtils.getConnection().prepareStatement(
+                insertEntity = con.prepareStatement(
                     "INSERT INTO entity_organizations VALUES (?, ?, ?)");
                 break;
               case "person":
-                insertEntity = DatabaseUtils.getConnection().prepareStatement(
+                insertEntity = con.prepareStatement(
                     "INSERT INTO entity_persons VALUES (?, ?, ?, ?, ?, ?, ?)");
                 break;
               default:
@@ -310,7 +313,7 @@ public class RSSCrawler extends Observable implements Runnable {
               }
               
               //Update the database if necessary.
-              try (final PreparedStatement selectEntity = DatabaseUtils.getConnection().prepareStatement(
+              try (final PreparedStatement selectEntity = con.prepareStatement(
                   "SELECT * FROM entity_" + type + "s WHERE name = ?")) {
                 selectEntity.setString(1, name);
                 final ResultSet rs = selectEntity.executeQuery();
@@ -451,7 +454,7 @@ public class RSSCrawler extends Observable implements Runnable {
         for (Entry<String, Set<String>> normalizedNamedEntityType : normalizedNamedEntityTypes.entrySet()) {
           final String      type               = normalizedNamedEntityType.getKey();
           final Set<String> namedEntities      = normalizedNamedEntityType.getValue();
-          final Array       namedEntitiesArray = DatabaseUtils.getConnection().createArrayOf("text", namedEntities.toArray());
+          final Array       namedEntitiesArray = con.createArrayOf("text", namedEntities.toArray());
           int i = -1;
           switch (type) {
             case "location":
