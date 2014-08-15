@@ -3,15 +3,17 @@ package newsminer.json;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.MissingResourceException;
+
+import javax.xml.bind.TypeConstraintException;
 
 /**
- * Represents a JSON object.
- * Contains any amount of {@link JSONEntry} instances.
- * Note that the keys do not have to be unique.
+ * A {@link JSONStructure} representing a JSON object.
+ * This contains any amount of {@link JSONEntry} instances.
+ * Note that the keys should be but do not have to be unique.
  * 
  * @author  Timo Guenther
- * @version 2014-04-22
+ * @version 2014-08-15
+ * @see     JSONStructure
  * @see     JSONEntry
  */
 public class JSONObject extends JSONStructure implements Iterable<JSONEntry> {
@@ -140,32 +142,70 @@ public class JSONObject extends JSONStructure implements Iterable<JSONEntry> {
     return entries.get(index).getValue();
   }
   
+  @Override
+  protected JSONValue get(int index, Object... jsonPath)
+      throws TypeConstraintException, IndexOutOfBoundsException {
+    Object key = jsonPath[index];
+    if (key instanceof String) {
+      key = new JSONString((String) key);
+    }
+    if (key instanceof JSONString) {
+      if (index == jsonPath.length - 1) {
+        return get((JSONString) key);
+      }
+      final JSONValue value = get((JSONString) key);
+      if (value == null) {
+        return null;
+      }
+      return value.get(++index, jsonPath);
+    }
+    throw new TypeConstraintException("Expected (JSON) string as key for JSON object but got this instance of " + key.getClass() + " instead: " + key);
+  }
+  
   /**
-   * Returns the value with the given key casted to the given type.
+   * Returns the value with the given key casted to the given type or null if it does not exist.
    * @param  key key to be found
    * @param  clazz class of the type to be casted to
-   * @return the value with the given key casted to the given type
+   * @return the value with the given key casted to the given type or null if it does not exist
    * @throws ClassCastException if the object is not assignable to the given type
-   * @throws MissingResourceException if the value with the given key does not exist
    */
-  public <U> U get(String key, Class<U> clazz) throws ClassCastException, MissingResourceException {
+  public <U> U get(String key, Class<U> clazz) throws ClassCastException {
     return get(new JSONString(key), clazz);
   }
   
   /**
-   * Returns the value with the given key casted to the given type.
+   * Returns the value with the given key casted to the given type or null if it does not exist.
    * @param  key key to be found
    * @param  clazz class of the type to be casted to
-   * @return the value with the given key casted to the given type
+   * @return the value with the given key casted to the given type or null if it does not exist
    * @throws ClassCastException if the object is not assignable to the given type
-   * @throws MissingResourceException if the value with the given key does not exist
    */
-  public <U> U get(JSONString key, Class<U> clazz) throws ClassCastException, MissingResourceException {
+  public <U> U get(JSONString key, Class<U> clazz) throws ClassCastException {
     final JSONValue value = get(key);
     if (value == null) {
-      throw new MissingResourceException("Key not found: " + key.getString(), clazz.toString(), key.getString());
+      return null;
     }
     return value.castTo(clazz);
+  }
+  
+  @Override
+  protected <U> U get(int index, Class<U> clazz, Object... jsonPath)
+      throws TypeConstraintException, ClassCastException, IndexOutOfBoundsException {
+    Object key = jsonPath[index];
+    if (key instanceof String) {
+      key = new JSONString((String) key);
+    }
+    if (key instanceof JSONString) {
+      if (index == jsonPath.length - 1) {
+        return get((JSONString) key, clazz);
+      }
+      final JSONValue value = get((JSONString) key);
+      if (value == null) {
+        return null;
+      }
+      return value.get(++index, clazz, jsonPath);
+    }
+    throw new TypeConstraintException("Expected (JSON) string as key for JSON object but got this instance of " + key.getClass() + " instead: " + key);
   }
   
   /**
@@ -195,6 +235,26 @@ public class JSONObject extends JSONStructure implements Iterable<JSONEntry> {
     }
     final U castValue = value.castTo(clazz);
     return castValue == null ? defaultValue : castValue;
+  }
+  
+  @Override
+  protected <U> U get(int index, Class<U> clazz, U defaultValue, Object... jsonPath)
+      throws TypeConstraintException, ClassCastException {
+    Object key = jsonPath[index];
+    if (key instanceof String) {
+      key = new JSONString((String) key);
+    }
+    if (key instanceof JSONString) {
+      if (index == jsonPath.length - 1) {
+        return get((JSONString) key, clazz, defaultValue);
+      }
+      final JSONValue value = get((JSONString) key);
+      if (value == null) {
+        return defaultValue;
+      }
+      return value.get(++index, clazz, defaultValue, jsonPath);
+    }
+    throw new TypeConstraintException("Expected (JSON) string as key for JSON object but got this instance of " + key.getClass() + " instead: " + key);
   }
   
   /**
@@ -269,81 +329,31 @@ public class JSONObject extends JSONStructure implements Iterable<JSONEntry> {
     return this;
   }
   
-  /* (non-Javadoc)
-   * @see java.lang.Iterable#iterator()
-   */
   @Override
   public Iterator<JSONEntry> iterator() {
     return entries.iterator();
   }
   
-  /* (non-Javadoc)
-   * @see newsminer.json.JSONValue#isArray()
-   */
   @Override
   public boolean isArray() {
     return false;
   }
   
-  /* (non-Javadoc)
-   * @see newsminer.json.JSONValue#isBoolean()
-   */
-  @Override
-  public boolean isBoolean() {
-    return false;
-  }
-  
-  /* (non-Javadoc)
-   * @see newsminer.json.JSONValue#isNull()
-   */
-  @Override
-  public boolean isNull() {
-    return false;
-  }
-  
-  /* (non-Javadoc)
-   * @see newsminer.json.JSONValue#isNumber()
-   */
-  @Override
-  public boolean isNumber() {
-    return false;
-  }
-  
-  /* (non-Javadoc)
-   * @see newsminer.json.JSONValue#isObject()
-   */
   @Override
   public boolean isObject() {
     return true;
   }
   
-  /* (non-Javadoc)
-   * @see newsminer.json.JSONValue#isString()
-   */
-  @Override
-  public boolean isString() {
-    return false;
-  }
-  
-  /* (non-Javadoc)
-   * @see java.lang.Object#toString()
-   */
   @Override
   public String toString() {
     return toString(-1);
   }
   
-  /* (non-Javadoc)
-   * @see newsminer.json.JSONStructure#toString(int)
-   */
   @Override
   public String toString(int indent) {
     return appendTo(new StringBuilder(), indent, 0).toString();
   }
   
-  /* (non-Javadoc)
-   * @see newsminer.json.JSONStructure#appendTo(java.lang.StringBuilder, int, int)
-   */
   @Override
   public StringBuilder appendTo(StringBuilder sb, int indent, int level) {
     sb.append(JSONProtocol.CHAR_BEGIN_OBJECT);

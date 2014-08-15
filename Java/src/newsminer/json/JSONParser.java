@@ -6,10 +6,9 @@ import java.text.ParseException;
  * Provides methods for parsing JSON input according to RFC 4627.
  * 
  * @author  Timo Guenther
- * @version 2014-04-22
+ * @version 2014-08-15
  */
 public abstract class JSONParser {
-  
   /**
    * Stores a JSON value and the index at which it ends.
    * 

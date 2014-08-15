@@ -1,33 +1,35 @@
 package newsminer.json;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import javax.xml.bind.TypeConstraintException;
+
 /**
- * Represents a JSON array.
+ * A {@link JSONStructure} representing a JSON array.
  * Contains any amount of {@link JSONValue} instances.
  * 
  * @author  Timo Guenther
- * @version 2013-10-18
- * @see     JSONValue
+ * @version 2014-08-15
+ * @see     JSONStructure
  */
 public class JSONArray extends JSONStructure implements Iterable<JSONValue> {
   //Serializable constants
-	/** Serial Version UID */
+  /** Serial Version UID */
   private static final long serialVersionUID = 6966570264744252369L;
   
   //attributes
   /** wrapped value */
   private final List<JSONValue> wrap;
   
-	/**
+  /**
    * Constructs a new instance of this class.
    */
   public JSONArray() {
-    this.wrap = new ArrayList<JSONValue>();
+    this.wrap = new LinkedList<>();
   }
   
   /**
@@ -136,10 +138,27 @@ public class JSONArray extends JSONStructure implements Iterable<JSONValue> {
   }
   
   /**
-   * @see java.util.List#get(int)
+   * Returns the item at the given index.
+   * @param  index position of the item
+   * @return the item at the given index
+   * @throws IndexOutOfBoundsException if the index is out of range
    */
-  public JSONValue get(int index) {
+  public JSONValue get(int index) throws IndexOutOfBoundsException {
     return wrap.get(index);
+  }
+  
+  @Override
+  protected JSONValue get(int index, Object... jsonPath)
+      throws TypeConstraintException, IndexOutOfBoundsException {
+    final Object key = jsonPath[index];
+    if (key instanceof Integer) {
+      if (index == jsonPath.length - 1) {
+        return get((int) key);
+      }
+      final JSONValue value = get((int) key);
+      return value.get(++index, jsonPath);
+    }
+    throw new TypeConstraintException("Expected integer as key for JSON array but got this instance of " + key.getClass() + " instead: " + key);
   }
   
   /**
@@ -148,22 +167,57 @@ public class JSONArray extends JSONStructure implements Iterable<JSONValue> {
    * @param  clazz class of the type to be casted to
    * @return the item at the given index casted to the given type
    * @throws ClassCastException if the object is not assignable to the given type
+   * @throws IndexOutOfBoundsException if the index is out of range
    */
-  public <T> T get(int index, Class<T> clazz) throws ClassCastException {
+  public <T> T get(int index, Class<T> clazz) throws ClassCastException, IndexOutOfBoundsException {
     return get(index).castTo(clazz);
   }
   
+  @Override
+  protected <U> U get(int index, Class<U> clazz, Object... jsonPath)
+      throws TypeConstraintException, ClassCastException, IndexOutOfBoundsException {
+    final Object key = jsonPath[index];
+    if (key instanceof Integer) {
+      if (index == jsonPath.length - 1) {
+        return get((int) key, clazz);
+      }
+      final JSONValue value = get((int) key);
+      return value.get(++index, clazz, jsonPath);
+    }
+    throw new TypeConstraintException("Expected integer as key for JSON array but got this instance of " + key.getClass() + " instead: " + key);
+  }
+  
   /**
-   * Returns the item at the given index casted to the given type or the default value if it is null.
+   * Returns the item at the given index casted to the given type or the default value if it is null or the index is out of range.
    * @param  index position of the item
    * @param  clazz class of the type to be casted to
    * @param  defaultValue default value
-   * @return the item at the given index casted to the given type or the default value if it is null
+   * @return the item at the given index casted to the given type or the default value if it is null or the index is out of range
    * @throws ClassCastException if the object is not assignable to the given type
    */
   public <U> U get(int index, Class<U> clazz, U defaultValue) throws ClassCastException {
+    if (index < 0 || index >= wrap.size()) {
+      return defaultValue;
+    }
     final U castValue = get(index).castTo(clazz);
     return castValue == null ? defaultValue : castValue;
+  }
+  
+  @Override
+  protected <U> U get(int index, Class<U> clazz, U defaultValue, Object... jsonPath)
+      throws IllegalArgumentException, TypeConstraintException, ClassCastException {
+    final Object key = jsonPath[index];
+    if (key instanceof Integer) {
+      if (index == jsonPath.length - 1) {
+        return get((int) key, clazz, defaultValue);
+      }
+      final JSONValue value = get((int) key, JSONValue.class, (JSONValue) null);
+      if (value == null) {
+        return defaultValue;
+      }
+      return value.get(++index, clazz, defaultValue, jsonPath);
+    }
+    throw new TypeConstraintException("Expected integer as key for JSON array but got this instance of " + key.getClass() + " instead: " + key);
   }
   
   /**
@@ -225,73 +279,26 @@ public class JSONArray extends JSONStructure implements Iterable<JSONValue> {
     return wrap.subList(fromIndex, toIndex);
   }
   
-  /* (non-Javadoc)
-	 * @see newsminer.json.JSONValue#isArray()
-	 */
-	@Override
-	public boolean isArray() {
-		return true;
-	}
+  @Override
+  public boolean isArray() {
+    return true;
+  }
   
-	/* (non-Javadoc)
-	 * @see newsminer.json.JSONValue#isBoolean()
-	 */
-	@Override
-	public boolean isBoolean() {
-		return false;
-	}
+  @Override
+  public boolean isObject() {
+    return false;
+  }
   
-	/* (non-Javadoc)
-	 * @see newsminer.json.JSONValue#isNull()
-	 */
-	@Override
-	public boolean isNull() {
-		return false;
-	}
-  
-	/* (non-Javadoc)
-	 * @see newsminer.json.JSONValue#isNumber()
-	 */
-	@Override
-	public boolean isNumber() {
-		return false;
-	}
-  
-  /* (non-Javadoc)
-	 * @see newsminer.json.JSONValue#isObject()
-	 */
-	@Override
-	public boolean isObject() {
-		return false;
-	}
-  
-	/* (non-Javadoc)
-	 * @see newsminer.json.JSONValue#isString()
-	 */
-	@Override
-	public boolean isString() {
-		return false;
-	}
-  
-  /* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
   @Override
   public String toString() {
     return toString(-1);
   }
   
-  /* (non-Javadoc)
-	 * @see newsminer.json.JSONStructure#toString(int)
-	 */
   @Override
   public String toString(int indent) {
-	  return appendTo(new StringBuilder(), indent, 0).toString();
+    return appendTo(new StringBuilder(), indent, 0).toString();
   }
   
-	/* (non-Javadoc)
-	 * @see newsminer.json.JSONStructure#appendTo(java.lang.StringBuilder, int, int)
-	 */
   @Override
   public StringBuilder appendTo(StringBuilder sb, int indent, int level) {
     sb.append(JSONProtocol.CHAR_BEGIN_ARRAY);

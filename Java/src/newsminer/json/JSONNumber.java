@@ -3,14 +3,15 @@ package newsminer.json;
 import java.math.BigDecimal;
 
 /**
- * Represents a JSON number.
+ * A {@link JSONPrimitive} representing a JSON number.
  * 
  * @author  Timo Guenther
- * @version 2014-04-22
+ * @version 2014-08-15
+ * @see     JSONPrimitive
  */
 public class JSONNumber extends JSONPrimitive {
-	//Serializable constants
-	/** Serial Version UID */
+  //Serializable constants
+  /** Serial Version UID */
   private static final long serialVersionUID = 4864685923820466659L;
   
   //attributes
@@ -20,7 +21,7 @@ public class JSONNumber extends JSONPrimitive {
   /**
    * Constructs a new instance of this class from the given String.
    * @param  val source String
-   * @throws NumberFormatException
+   * @throws NumberFormatException if the number is not formatted properly
    */
   public JSONNumber(String val) throws NumberFormatException {
     this.wrap = new BigDecimal(val);
@@ -66,65 +67,26 @@ public class JSONNumber extends JSONPrimitive {
     return wrap;
   }
   
-  /* (non-Javadoc)
-	 * @see newsminer.json.JSONValue#isArray()
-	 */
-	@Override
-	public boolean isArray() {
-		return false;
-	}
-  
-	/* (non-Javadoc)
-	 * @see newsminer.json.JSONValue#isBoolean()
-	 */
-	@Override
-	public boolean isBoolean() {
-		return false;
-	}
-  
-	/* (non-Javadoc)
-	 * @see newsminer.json.JSONValue#isNull()
-	 */
-	@Override
-	public boolean isNull() {
-		return false;
-	}
-  
-	/* (non-Javadoc)
-	 * @see newsminer.json.JSONValue#isNumber()
-	 */
-	@Override
-	public boolean isNumber() {
-		return true;
-	}
-  
-	/* (non-Javadoc)
-	 * @see newsminer.json.JSONValue#isObject()
-	 */
-	@Override
-	public boolean isObject() {
-		return false;
-	}
-  
-	/* (non-Javadoc)
-	 * @see newsminer.json.JSONValue#isString()
-	 */
-	@Override
-	public boolean isString() {
-		return false;
-	}
-  
-  /* (non-Javadoc)
-   * @see newsminer.json.JSONValue#isStructure()
-   */
   @Override
-  public boolean isStructure() {
+  public boolean isBoolean() {
     return false;
   }
   
-  /* (non-Javadoc)
-   * @see newsminer.json.JSONValue#cast(java.lang.Class)
-   */
+  @Override
+  public boolean isNull() {
+    return false;
+  }
+  
+  @Override
+  public boolean isNumber() {
+    return true;
+  }
+  
+  @Override
+  public boolean isString() {
+    return false;
+  }
+  
   @Override
   public <T> T castTo(Class<T> clazz) throws ClassCastException {
     if (clazz == Byte.class) {
@@ -147,10 +109,7 @@ public class JSONNumber extends JSONPrimitive {
     }
     return super.castTo(clazz);
   }
-	
-  /* (non-Javadoc)
-   * @see java.lang.Object#toString()
-   */
+  
   @Override
   public String toString() {
     return wrap.toString();

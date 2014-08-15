@@ -3,109 +3,71 @@ package newsminer.json;
 import java.util.Locale;
 
 /**
- * Represents a JSON string.
+ * A {@link JSONPrimitive} representing a JSON string.
  * Contains any amount of characters enclosed in quotation marks.
  * 
  * @author  Timo Guenther
- * @version 2014-04-22
+ * @version 2014-08-15
+ * @see     JSONPrimitive
  */
 public class JSONString extends JSONPrimitive {
-	//Serializable constants
-	/** Serial Version UID */
+  //Serializable constants
+  /** Serial Version UID */
   private static final long serialVersionUID = 6468295594866255962L;
   
   //attributes
   /** wrapped value */
   private final String wrap;
   
-	/**
-	 * Constructs a new instance of this class.
-	 */
-	public JSONString() {
+  /**
+   * Constructs a new instance of this class.
+   */
+  public JSONString() {
     this.wrap = new String();
-	}
-	
-	/**
-	 * Constructs a new instance of this class from the given String.
+  }
+  
+  /**
+   * Constructs a new instance of this class from the given String.
    * Note that the source String will not be escaped by default and as such does not conform to the JSON standard.
    * It is advisable to call {@link escape(String)} before this constructor.
-	 * @param value
-	 * @see   escape(String)
-	 */
-	public JSONString(String val) {
-    this.wrap = val;
-	}
-	
-	/**
-	 * Returns this as String without quotation marks.
-	 * Note that this will not unescape the source String if it has been escaped earlier.
-	 * This may also be the case when this instance was retrieved through the {@link JSONParser}.
-	 * @return this as String without quotation marks
-	 * @see    unescape(String)
-	 */
-	public String getString() {
-	  return wrap;
-	}
-  
-	/* (non-Javadoc)
-	 * @see newsminer.json.JSONValue#isArray()
-	 */
-	@Override
-	public boolean isArray() {
-		return false;
-	}
-  
-	/* (non-Javadoc)
-	 * @see newsminer.json.JSONValue#isBoolean()
-	 */
-	@Override
-	public boolean isBoolean() {
-		return false;
-	}
-  
-	/* (non-Javadoc)
-	 * @see newsminer.json.JSONValue#isNull()
-	 */
-	@Override
-	public boolean isNull() {
-		return false;
-	}
-  
-	/* (non-Javadoc)
-	 * @see newsminer.json.JSONValue#isNumber()
-	 */
-	@Override
-	public boolean isNumber() {
-		return false;
-	}
-  
-	/* (non-Javadoc)
-	 * @see newsminer.json.JSONValue#isObject()
-	 */
-	@Override
-	public boolean isObject() {
-		return false;
-	}
-  
-  /* (non-Javadoc)
-   * @see newsminer.json.JSONValue#isString()
+   * @param value
+   * @see   escape(String)
    */
+  public JSONString(String val) {
+    this.wrap = val;
+  }
+  
+  /**
+   * Returns this as String without quotation marks.
+   * Note that this will not unescape the source String if it has been escaped earlier.
+   * This may also be the case when this instance was retrieved through the {@link JSONParser}.
+   * @return this as String without quotation marks
+   * @see    unescape(String)
+   */
+  public String getString() {
+    return wrap;
+  }
+  
+  @Override
+  public boolean isBoolean() {
+    return false;
+  }
+  
+  @Override
+  public boolean isNull() {
+    return false;
+  }
+  
+  @Override
+  public boolean isNumber() {
+    return false;
+  }
+  
   @Override
   public boolean isString() {
     return true;
   }
   
-  /* (non-Javadoc)
-   * @see newsminer.json.JSONValue#isStructure()
-   */
-  @Override
-  public boolean isStructure() {
-    return false;
-  }
-  
-  /* (non-Javadoc)
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
   @Override
   public boolean equals(Object obj) {
     if (obj == null) {
@@ -114,17 +76,11 @@ public class JSONString extends JSONPrimitive {
     return hashCode() == obj.hashCode();
   }
   
-  /* (non-Javadoc)
-   * @see java.lang.Object#hashCode()
-   */
   @Override
   public int hashCode() {
     return wrap.hashCode();
   }
   
-  /* (non-Javadoc)
-   * @see newsminer.json.JSONValue#cast(java.lang.Class)
-   */
   @Override
   public <T> T castTo(Class<T> clazz) throws ClassCastException {
     if (clazz == String.class) {
@@ -154,9 +110,6 @@ public class JSONString extends JSONPrimitive {
     return super.castTo(clazz);
   }
   
-  /* (non-Javadoc)
-   * @see java.lang.Object#toString()
-   */
   @Override
   public String toString() {
     return JSONProtocol.CHAR_QUOTATION_MARK + wrap + JSONProtocol.CHAR_QUOTATION_MARK;

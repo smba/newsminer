@@ -7,7 +7,7 @@ import java.util.AbstractMap.SimpleEntry;
  * This maps a {@link JSONString} (key) to a {@link JSONValue} (value).
  * 
  * @author  Timo Guenther
- * @version 2014-04-22
+ * @version 2014-08-15
  * @see     JSONObject
  * @see     JSONString
  * @see     JSONValue
@@ -35,9 +35,6 @@ public class JSONEntry extends SimpleEntry<JSONString, JSONValue> {
     super(key, value);
   }
   
-  /* (non-Javadoc)
-   * @see java.lang.Object#toString()
-   */
   @Override
   public String toString() {
     return toString(-1);

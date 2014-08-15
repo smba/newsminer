@@ -16,7 +16,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.MissingResourceException;
 import java.util.Observable;
 import java.util.Properties;
 import java.util.Set;
@@ -46,7 +45,6 @@ import edu.stanford.nlp.ie.AbstractSequenceClassifier;
 import edu.stanford.nlp.ie.crf.CRFClassifier;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.Triple;
-import newsminer.json.JSONArray;
 import newsminer.json.JSONObject;
 import newsminer.json.JSONParser;
 import newsminer.util.DatabaseUtils;
@@ -294,12 +292,9 @@ public class RSSCrawler extends Observable implements Runnable {
               } catch (ParseException pe) {
                 throw new IOException(pe);
               }
-              final JSONObject searchResultObject;
-              try {
-                searchResultObject = searchResponseObject
-                    .get("result", JSONArray.class)
-                    .get(0,        JSONObject.class);
-              } catch (IndexOutOfBoundsException ioobe) { //no matching result found
+              final JSONObject searchResultObject = searchResponseObject.get(JSONObject.class, null,
+                    new Object[] {"result", 0});
+              if (searchResultObject == null) { //no matching result found
                 continue;
               }
               final String topicID    = searchResultObject.get("mid",   String.class);
@@ -337,35 +332,24 @@ public class RSSCrawler extends Observable implements Runnable {
                     throw new IOException(pe);
                   }
                   final JSONObject topicResultObject = topicResponseObject.get("property", JSONObject.class);
-                  String entityDescription;
-                  try {
-                    entityDescription = topicResultObject
-                        .get("/common/topic/article", JSONObject.class)
-                        .get("values",                JSONArray.class)
-                        .get(0,                       JSONObject.class)
-                        .get("property",              JSONObject.class)
-                        .get("/common/document/text", JSONObject.class)
-                        .get("values",                JSONArray.class)
-                        .get(0,                       JSONObject.class)
-                        .get("value",                 String.class);
-                  } catch (MissingResourceException mre) {
-                    entityDescription = null;
-                  } catch (IndexOutOfBoundsException ioobe) {
-                    entityDescription = null;
-                  }
+                  final String entityDescription = topicResultObject.get(String.class, null,
+                        new Object[] {"/common/topic/article", "values", 0, "property", "/common/document/text", "values", 0, "value"});
                   
                   //Store the result.
                   switch (type) {
                     case "location":
                       final LatLng geoCoordinates = getGeoCoordinates(name);
-                      if (geoCoordinates != null) {
-                        insertEntity.setString(1, name);
-                        insertEntity.setString(2, entityDescription);
-                        insertEntity.setDouble(3, popularity);
-                        insertEntity.setDouble(4, geoCoordinates.getLat().doubleValue());
-                        insertEntity.setDouble(5, geoCoordinates.getLng().doubleValue());
-                        insertEntity.addBatch();
+                      if (geoCoordinates == null) {
+                        continue;
                       }
+                      final double latitude  = geoCoordinates.getLat().doubleValue();
+                      final double longitude = geoCoordinates.getLng().doubleValue();
+                      insertEntity.setString(1, name);
+                      insertEntity.setString(2, entityDescription);
+                      insertEntity.setDouble(3, popularity);
+                      insertEntity.setDouble(4, latitude);
+                      insertEntity.setDouble(5, longitude);
+                      insertEntity.addBatch();
                       break;
                     case "organization":
                       insertEntity.setString(1, name);
@@ -374,54 +358,10 @@ public class RSSCrawler extends Observable implements Runnable {
                       insertEntity.addBatch();
                       break;
                     case "person":
-                      String image;
-                      try {
-                        image = topicResultObject
-                            .get("/common/topic/image", JSONObject.class)
-                            .get("values",              JSONArray.class)
-                            .get(0,                     JSONObject.class)
-                            .get("id",                  String.class);
-                      } catch (MissingResourceException mre) {
-                        image = null;
-                      } catch (IndexOutOfBoundsException ioobe) {
-                        image = null;
-                      }
-                      String notable_for;
-                      try {
-                        notable_for = topicResultObject
-                            .get("/common/topic/notable_for", JSONObject.class)
-                            .get("values",                    JSONArray.class)
-                            .get(0,                           JSONObject.class)
-                            .get("text",                      String.class);
-                      } catch (MissingResourceException mre) {
-                        notable_for = null;
-                      } catch (IndexOutOfBoundsException ioobe) {
-                        notable_for = null;
-                      }
-                      String date_of_birth;
-                      try {
-                        date_of_birth = topicResultObject
-                            .get("/people/person/date_of_birth", JSONObject.class)
-                            .get("values",                       JSONArray.class)
-                            .get(0,                              JSONObject.class)
-                            .get("text",                         String.class);
-                      } catch (MissingResourceException mre) {
-                        date_of_birth = null;
-                      } catch (IndexOutOfBoundsException ioobe) {
-                        date_of_birth = null;
-                      }
-                      String place_of_birth;
-                      try {
-                        place_of_birth = topicResultObject
-                            .get("/people/person/place_of_birth", JSONObject.class)
-                            .get("values",                        JSONArray.class)
-                            .get(0,                               JSONObject.class)
-                            .get("text",                          String.class);
-                      } catch (MissingResourceException mre) {
-                        place_of_birth = null;
-                      } catch (IndexOutOfBoundsException ioobe) {
-                        place_of_birth = null;
-                      }
+                      final String image          = topicResultObject.get(String.class, null, new Object[] {"/common/topic/image",           "values", 0, "id"});
+                      final String notable_for    = topicResultObject.get(String.class, null, new Object[] {"/common/topic/notable_for",     "values", 0, "text"});
+                      final String date_of_birth  = topicResultObject.get(String.class, null, new Object[] {"/people/person/date_of_birth",  "values", 0, "text"});
+                      final String place_of_birth = topicResultObject.get(String.class, null, new Object[] {"/people/person/place_of_birth", "values", 0, "text"});
                       insertEntity.setString(1, name);
                       insertEntity.setString(2, entityDescription);
                       insertEntity.setDouble(3, popularity);

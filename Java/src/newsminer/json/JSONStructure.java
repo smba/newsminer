@@ -7,34 +7,113 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 
+import javax.xml.bind.TypeConstraintException;
+
 /**
- * Represents a JSON structure.
- * This can be a {@link JSONObject} or a {@link JSONArray}.
+ * A {@link JSONValue} representing a JSON structure.
+ * This can be either a {@link JSONObject} or a {@link JSONArray}.
+ * Only these types may be at the root of any JSON document.
  * 
  * @author  Timo Guenther
- * @version 2014-04-22
+ * @version 2014-08-15
+ * @see     JSONValue
  * @see     JSONObject
  * @see     JSONArray
  */
 public abstract class JSONStructure extends JSONValue {
   //Serializable constants
-	/** Serial Version UID */
+  /** Serial Version UID */
   private static final long serialVersionUID = 6569799656970109772L;
   
-  /* (non-Javadoc)
-   * @see newsminer.json.JSONValue#isPrimitive()
-   */
+  @Override
+  public boolean isBoolean() {
+    return false;
+  }
+  
+  @Override
+  public boolean isNull() {
+    return false;
+  }
+  
+  @Override
+  public boolean isNumber() {
+    return false;
+  }
+  
+  @Override
+  public boolean isObject() {
+    return false;
+  }
+  
   @Override
   public boolean isPrimitive() {
     return false;
   }
   
-  /* (non-Javadoc)
-   * @see newsminer.json.JSONValue#isStructure()
-   */
+  @Override
+  public boolean isString() {
+    return false;
+  }
+  
   @Override
   public boolean isStructure() {
     return true;
+  }
+  
+  /**
+   * Returns the last node of the given JSON path or null if it or any of its parents does not exist.
+   * @param  jsonPath a series of keys and indexes to be traversed
+   * @return the last node of the given JSON path or null if it or any of its parents does not exist
+   * @throws TypeConstraintException if any node other than the last one is a primitive value;
+   *                                 if any node other than the last one is a {@link JSONArray} but the corresponding path key is a String or {@link JSONString};
+   *                                 if any node other than the last one is a {@link JSONObject} but the corresponding path key is an integer
+   * @throws IndexOutOfBoundsException if any index is out of range
+   */
+  public JSONValue get(Object... jsonPath)
+      throws TypeConstraintException, IndexOutOfBoundsException {
+    if (jsonPath.length == 0) {
+      return this;
+    }
+    return get(0, jsonPath);
+  }
+  
+  /**
+   * Returns the last node of the given JSON path casted to the given type or null if it or any of its parents does not exist.
+   * @param  clazz class of the type to be casted to
+   * @param  jsonPath a series of keys and indexes to be traversed
+   * @return the last node of the given JSON path casted to the given type or null if it or any of its parents does not exist
+   * @throws TypeConstraintException if any node other than the last one is a primitive value;
+   *                                 if any node other than the last one is a {@link JSONArray} but the corresponding path key is a String or {@link JSONString};
+   *                                 if any node other than the last one is a {@link JSONObject} but the corresponding path key is an integer
+   * @throws ClassCastException if the object is not assignable to the given type;
+   * @throws IndexOutOfBoundsException if any index is out of range
+   */
+  public <U> U get(Class<U> clazz, Object... jsonPath)
+      throws TypeConstraintException, ClassCastException, IndexOutOfBoundsException {
+    if (jsonPath.length == 0) {
+      return castTo(clazz);
+    }
+    return get(0, clazz, jsonPath);
+  }
+  
+  /**
+   * Returns the the last node of the given JSON path casted to the given type or the default value if it or any of its parents does not exist or is null or any index is out of range.
+   * @param  clazz class of the type to be casted to
+   * @param  defaultValue default value
+   * @param  jsonPath a series of keys and indexes to be traversed
+   * @return the the last node of the given JSON path casted to the given type or the default value if it or any of its parents does not exist or is null or any index is out of range
+   * @throws TypeConstraintException if any node other than the last one is a primitive value;
+   *                                 if any node other than the last one is a {@link JSONArray} but the corresponding path key is a String or {@link JSONString};
+   *                                 if any node other than the last one is a {@link JSONObject} but the corresponding path key is an integer
+   * @throws ClassCastException if the object is not assignable to the given type
+   */
+  public <U> U get(Class<U> clazz, U defaultValue, Object... jsonPath)
+      throws TypeConstraintException, ClassCastException {
+    if (jsonPath.length == 0) {
+      final U castValue = castTo(clazz);
+      return castValue == null ? defaultValue : castValue;
+    }
+    return get(0, clazz, defaultValue, jsonPath);
   }
   
   /**
