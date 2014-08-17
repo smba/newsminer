@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,14 +15,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.LinkedHashMap;
 import java.util.Observable;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
-
-import javax.xml.bind.TypeConstraintException;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequestFactory;
@@ -55,11 +51,11 @@ import newsminer.util.DatabaseUtils;
 /***
  * Crawls RSS feeds and stores their articles in the database.
  * The URLs to the feeds are taken from the database.
- * Notifies the observers ({@link ArticleClusterer} once all feeds have been crawled.
+ * Notifies the observers ({@link ArticleClusterer}) once all feeds have been crawled.
  * 
  * @author  Stefan Muehlbauer
  * @author  Timo Guenther
- * @version 2014-08-16
+ * @version 2014-08-17
  */
 public class RSSCrawler extends Observable implements Runnable {
   //constants
@@ -74,13 +70,6 @@ public class RSSCrawler extends Observable implements Runnable {
       GOOGLE_API_KEY = properties.getProperty("key");
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
-    }
-  }
-  /** keeps track of all normalized names */
-  private static final Map<String, Map<String, String>> normalizedNamesByTypeAndName = new LinkedHashMap<>();
-  static {
-    for (final String type : new String[] {"location", "organization", "person"}) {
-      normalizedNamesByTypeAndName.put(type, new LinkedHashMap<String, String>());
     }
   }
   
@@ -107,19 +96,25 @@ public class RSSCrawler extends Observable implements Runnable {
     } catch (ClassCastException cce) {
       throw new IOException(cce);
     } catch (ClassNotFoundException cnfe) {
-      throw new IOException (cnfe);
+      throw new IOException(cnfe);
     }
     
     //Prevent the error message "Could not find fetcher.properties on classpath".
     boolean fetcherPropertiesExists = false;
     final String[] classpaths = System.getProperty("java.class.path").split(File.pathSeparator);
+    File first = null;
     for (String classpath : classpaths) {
-      if (new File(classpath, "fetcher.properties").exists()) {
+      final File file = new File(classpath, "fetcher.properties");
+      if (first == null) {
+        first = file;
+      }
+      if (file.exists()) {
         fetcherPropertiesExists = true;
+        break;
       }
     }
     if (!fetcherPropertiesExists) {
-      new File(classpaths[0], "fetcher.properties").createNewFile();
+      first.createNewFile();
     }
   }
   
@@ -163,17 +158,17 @@ public class RSSCrawler extends Observable implements Runnable {
   
   /**
    * Retrieves the feed URLs, accesses their streams, and stores the data.
-   * @throws IOException
+   * @throws IllegalArgumentException if the database table containing the RSS feed links is empty
+   * @throws IOException if the feed could not be read
    */
-  public void crawl() throws IOException {
+  public void crawl() throws IllegalArgumentException, IOException {
     try (final Connection        con = DatabaseUtils.getConnectionPool().getConnection();
          final PreparedStatement ps  = con.prepareStatement(
-             "SELECT source_url FROM rss_feeds")) {
-      //Retrieve the feed URLs.
-      final ResultSet         rs = ps.executeQuery();
-      
-      //Crawl each feed.
+             "SELECT source_url FROM rss_feeds");
+         final ResultSet         rs  = ps.executeQuery()) {
+      boolean empty = true;
       while (rs.next()) {
+        empty = false;
         final String feedURL = rs.getString("source_url");
         final URL    url;
         try {
@@ -187,6 +182,9 @@ public class RSSCrawler extends Observable implements Runnable {
           System.err.println(ioe.getMessage());
           continue;
         }
+      }
+      if (empty) {
+        throw new IllegalArgumentException("The database table containing the RSS feed links may not be empty");
       }
     } catch (SQLException sqle) {
       throw new IOException(sqle);
@@ -204,87 +202,81 @@ public class RSSCrawler extends Observable implements Runnable {
     final String   sourceURL = feedURL.toString();
     
     //Read the articles.
-    try (final Connection        con           = DatabaseUtils.getConnectionPool().getConnection();
-         final PreparedStatement insertArticle = con.prepareStatement(
-             "INSERT INTO rss_articles VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-      for (Object articleObject : feed.getEntries()) {
-        //Get the article.
-        final SyndEntry article = (SyndEntry) articleObject;
-        
-        //Get the relevant variables.
-        final String link        = article.getLink();
-        final String source_url  = sourceURL;
-        final long   timestamp   = flushTimestamp;
-        final String title       = article.getTitle();
-        final String description = article.getDescription().getValue();
-        final String text;
-        try {
-          final URL linkURL = new URL(link);
-          text = getText(linkURL);
-        } catch (MalformedURLException murle) {
-          System.err.printf("Invalid article URL received from feed with the URL %s: %s\n",
-              feedURL, murle.getMessage());
+    for (Object articleObject : feed.getEntries()) {
+      //Get the article.
+      final SyndEntry article = (SyndEntry) articleObject;
+      final String    link    = article.getLink();
+      
+      //Check if the article is already in the database.
+      try (final Connection        con = DatabaseUtils.getConnectionPool().getConnection();
+           final PreparedStatement ps  = con.prepareStatement(
+              "SELECT CASE "
+              + "WHEN EXISTS (SELECT * FROM rss_articles WHERE link = ?) "
+              + "THEN TRUE ELSE FALSE "
+              + "END")) {
+        ps.setString(1, link);
+        final ResultSet rs = ps.executeQuery();
+        rs.next();
+        if (rs.getBoolean(1)) { //already in the database
           continue;
         }
-        
-        //Get the entity names.
-        final Map<String, Set<String>> entityNamesByType = getEntityNamesByType(text);
-        
-        //Get the entities.
-        final Map<String, Set<String>> normalizedEntityNamesByType = new TreeMap<>();
-        for (final Entry<String, Set<String>> entityNamesAndType : entityNamesByType.entrySet()) {
-          final String      type                  = entityNamesAndType.getKey();
-          final Set<String> entityNames           = entityNamesAndType.getValue();
-          final Set<String> normalizedEntityNames = new LinkedHashSet<>();
-          for (final String entityName : entityNames) {
-            final String normalizedEntityName = getNormalizedEntityName(type, entityName);
-            normalizedEntityNames.add(normalizedEntityName);
-          }
-        }
-        
-        //Update the database table.
-        insertArticle.setString(1, link);
-        insertArticle.setString(2, source_url);
-        insertArticle.setLong  (3, timestamp);
-        insertArticle.setString(4, title);
-        insertArticle.setString(5, description);
-        insertArticle.setString(6, text);
-        for (Entry<String, Set<String>> normalizedEntityNamesAndType : normalizedEntityNamesByType.entrySet()) {
-          final String      type               = normalizedEntityNamesAndType.getKey();
-          final Set<String> namedEntities      = normalizedEntityNamesAndType.getValue();
-          final Array       namedEntitiesArray = con.createArrayOf("text", namedEntities.toArray());
-          int i = -1;
-          switch (type) {
-            case "location":
-              i = 7;
-              break;
-            case "organization":
-              i = 8;
-              break;
-            case "person":
-              i = 9;
-              break;
-          }
-          insertArticle.setArray(i, namedEntitiesArray);
-        }
-        insertArticle.addBatch();
-      }
-      try {
-        insertArticle.executeBatch();
       } catch (SQLException sqle) {
-        SQLException next;
-        while ((next = sqle.getNextException()) != null) {
-          sqle = next;
-          final String sqlState = sqle.getSQLState();
-          if (sqlState.equals("23505")) { //article exists already
-            continue;
-          } else {
-            throw sqle;
+        throw new IOException(sqle);
+      }
+      
+      //Get the relevant variables.
+      final String source_url  = sourceURL;
+      final long   timestamp   = flushTimestamp;
+      final String title       = article.getTitle();
+      final String description = article.getDescription().getValue();
+      final String text;
+      try {
+        final URL linkURL = new URL(link);
+        text = getText(linkURL);
+      } catch (MalformedURLException murle) {
+        System.err.printf("Invalid article URL received from feed with the URL %s: %s\n",
+            feedURL, murle.getMessage());
+        continue;
+      }
+      
+      //Get the entity names from the article's text.
+      final Map<String, Set<String>> entityNamesByType = getEntityNamesByType(text);
+      
+      //Normalize the entity names and store their information.
+      final Map<String, Set<String>> normalizedEntityNamesByType = getNormalizedEntityNamesByType(entityNamesByType);
+      
+      //Store the article in the database.
+      try (final Connection        con = DatabaseUtils.getConnectionPool().getConnection();
+           final PreparedStatement ps  = con.prepareStatement(
+               "INSERT INTO rss_articles VALUES (?, ?, ?, ?, ?, ?)")) {
+        ps.setString(1, link);
+        ps.setString(2, source_url);
+        ps.setLong  (3, timestamp);
+        ps.setString(4, title);
+        ps.setString(5, description);
+        ps.setString(6, text);
+        ps.executeUpdate();
+      } catch (SQLException sqle) {
+        throw new IOException(sqle);
+      }
+      
+      //Store the article's entities in the database.
+      for (final Entry<String, Set<String>> normalizedEntityNamesAndType : normalizedEntityNamesByType.entrySet()) {
+        final String      type                  = normalizedEntityNamesAndType.getKey();
+        final Set<String> normalizedEntityNames = normalizedEntityNamesAndType.getValue();
+        try (final Connection        con = DatabaseUtils.getConnectionPool().getConnection();
+             final PreparedStatement ps  = con.prepareStatement(
+                 "INSERT INTO rss_articles_entity_" + type + "s VALUES (?, ?)")) {
+          for (final String name : normalizedEntityNames) {
+            ps.setString(1, link);
+            ps.setString(2, name);
+            ps.addBatch();
           }
+          ps.executeBatch();
+        } catch (SQLException sqle) {
+          throw new IOException(sqle);
         }
       }
-    } catch (SQLException sqle) {
-      throw new IOException(sqle);
     }
   }
   
@@ -332,7 +324,15 @@ public class RSSCrawler extends Observable implements Runnable {
     final Map<String, Set<String>>               entityNamesByType = new TreeMap<>();
     final List<Triple<String, Integer, Integer>> characterOffsets  = classifier.classifyToCharacterOffsets(text);
     for (Triple<String, Integer, Integer> characterOffset : characterOffsets) {
-      final String type       = characterOffset.first.toLowerCase();
+      final String type = characterOffset.first.toLowerCase();
+      switch (type) {
+        case "location":
+        case "organization":
+        case "person":
+          break;
+        default:
+          continue;
+      }
       final String entityName = text.substring(characterOffset.second, characterOffset.third);
       Set<String> entityNames = entityNamesByType.get(type);
       if (entityNames == null) {
@@ -345,27 +345,39 @@ public class RSSCrawler extends Observable implements Runnable {
   }
   
   /**
+   * Returns the normalized entity names (value) by their type (key).
+   * @param  entityNamesByType the names of entities (value) by their type (key)
+   * @return the normalized entity names (value) by their type (key)
+   * @throws IOException if interaction with the database or Freebase failed
+   */
+  private Map<String, Set<String>> getNormalizedEntityNamesByType(Map<String, Set<String>> entityNamesByType) throws IOException {
+    final Map<String, Set<String>> normalizedEntityNamesByType = new TreeMap<>();
+    for (final Entry<String, Set<String>> entityNamesAndType : entityNamesByType.entrySet()) {
+      final String      type                  = entityNamesAndType.getKey();
+      final Set<String> entityNames           = entityNamesAndType.getValue();
+      final Set<String> normalizedEntityNames = new LinkedHashSet<>();
+      for (final String entityName : entityNames) {
+        final String normalizedEntityName = getNormalizedEntityName(type, entityName);
+        if (normalizedEntityName != null) {
+          normalizedEntityNames.add(normalizedEntityName);
+        }
+      }
+      if (!normalizedEntityNames.isEmpty()) {
+        normalizedEntityNamesByType.put(type, normalizedEntityNames);
+      }
+    }
+    return normalizedEntityNamesByType;
+  }
+  
+  /**
    * Returns the normalized name or null if it could not be found.
    * Also looks up and stores entity information along the way.
    * @param  type type of the entity
    * @param  searchName name to use in the search for the entity
    * @return the normalized name or null if it could not be found
-   * @throws IOException when interaction with the database failed
-   * @throws TypeConstraintException if the type is invalid
+   * @throws IOException if interaction with the database or Freebase failed
    */
-  public String getNormalizedEntityName(String type, String searchName) throws IOException, TypeConstraintException {
-    //Check the type.
-    final Map<String, String> normalizedNameByName = normalizedNamesByTypeAndName.get(type);
-    if (normalizedNameByName == null) {
-      throw new TypeConstraintException("Invalid entity type: " + type);
-    }
-    
-    //Check if this name was already searched before.
-    String normalizedName = normalizedNameByName.get(searchName);
-    if (normalizedName != null) {
-      return normalizedName;
-    }
-    
+  private String getNormalizedEntityName(String type, String searchName) throws IOException {
     //Check if the search name is already in the database.
     try (final Connection        con = DatabaseUtils.getConnectionPool().getConnection();
          final PreparedStatement ps  = con.prepareStatement(
@@ -409,12 +421,8 @@ public class RSSCrawler extends Observable implements Runnable {
       return null;
     }
     
-    //Remember this search name and its normalized name.
-    normalizedNameByName.put(searchName, name);
-    
     //Check if the normalized name is already in the database.
     if (!searchName.equals(name)) {
-      normalizedNameByName.put(name, name);
       try (final Connection        con = DatabaseUtils.getConnectionPool().getConnection();
            final PreparedStatement ps  = con.prepareStatement(
               "SELECT CASE "
@@ -448,7 +456,7 @@ public class RSSCrawler extends Observable implements Runnable {
           new Object[] {"/common/topic/article", "values", 0, "property", "/common/document/text", "values", 0, "value"});
     
     //Store the entity information in the database.
-    try (final Connection        con = DatabaseUtils.getConnectionPool().getConnection()) {
+    try (final Connection con = DatabaseUtils.getConnectionPool().getConnection()) {
       PreparedStatement ps = null;
       switch (type) {
         case "location":
