@@ -2,108 +2,166 @@
 
 """
 @author: Stefan Muehlbauer
-Models for accessing the Postgres Database Scheme
+Models for accessing the Postgres Database Scheme,
 """
 
 from __future__ import unicode_literals
 from django.db import models
 
-#@note: contrib.postgres.fields is only available in Django 1.8 so far.
-from django.contrib.postgres.fields import ArrayField
-
 """
-Basic RSS feed class
+Wraps locations.
 """
-class RssFeeds(models.Model):
-    source_url = models.TextField(primary_key=True)
-    name = models.TextField()
-    country = models.CharField(max_length=2)
-    class Meta:
-        managed = False
-        db_table = 'rss_feeds'
-
-"""
-Basic RSS article class
-"""
-class RssArticles(models.Model):
-    link = models.TextField(primary_key=True)
-    source_url = models.ForeignKey('RssFeeds', db_column='source_url')
-    timestamp = models.BigIntegerField()
-    title = models.TextField()
-    description = models.TextField()
-    text = models.TextField(blank=True)
+class EntityLocations(models.Model):
+    name        = models.TextField(primary_key = True)
+    description = models.TextField(blank=True)
+    popularity  = models.FloatField()
+    latitude    = models.FloatField(blank=True)
+    longitude   = models.FloatField(blank=True)
     
-    entity_locations = ArrayField(models.TextField())
-    entity_organizations = ArrayField(models.TextField())
-    entity_persons = ArrayField(models.TextField())
-    #cluster_id = models.IntegerField(blank=True)# models.ForeignKey('RssArticleClusters', blank)
     class Meta:
-        managed = False
-        db_table = 'rss_articles'
-
-"""
-Basic article cluster class
-"""
-class RssArticleClusters(models.Model):
-    class Meta:
-        managed = False
-        db_table = 'rss_article_clusters'
-    id = models.IntegerField(primary_key = True)
-    
-    articles = ArrayField(models.TextField()) #new
-    
-    entity_locations = ArrayField(models.TextField())
-    entity_organizations = ArrayField(models.TextField())
-    entity_persons = ArrayField(models.TextField())
-    
-    score = models.FloatField()
-    common_entities = models.FloatField()
-                
-"""
-Wraps locations
-@deprecated: Not in use.
-"""
-class Locations(models.Model):
-    class Meta:
-        managed = False
-        db_table = 'locations'
-    name = models.CharField(max_length=100, primary_key = True)
-    latitude = models.FloatField()
-    longitude = models.FloatField()
-
-"""
-Wraps persons.
-"""
-class EntityPersons(models.Model):
-    class Meta:
-        managed = False
-        db_table = 'entity_persons'
-    name = models.TextField(primary_key=True)
-    description = models.TextField()
-    image = models.TextField()
-    notable_for = models.TextField()
-    date_of_birth = models.TextField()
-    place_of_birth = models.TextField()
+        managed  = False
+        db_table = 'entity_locations'
 
 """
 Wraps organizations.
 """  
 class EntityOrganizations(models.Model):
-    name = models.TextField(primary_key=True)
-    description = models.TextField()
+    name        = models.TextField(primary_key=True)
+    description = models.TextField(blank=True)
+    popularity  = models.FloatField()
+    
     class Meta:
-        managed = False
+        managed  = False
         db_table = 'entity_organizations'
 
 """
-Wraps locations.
-@see: ClickDummy.models.Locations
+Basic RSS feed class.
 """
-class EntityLocations(models.Model):
-    name = models.TextField(primary_key = True)
-    description = models.TextField()
-    latitude = models.FloatField()
-    longitude = models.FloatField()
+class RssFeeds(models.Model):
+    source_url = models.TextField(primary_key=True)
+    name       = models.TextField()
+    country    = models.CharField(max_length=2)
+    
     class Meta:
-        managed = False
-        db_table = 'entity_locations' 
+        managed  = False
+        db_table = 'rss_feeds'
+
+"""
+Wraps persons.
+"""
+class EntityPersons(models.Model):
+    name           = models.TextField(primary_key=True)
+    description    = models.TextField(blank=True)
+    popularity     = models.FloatField()
+    image          = models.TextField(blank=True)
+    notable_for    = models.TextField(blank=True)
+    date_of_birth  = models.TextField(blank=True)
+    place_of_birth = models.TextField(blank=True)
+    
+    class Meta:
+        managed  = False
+        db_table = 'entity_persons'
+
+"""
+Basic RSS article class.
+"""
+class RssArticles(models.Model):
+    link        = models.TextField(primary_key=True)
+    source_url  = models.ForeignKey('RssFeeds', db_column='source_url')
+    timestamp   = models.BigIntegerField()
+    title       = models.TextField()
+    description = models.TextField()
+    text        = models.TextField()
+    
+    class Meta:
+        managed  = False
+        db_table = 'rss_articles'
+
+"""
+Relation between RssArticles and EntityLocations.
+"""
+class RssArticlesEntityLocations(models.Model):
+    link = models.ForeignKey('RssArticles', db_column='link')
+    name = models.ForeignKey('EntityLocations', db_column='name')
+    
+    class Meta:
+        managed  = False
+        db_table = 'rss_articles_entity_locations'
+
+"""
+Relation between RssArticles and EntityOrganizations.
+"""
+class RssArticlesEntityOrganizations(models.Model):
+    link = models.ForeignKey('RssArticles', db_column='link')
+    name = models.ForeignKey('EntityOrganizations', db_column='name')
+    
+    class Meta:
+        managed  = False
+        db_table = 'rss_articles_entity_organizations'
+
+"""
+Relation between RssArticles and EntityPersons.
+"""
+class RssArticlesEntityPersons(models.Model):
+    link = models.ForeignKey('RssArticles', db_column='link')
+    name = models.ForeignKey('EntityPersons', db_column='name')
+    
+    class Meta:
+        managed  = False
+        db_table = 'rss_articles_entity_persons'
+
+"""
+Basic article cluster class.
+"""
+class RssArticleClusters(models.Model):
+    id              = models.IntegerField(primary_key = True)
+    score           = models.FloatField()
+    common_entities = models.FloatField()
+    
+    class Meta:
+        managed  = False
+        db_table = 'rss_article_clusters'
+
+"""
+Relation between RssArticleClusters and RssArticles.
+"""
+class RssArticleClustersEntityLocations(models.Model):
+    id   = models.ForeignKey('RssArticleClusters', db_column='id')
+    link = models.ForeignKey('RssArticles', db_column='link')
+    
+    class Meta:
+        managed  = False
+        db_table = 'rss_article_clusters_rss_articles'
+
+"""
+Relation between RssArticleClusters and EntityLocations.
+"""
+class RssArticleClustersEntityLocations(models.Model):
+    id   = models.ForeignKey('RssArticleClusters', db_column='id')
+    name = models.ForeignKey('EntityLocations', db_column='name')
+    
+    class Meta:
+        managed  = False
+        db_table = 'rss_article_clusters_entity_locations'
+
+"""
+Relation between RssArticleClusters and EntityOrganizations.
+"""
+class RssArticleClustersEntityLocations(models.Model):
+    id   = models.ForeignKey('RssArticleClusters', db_column='id')
+    name = models.ForeignKey('EntityOrganizations', db_column='name')
+    
+    class Meta:
+        managed  = False
+        db_table = 'rss_article_clusters_entity_organizations'
+
+"""
+Relation between RssArticleClusters and EntityPersons.
+"""
+class RssArticleClustersEntityLocations(models.Model):
+    id   = models.ForeignKey('RssArticleClusters', db_column='id')
+    name = models.ForeignKey('EntityPersons', db_column='name')
+    
+    class Meta:
+        managed  = False
+        db_table = 'rss_article_clusters_entity_persons'
