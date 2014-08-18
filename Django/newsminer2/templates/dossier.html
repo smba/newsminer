@@ -79,7 +79,7 @@
     						Popularity <a href="#" onclick="javascript:showHide('popularity_widget');">[show/hide]</a>
     			</div>
     			<div class='widget-content' id="popularity_widget" style="display:none">
-    				{% with articles|access:0 as article %}  
+    				{% with articles|access:0 as article %} 
     				<script type="text/javascript" src="//www.google.com/trends/embed.js?hl=en-US&q={{article.entity_persons|access:0}},+{{article.entity_persons|access:1}}&date=today+1-m&gprop=news&cmpt=q&content=1&cid=TIMESERIES_GRAPH_0&export=5&w=220&h=160"></script>
     				{% endwith %}
     			</div>
@@ -90,8 +90,8 @@
     			<div class='widget-title' id="widget-name">
     						Peoples <a href="#" onclick="javascript:showHide('persons_widget');">[show/hide]</a>
     			</div>
-    			<div class='widget-content' id="persons_widget" style="display:none">
-    				
+    			<div class='widget-content' id="persons_widget"  style="display:none">
+    				<!-- content generated onload by javascript:drawChart() -->
     			</div>
     		</div>
     		
@@ -165,23 +165,20 @@
     google.setOnLoadCallback(drawChart);
     
 	function drawChart() {
-      var data = google.visualization.arrayToDataTable([
-        ['Name', 'Count'],
-        {% for key, value in topPersons %}
-        	['{{key}}', {{value}}],
-        {% endfor %}
-      ]);
-
+      	var data = google.visualization.arrayToDataTable([
+        	['Name', 'Count'],
+        	{% for key, value in topPersons %}
+        		['{{key}}', {{value}}],
+        	{% endfor %}
+      	]);
+		alert(data.getValue(1,1));
       var options = {
         title: 'People mentioned',
-        'width':50
+        'width':220
       }   
-	 }
-     
-	 function resize () {
-          var chart = new google.visualization.BarChart(document.getElementById('persons_widget'));
-          chart.draw(data, options);
-        }
+     var chart = new google.visualization.BarChart(document.getElementById('persons_widget'));
+     chart.draw(data, options);
+     }
 	</script>
 
 </body>
