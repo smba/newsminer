@@ -149,7 +149,7 @@ class RssArticleClustersEntityLocations(models.Model):
 """
 Relation between RssArticleClusters and EntityOrganizations.
 """
-class RssArticleClustersEntityLocations(models.Model):
+class RssArticleClustersEntityOrganizations(models.Model):
     id    = models.ForeignKey('RssArticleClusters', db_column='id')
     name  = models.ForeignKey('EntityOrganizations', db_column='name')
     score = models.FloatField()
@@ -161,7 +161,7 @@ class RssArticleClustersEntityLocations(models.Model):
 """
 Relation between RssArticleClusters and EntityPersons.
 """
-class RssArticleClustersEntityLocations(models.Model):
+class RssArticleClustersEntityPersons(models.Model):
     id    = models.ForeignKey('RssArticleClusters', db_column='id')
     name  = models.ForeignKey('EntityPersons', db_column='name')
     score = models.FloatField()
