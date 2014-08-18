@@ -126,8 +126,9 @@ class RssArticleClusters(models.Model):
 Relation between RssArticleClusters and RssArticles.
 """
 class RssArticleClustersEntityLocations(models.Model):
-    id   = models.ForeignKey('RssArticleClusters', db_column='id')
-    link = models.ForeignKey('RssArticles', db_column='link')
+    id    = models.ForeignKey('RssArticleClusters', db_column='id')
+    link  = models.ForeignKey('RssArticles', db_column='link')
+    score = models.FloatField()
     
     class Meta:
         managed  = False
@@ -137,8 +138,9 @@ class RssArticleClustersEntityLocations(models.Model):
 Relation between RssArticleClusters and EntityLocations.
 """
 class RssArticleClustersEntityLocations(models.Model):
-    id   = models.ForeignKey('RssArticleClusters', db_column='id')
-    name = models.ForeignKey('EntityLocations', db_column='name')
+    id    = models.ForeignKey('RssArticleClusters', db_column='id')
+    name  = models.ForeignKey('EntityLocations', db_column='name')
+    score = models.FloatField()
     
     class Meta:
         managed  = False
@@ -148,8 +150,9 @@ class RssArticleClustersEntityLocations(models.Model):
 Relation between RssArticleClusters and EntityOrganizations.
 """
 class RssArticleClustersEntityLocations(models.Model):
-    id   = models.ForeignKey('RssArticleClusters', db_column='id')
-    name = models.ForeignKey('EntityOrganizations', db_column='name')
+    id    = models.ForeignKey('RssArticleClusters', db_column='id')
+    name  = models.ForeignKey('EntityOrganizations', db_column='name')
+    score = models.FloatField()
     
     class Meta:
         managed  = False
@@ -159,8 +162,9 @@ class RssArticleClustersEntityLocations(models.Model):
 Relation between RssArticleClusters and EntityPersons.
 """
 class RssArticleClustersEntityLocations(models.Model):
-    id   = models.ForeignKey('RssArticleClusters', db_column='id')
-    name = models.ForeignKey('EntityPersons', db_column='name')
+    id    = models.ForeignKey('RssArticleClusters', db_column='id')
+    name  = models.ForeignKey('EntityPersons', db_column='name')
+    score = models.FloatField()
     
     class Meta:
         managed  = False
