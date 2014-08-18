@@ -5,8 +5,9 @@ from django.shortcuts import render, render_to_response
 from django.template import RequestContext
 from warnings import catch_warnings
 from django.db import connection
-
+from django.utils.dateformat import DateFormat
 import operator
+import datetime
 
 # from django.template import Template, Context
 # from django.template.loader import get_template
@@ -43,7 +44,11 @@ def index(request):
         centroid = {}
         centroid['link'] = total_rows[0]
         centroid['source_url'] = total_rows[1]
-        centroid['timestamp'] = total_rows[2]
+        
+        date = datetime.datetime.fromtimestamp(int(total_rows[2][:-3]))
+        df = DateFormat(date)    
+        centroid['timestamp'] = df.format('jS F Y H:i')
+        
         centroid['title'] = total_rows[3]
         centroid['description'] = total_rows[4]
         centroid['text'] = total_rows[5]
@@ -74,7 +79,11 @@ def dossier(request, cluster_id):
         article = {}
         article['link'] = row[0]
         article['source_url'] = row[1]
-        article['timestamp'] = row[2]
+        
+        date = datetime.datetime.fromtimestamp(int(str(row[2])[:-3]))
+        df = DateFormat(date)
+        article['timestamp'] = df.format('jS F Y H:i')
+        
         article['title'] = row[3]
         article['description'] = row[4]
         article['text'] = row[5]
