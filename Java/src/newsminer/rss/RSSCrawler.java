@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,8 @@ import java.util.Observable;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import com.google.api.client.http.GenericUrl;
@@ -55,12 +58,14 @@ import newsminer.util.DatabaseUtils;
  * 
  * @author  Stefan Muehlbauer
  * @author  Timo Guenther
- * @version 2014-08-17
+ * @version 2014-08-18
  */
 public class RSSCrawler extends Observable implements Runnable {
   //constants
   /** the interval at which the feeds are crawled */
   private static final long   TIMESTEP       = TimeUnit.HOURS.toMillis(1);
+  /** the maximum amount of worker threads that can be active at one time */
+  private static final int    THREAD_COUNT   = 5;
   /** the developer key used for Google API requests */
   private static final String GOOGLE_API_KEY;
   static {
@@ -72,6 +77,8 @@ public class RSSCrawler extends Observable implements Runnable {
       throw new RuntimeException(ioe);
     }
   }
+  /** used to synchronize the worker threads */
+  private static final Map<Object, Object> lockMap = new HashMap<>();
   
   //attributes
   /** the classifier to use */
@@ -166,23 +173,35 @@ public class RSSCrawler extends Observable implements Runnable {
          final PreparedStatement ps  = con.prepareStatement(
              "SELECT source_url FROM rss_feeds");
          final ResultSet         rs  = ps.executeQuery()) {
+      final ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_COUNT);
       boolean empty = true;
       while (rs.next()) {
         empty = false;
         final String feedURL = rs.getString("source_url");
-        final URL    url;
-        try {
-          url = new URL(feedURL);
-        } catch (MalformedURLException murle) {
-          throw new IOException(murle);
-        }
-        try {
-          read(url);
-        } catch (IOException ioe) {
-          System.err.println(ioe.getMessage());
-          continue;
-        }
+        threadPool.execute(new Runnable() {
+          @Override
+          public void run() {
+            final URL url;
+            try {
+              url = new URL(feedURL);
+            } catch (MalformedURLException murle) {
+              throw new RuntimeException(murle);
+            }
+            try {
+              read(url);
+            } catch (IOException ioe) {
+              System.err.println(ioe.getMessage());
+            }
+          }
+        });
       }
+      threadPool.shutdown();
+      try {
+        threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+      } catch (InterruptedException ie) {
+        throw new IOException(ie);
+      }
+      lockMap.clear();
       if (empty) {
         throw new IllegalArgumentException("The database table containing the RSS feed links may not be empty");
       }
@@ -421,88 +440,100 @@ public class RSSCrawler extends Observable implements Runnable {
       return null;
     }
     
-    //Check if the normalized name is already in the database.
-    if (!searchName.equals(name)) {
-      try (final Connection        con = DatabaseUtils.getConnectionPool().getConnection();
-           final PreparedStatement ps  = con.prepareStatement(
-              "SELECT CASE "
-              + "WHEN EXISTS (SELECT * FROM entity_" + type + "s WHERE name = ?) "
-              + "THEN TRUE ELSE FALSE "
-              + "END")) {
-        ps.setString(1, name);
-        final ResultSet rs = ps.executeQuery();
-        rs.next();
-        if (rs.getBoolean(1)) { //already in the database
-          return name;
+    //Synchronize while updating the database.
+    Object lock;
+    synchronized (lockMap) {
+      final Object lockKey = name; //Name without type neither requires more objects nor does it collide often.
+      lock = lockMap.get(lockKey);
+      if (lock == null) {
+        lock = lockKey;
+        lockMap.put(lock, lock);
+      }
+    }
+    synchronized (lock) {
+      //Check if the normalized name is already in the database.
+      if (!searchName.equals(name)) {
+        try (final Connection        con = DatabaseUtils.getConnectionPool().getConnection();
+             final PreparedStatement ps  = con.prepareStatement(
+                "SELECT CASE "
+                + "WHEN EXISTS (SELECT * FROM entity_" + type + "s WHERE name = ?) "
+                + "THEN TRUE ELSE FALSE "
+                + "END")) {
+          ps.setString(1, name);
+          final ResultSet rs = ps.executeQuery();
+          rs.next();
+          if (rs.getBoolean(1)) { //already in the database
+            return name;
+          }
+        } catch (SQLException sqle) {
+          throw new IOException(sqle);
         }
+      }
+      
+      //Get entity information from Freebase.
+      final GenericUrl topicURL = new GenericUrl("https://www.googleapis.com/freebase/v1/topic" + mid);
+      topicURL.put("key",    GOOGLE_API_KEY);
+      topicURL.put("filter", "suggest");
+      final HttpResponse topicHTTPResponse = httpRequestFactory.buildGetRequest(topicURL).execute();
+      final JSONObject topicResponseObject;
+      try {
+        topicResponseObject = (JSONObject) JSONParser.parse(topicHTTPResponse.parseAsString());
+      } catch (ParseException pe) {
+        throw new IOException(pe);
+      }
+      final JSONObject topicResultObject = topicResponseObject.get("property", JSONObject.class);
+      final String entityDescription = topicResultObject.get(String.class, null,
+            new Object[] {"/common/topic/article", "values", 0, "property", "/common/document/text", "values", 0, "value"});
+      
+      //Store the entity information in the database.
+      try (final Connection con = DatabaseUtils.getConnectionPool().getConnection()) {
+        PreparedStatement ps = null;
+        switch (type) {
+          case "location":
+            ps = con.prepareStatement("INSERT INTO entity_locations VALUES (?, ?, ?, ?, ?)");
+            final LatLng geoCoordinates = getGeoCoordinates(name);
+            if (geoCoordinates == null) {
+              return null;
+            }
+            final double latitude  = geoCoordinates.getLat().doubleValue();
+            final double longitude = geoCoordinates.getLng().doubleValue();
+            ps.setString(1, name);
+            ps.setString(2, entityDescription);
+            ps.setDouble(3, popularity);
+            ps.setDouble(4, latitude);
+            ps.setDouble(5, longitude);
+            ps.executeUpdate();
+            break;
+          case "organization":
+            ps = con.prepareStatement("INSERT INTO entity_organizations VALUES (?, ?, ?)");
+            ps.setString(1, name);
+            ps.setString(2, entityDescription);
+            ps.setDouble(3, popularity);
+            ps.executeUpdate();
+            break;
+          case "person":
+            ps = con.prepareStatement("INSERT INTO entity_persons VALUES (?, ?, ?, ?, ?, ?, ?)");
+            final String image          = topicResultObject.get(String.class, null, new Object[] {"/common/topic/image",           "values", 0, "id"});
+            final String notable_for    = topicResultObject.get(String.class, null, new Object[] {"/common/topic/notable_for",     "values", 0, "text"});
+            final String date_of_birth  = topicResultObject.get(String.class, null, new Object[] {"/people/person/date_of_birth",  "values", 0, "text"});
+            final String place_of_birth = topicResultObject.get(String.class, null, new Object[] {"/people/person/place_of_birth", "values", 0, "text"});
+            ps.setString(1, name);
+            ps.setString(2, entityDescription);
+            ps.setDouble(3, popularity);
+            ps.setString(4, image);
+            ps.setString(5, notable_for);
+            ps.setString(6, date_of_birth);
+            ps.setString(7, place_of_birth);
+            ps.executeUpdate();
+            break;
+        }
+        
+        //Return the normalized name.
+        return name;
       } catch (SQLException sqle) {
         throw new IOException(sqle);
       }
     }
-    
-    //Get entity information from Freebase.
-    final GenericUrl topicURL = new GenericUrl("https://www.googleapis.com/freebase/v1/topic" + mid);
-    topicURL.put("key",    GOOGLE_API_KEY);
-    topicURL.put("filter", "suggest");
-    final HttpResponse topicHTTPResponse = httpRequestFactory.buildGetRequest(topicURL).execute();
-    final JSONObject topicResponseObject;
-    try {
-      topicResponseObject = (JSONObject) JSONParser.parse(topicHTTPResponse.parseAsString());
-    } catch (ParseException pe) {
-      throw new IOException(pe);
-    }
-    final JSONObject topicResultObject = topicResponseObject.get("property", JSONObject.class);
-    final String entityDescription = topicResultObject.get(String.class, null,
-          new Object[] {"/common/topic/article", "values", 0, "property", "/common/document/text", "values", 0, "value"});
-    
-    //Store the entity information in the database.
-    try (final Connection con = DatabaseUtils.getConnectionPool().getConnection()) {
-      PreparedStatement ps = null;
-      switch (type) {
-        case "location":
-          ps = con.prepareStatement("INSERT INTO entity_locations VALUES (?, ?, ?, ?, ?)");
-          final LatLng geoCoordinates = getGeoCoordinates(name);
-          if (geoCoordinates == null) {
-            return null;
-          }
-          final double latitude  = geoCoordinates.getLat().doubleValue();
-          final double longitude = geoCoordinates.getLng().doubleValue();
-          ps.setString(1, name);
-          ps.setString(2, entityDescription);
-          ps.setDouble(3, popularity);
-          ps.setDouble(4, latitude);
-          ps.setDouble(5, longitude);
-          ps.executeUpdate();
-          break;
-        case "organization":
-          ps = con.prepareStatement("INSERT INTO entity_organizations VALUES (?, ?, ?)");
-          ps.setString(1, name);
-          ps.setString(2, entityDescription);
-          ps.setDouble(3, popularity);
-          ps.executeUpdate();
-          break;
-        case "person":
-          ps = con.prepareStatement("INSERT INTO entity_persons VALUES (?, ?, ?, ?, ?, ?, ?)");
-          final String image          = topicResultObject.get(String.class, null, new Object[] {"/common/topic/image",           "values", 0, "id"});
-          final String notable_for    = topicResultObject.get(String.class, null, new Object[] {"/common/topic/notable_for",     "values", 0, "text"});
-          final String date_of_birth  = topicResultObject.get(String.class, null, new Object[] {"/people/person/date_of_birth",  "values", 0, "text"});
-          final String place_of_birth = topicResultObject.get(String.class, null, new Object[] {"/people/person/place_of_birth", "values", 0, "text"});
-          ps.setString(1, name);
-          ps.setString(2, entityDescription);
-          ps.setDouble(3, popularity);
-          ps.setString(4, image);
-          ps.setString(5, notable_for);
-          ps.setString(6, date_of_birth);
-          ps.setString(7, place_of_birth);
-          ps.executeUpdate();
-          break;
-      }
-    } catch (SQLException sqle) {
-      throw new IOException(sqle);
-    }
-    
-    //Return the normalized name.
-    return name;
   }
   
   /**
