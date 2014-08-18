@@ -52,7 +52,6 @@ def index(request):
     specific_context_dict = {
                              'clusterDatas' : clusterDatas,
                              }
-    #print clusterDatas
     index_context_dict = dict(context_dict.items() + specific_context_dict.items())
     return render_to_response('index.html', index_context_dict, context)
 
@@ -70,6 +69,7 @@ def dossier(request, cluster_id):
                   +"FROM rss_articles JOIN rss_article_clusters_rss_articles "
                   +"ON rss_article_clusters_rss_articles.link = rss_articles.link WHERE id = " + str(cluster_id))
     total_rows = cursor.fetchall()
+    i= 0
     for row in total_rows:
         article = {}
         article['link'] = row[0]
@@ -105,8 +105,7 @@ def dossier(request, cluster_id):
         for loc in cursor.fetchall():
             c.append(loc[0])
         article['entity_persons'] = c
-    articles.append(article)
-        
+        articles.append(article)
     articlesCopy = []
     for i in range(len(articles)):
         temp = RssFeeds.objects.filter(source_url=articles[i]['source_url'])
@@ -208,8 +207,7 @@ def dossier(request, cluster_id):
     temp = getEntities(3)
     topK = temp[0]
     allEntities = temp[1]
-    
-     
+
     topPersons = temp[2]
     
     def getPersonDistribution():
