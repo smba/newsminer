@@ -21,6 +21,8 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR,'static'),
 )
 
+STATIC_ROOT = "/var/www/newsminer/nm2static/"
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
@@ -46,7 +48,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'dbarray',
     'leaflet',
-    #'dh5bp',
     'newsminer2',
 )
 
