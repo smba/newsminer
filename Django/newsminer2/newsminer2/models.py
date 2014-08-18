@@ -7,6 +7,7 @@ Models for accessing the Postgres Database Scheme,
 
 from __future__ import unicode_literals
 from django.db import models
+from composite_field import CompositeField
 
 """
 Wraps locations.
@@ -81,9 +82,9 @@ class RssArticles(models.Model):
 Relation between RssArticles and EntityLocations.
 """
 class RssArticlesEntityLocations(models.Model):
-    link = models.ForeignKey('RssArticles', db_column='link')
+    link = models.ForeignKey('RssArticles', db_column='link', primary_key=True)
     name = models.ForeignKey('EntityLocations', db_column='name')
-    
+
     class Meta:
         managed  = False
         db_table = 'rss_articles_entity_locations'
@@ -92,7 +93,7 @@ class RssArticlesEntityLocations(models.Model):
 Relation between RssArticles and EntityOrganizations.
 """
 class RssArticlesEntityOrganizations(models.Model):
-    link = models.ForeignKey('RssArticles', db_column='link')
+    link = models.ForeignKey('RssArticles', db_column='link', primary_key=True)
     name = models.ForeignKey('EntityOrganizations', db_column='name')
     
     class Meta:
@@ -103,7 +104,7 @@ class RssArticlesEntityOrganizations(models.Model):
 Relation between RssArticles and EntityPersons.
 """
 class RssArticlesEntityPersons(models.Model):
-    link = models.ForeignKey('RssArticles', db_column='link')
+    link = models.ForeignKey('RssArticles', db_column='link', primary_key=True)
     name = models.ForeignKey('EntityPersons', db_column='name')
     
     class Meta:
@@ -126,10 +127,11 @@ class RssArticleClusters(models.Model):
 Relation between RssArticleClusters and RssArticles.
 """
 class RssArticleClustersEntityRssArticles(models.Model):
-    id    = models.ForeignKey('RssArticleClusters', db_column='id')
+    id    = models.ForeignKey('RssArticleClusters', db_column='id', primary_key=True)
     link  = models.ForeignKey('RssArticles', db_column='link')
     score = models.FloatField()
-    
+    #key = CompositeField(('link', 'name'))
+    #key.both.primary_key = True
     class Meta:
         managed  = False
         db_table = 'rss_article_clusters_rss_articles'
@@ -138,7 +140,7 @@ class RssArticleClustersEntityRssArticles(models.Model):
 Relation between RssArticleClusters and EntityLocations.
 """
 class RssArticleClustersEntityLocations(models.Model):
-    id    = models.ForeignKey('RssArticleClusters', db_column='id')
+    id    = models.ForeignKey('RssArticleClusters', db_column='id', primary_key=True)
     name  = models.ForeignKey('EntityLocations', db_column='name')
     score = models.FloatField()
     
@@ -150,7 +152,7 @@ class RssArticleClustersEntityLocations(models.Model):
 Relation between RssArticleClusters and EntityOrganizations.
 """
 class RssArticleClustersEntityOrganizations(models.Model):
-    id    = models.ForeignKey('RssArticleClusters', db_column='id')
+    id    = models.ForeignKey('RssArticleClusters', db_column='id', primary_key=True)
     name  = models.ForeignKey('EntityOrganizations', db_column='name')
     score = models.FloatField()
     
@@ -162,7 +164,7 @@ class RssArticleClustersEntityOrganizations(models.Model):
 Relation between RssArticleClusters and EntityPersons.
 """
 class RssArticleClustersEntityPersons(models.Model):
-    id    = models.ForeignKey('RssArticleClusters', db_column='id')
+    id    = models.ForeignKey('RssArticleClusters', db_column='id', primary_key=True)
     name  = models.ForeignKey('EntityPersons', db_column='name')
     score = models.FloatField()
     

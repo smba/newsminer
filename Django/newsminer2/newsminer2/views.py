@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
 from warnings import catch_warnings
+from django.db import connection
 
 import operator
 
@@ -22,103 +23,38 @@ def index(request):
     context = RequestContext(request)
     clusters = RssArticleClusters.objects.raw("WITH timel AS (SELECT max(timestamp) AS latest_timestamp " 
                                               +"FROM rss_article_clusters) "
-                                              +",stats AS ("
-                                              +"SELECT avg(array_length(articles, 1)) AS average "
-                                              +"FROM rss_article_clusters, timel "
-                                              +"WHERE rss_article_clusters.timestamp = timel.latest_timestamp) "
-                                              +"SELECT id, articles FROM rss_article_clusters, stats "
+                                              +"SELECT id FROM rss_article_clusters, timel "
+                                              +"WHERE rss_article_clusters.timestamp = timel.latest_timestamp "
                                               +"ORDER BY score DESC, common_entities DESC")
     clusterDatas = []
+    cursor = connection.cursor()
+    
     for cluster in clusters:
         clusterData = {}
         clusterData['id'] = cluster.id
-        clusterData['centroid'] = RssArticles.objects.filter(link=cluster.articles[0])[0] #cluster centroid
+        cursor.execute("SELECT (rss_articles.link, source_url, rss_articles.timestamp, title, description, text) FROM rss_article_clusters "
+                        +"JOIN rss_article_clusters_rss_articles "
+                        +"ON rss_article_clusters.id=rss_article_clusters_rss_articles.id "
+                        +"JOIN rss_articles ON rss_articles.link = rss_article_clusters_rss_articles.link "
+                        +"WHERE rss_article_clusters.id = " + str(cluster.id) + " "
+                        +"ORDER BY rss_article_clusters_rss_articles DESC "
+                        +"LIMIT 1")
+        total_rows = cursor.fetchone()[0].split(",")
+        print type(total_rows)
+        centroid = {}
+        centroid['link'] = total_rows[0]
+        centroid['source_url'] = total_rows[1]
+        centroid['timestamp'] = total_rows[2]
+        centroid['title'] = total_rows[3]
+        centroid['description'] = total_rows[4]
+        centroid['text'] = total_rows[5]
+        clusterData['centroid'] = centroid
         clusterDatas.append(clusterData)
     specific_context_dict = {
                              'clusterDatas' : clusterDatas,
                              }
     #print clusterDatas
     index_context_dict = dict(context_dict.items() + specific_context_dict.items())
-    return render_to_response('index.html', index_context_dict, context)
-
-"""
-View for the main page (index), which presents all recent 
-topics including title and stuff.
-"""
-def index2(request):
-    context = RequestContext(request)
-    average_articles = RssArticleClusters.objects.all().aggregate(Avg(''))
-    clusters = RssArticleClusters.objects.filter()
-    """
-    Gets the clusters, which hold more than zero articles 
-    and returns their distribution.
-    @param param: k most frequent entities 
-    @return: dictionary with cluster id and amount of articles included AND
-            dictionary with cluster is as key and the most frequent entities (not exceeding k)
-
-    """
-    def getClusters(k):
-        # At first, determine clusters, which hold more than zero articles
-        articles = RssArticles.objects.all()
-        distribution = {}
-        for article in articles:
-            if article.cluster_id == None:
-                continue
-            elif article.cluster_id not in distribution.keys():
-                distribution[article.cluster_id] = 1
-            elif article.cluster_id in distribution.keys():
-                distribution[article.cluster_id] += 1
-        
-        # At second, choose a appropriate title for each cluster,
-        # based on the most frequent entities occuring.
-        
-        # Determine the frequency of each entity
-        entitiesInCluster = {}
-        for article in articles:
-            if article.cluster_id not in entitiesInCluster.keys():
-                entitiesInCluster[article.cluster_id] = {}
-            '''    
-            for location in article.entity_locations:
-                if location not in entitiesInCluster[article.cluster_id].keys():
-                    entitiesInCluster[article.cluster_id][location] = 1
-                else:
-                    entitiesInCluster[article.cluster_id][location] += 1
-            '''
-            for organization in article.entity_organizations:
-                if organization not in entitiesInCluster[article.cluster_id].keys():
-                    entitiesInCluster[article.cluster_id][organization] = 1
-                else:
-                    entitiesInCluster[article.cluster_id][organization] += 1
-            for person in article.entity_persons:
-                if person not in entitiesInCluster[article.cluster_id].keys():
-                    entitiesInCluster[article.cluster_id][person] = 1
-                else:
-                    entitiesInCluster[article.cluster_id][person] += 1
-
-        # Sort the frequency dicts and sort them descending by the second element, 
-        # finally fetch the first x elements, not exeeding k (x <= k).
-        for ckey in entitiesInCluster.keys():
-            entitiesInCluster[ckey] = sorted(entitiesInCluster[ckey].iteritems(), key=operator.itemgetter(1), reverse=True)[:k]
-        for ckey in entitiesInCluster.keys():
-            temp = entitiesInCluster[ckey]
-            entitiesInCluster[ckey] = []
-            for t in temp:
-                entitiesInCluster[ckey].append(t[0])
-        #print entitiesInCluster[124]
-        return (distribution, entitiesInCluster)
-    
-    temp = getClusters(4)
-    distribution = temp[0]  # {cluster_id : a#articles}
-    topEntities = temp[1]  # [...]
-    
-    # content
-    specific_context_dict = {
-                             'content_text' : "Welcome to News Miner+",
-                             'distribution' : distribution,
-                             'topEntities' : topEntities
-                             }
-    
-    index_context_dict = dict(context_dict.items() + specific_context_dict.items())            
     return render_to_response('index.html', index_context_dict, context)
 
 '''
