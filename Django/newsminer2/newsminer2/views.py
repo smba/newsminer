@@ -186,6 +186,7 @@ def dossier(request, cluster_id):
     def getEntities(k):
         persons = {}
         organizations = {}
+        locations = {}
         for article in articles:
             for person in article['entity_persons']:
                 if person not in persons.keys():
@@ -197,6 +198,7 @@ def dossier(request, cluster_id):
                     organizations[organization] = 1
                 else:
                     organizations[organization] += 1
+
         entitiesDict = {}
         for organization in organizations.keys():
             entitiesDict[organization] = EntityOrganizations.objects.filter(name=organization)[0].__dict__
