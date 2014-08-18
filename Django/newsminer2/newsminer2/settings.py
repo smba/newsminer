@@ -30,9 +30,9 @@ STATIC_ROOT = "/var/www/newsminer/nm2static/"
 SECRET_KEY = 'k%tr2n)gm#0e7c)o-m@b7den)&ra1j8lq4!vz+2#vfnnv8z2%r'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
 ALLOWED_HOSTS = []
 
