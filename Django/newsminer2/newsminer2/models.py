@@ -7,7 +7,6 @@ Models for accessing the Postgres Database Scheme,
 
 from __future__ import unicode_literals
 from django.db import models
-from composite_field import CompositeField
 
 """
 Wraps locations.
