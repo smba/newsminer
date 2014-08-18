@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from newsminer2.models import RssArticleClusters, RssFeeds, RssArticles, EntityLocations, EntityOrganizations, EntityPersons
+from newsminer2.models import RssArticleClusters, RssFeeds, RssArticles, EntityLocations, EntityOrganizations, EntityPersons, RssArticleClustersEntityRssArticles
 from django.http import HttpResponse
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
@@ -40,7 +40,6 @@ def index(request):
                         +"ORDER BY rss_article_clusters_rss_articles DESC "
                         +"LIMIT 1")
         total_rows = cursor.fetchone()[0].split(",")
-        print type(total_rows)
         centroid = {}
         centroid['link'] = total_rows[0]
         centroid['source_url'] = total_rows[1]
@@ -62,16 +61,56 @@ Generic view for the dossiers.
 @param param: cluster_id which will be used as link
 '''
 def dossier(request, cluster_id):
+    cursor = connection.cursor()
     context = RequestContext(request)
     
     articles = []
     cluster = RssArticleClusters.objects.filter(id=cluster_id)[0]
-    for link in cluster.articles:
-        articles.append(RssArticles.objects.filter(link=link)[0])
+    cursor.execute("SELECT rss_articles.link, source_url, timestamp, title, description, text "
+                  +"FROM rss_articles JOIN rss_article_clusters_rss_articles "
+                  +"ON rss_article_clusters_rss_articles.link = rss_articles.link WHERE id = " + str(cluster_id))
+    total_rows = cursor.fetchall()
+    for row in total_rows:
+        article = {}
+        article['link'] = row[0]
+        article['source_url'] = row[1]
+        article['timestamp'] = row[2]
+        article['title'] = row[3]
+        article['description'] = row[4]
+        article['text'] = row[5]
+        
+        #determine locations
+        cursor.execute("SELECT name FROM rss_articles JOIN rss_articles_entity_locations "
+                        +"ON rss_articles.link = rss_articles_entity_locations.link "
+                        +"WHERE rss_articles.link = '" + article['link'] + "'")
+        c = []
+        for loc in cursor.fetchall():
+            c.append(loc[0])
+        article['entity_locations'] = c
+        
+        #determine organizations
+        cursor.execute("SELECT name FROM rss_articles JOIN rss_articles_entity_organizations "
+                        +"ON rss_articles.link = rss_articles_entity_organizations.link "
+                        +"WHERE rss_articles.link = '" + article['link'] + "'")
+        c = []
+        for loc in cursor.fetchall():
+            c.append(loc[0])
+        article['entity_organizations'] = c
+        
+        #determine persons
+        cursor.execute("SELECT name FROM rss_articles JOIN rss_articles_entity_persons "
+                        +"ON rss_articles.link = rss_articles_entity_persons.link "
+                        +"WHERE rss_articles.link = '" + article['link'] + "'")
+        c = []
+        for loc in cursor.fetchall():
+            c.append(loc[0])
+        article['entity_persons'] = c
+    articles.append(article)
+        
     articlesCopy = []
     for i in range(len(articles)):
-        temp = RssFeeds.objects.filter(source_url=articles[i].source_url.source_url)
-        articleDict = articles[i].__dict__
+        temp = RssFeeds.objects.filter(source_url=articles[i]['source_url'])
+        articleDict = articles[i]
         articleDict['newspaper'] = temp[0].name
         articleDict['country'] = temp[0].country
         articlesCopy.append(articleDict)
@@ -81,12 +120,11 @@ def dossier(request, cluster_id):
     def getLocations(m):
         locations_bag = {}
         for article in articles:
-            for location in article.entity_locations:
+            for location in article['entity_locations']:
                 if not location in locations_bag.keys():
                     locations_bag[location] = 1
                 else:
                     locations_bag[location] += 1
-        
         loc_set = set()
         for location in locations_bag.keys():
             if not locations_bag[location] < m:
@@ -99,7 +137,7 @@ def dossier(request, cluster_id):
                 locations.append({"name":location, "latlng": (match.latitude, match.longitude)})
             except IndexError:
                 continue
-            
+           
         # center berechnen
         distances = []
         for i in range(len(locations)):
@@ -114,7 +152,7 @@ def dossier(request, cluster_id):
                     distances[i][j] = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
                 else:
                     distances[i][j] = 0.0
-                    
+
         min = sum(distances[0])
         min_i = 0
         for i in range(len(distances)):
@@ -141,12 +179,12 @@ def dossier(request, cluster_id):
         persons = {}
         organizations = {}
         for article in articles:
-            for person in article.entity_persons:
+            for person in article['entity_persons']:
                 if person not in persons.keys():
                     persons[person] = 1
                 else:
                     persons[person] += 1
-            for organization in article.entity_organizations:
+            for organization in article['entity_organizations']:
                 if organization not in organizations.keys():
                     organizations[organization] = 1
                 else:
@@ -178,14 +216,13 @@ def dossier(request, cluster_id):
         personlist = topPersons
         person_dist = {}
         for article in articles:
-            person_dist[article.link] = []
+            person_dist[article['link']] = []
         for article in articles:
             for person in personlist:
-                i = article.text.count(person[0])
-                person_dist[article.link].append(i)
+                i = article['text'].count(person[0])
+                person_dist[article['link']].append(i)
         return person_dist
     person_dist = getPersonDistribution() 
-    print "Person dist", person_dist
     persons = person_dist.keys()
     specific_context_dict = {
                     'dossier_title': "Welcome to Dossier No " + str(cluster_id),
@@ -202,7 +239,6 @@ def dossier(request, cluster_id):
                     'topPersons':topPersons,
                     'person_dist':person_dist
                     }
-    #print allEntities.keys()
     dossier_context_dict = dict(context_dict.items() + specific_context_dict.items())
     return render_to_response('dossier.html', dossier_context_dict, context)
 
