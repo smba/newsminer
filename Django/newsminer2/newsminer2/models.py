@@ -125,7 +125,7 @@ class RssArticleClusters(models.Model):
 """
 Relation between RssArticleClusters and RssArticles.
 """
-class RssArticleClustersEntityLocations(models.Model):
+class RssArticleClustersEntityRssArticles(models.Model):
     id    = models.ForeignKey('RssArticleClusters', db_column='id')
     link  = models.ForeignKey('RssArticles', db_column='link')
     score = models.FloatField()
