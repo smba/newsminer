@@ -30,6 +30,24 @@ def index(request):
     clusterDatas = []
     cursor = connection.cursor()
     
+    
+    cl = []
+    for cluster in clusters:
+        append = True
+        for type in ["locations", "organizations", "persons"]:
+            cursor.execute("select count(*) from rss_article_clusters "
+                           +"join rss_article_clusters_entity_"+type+" "
+                           +"on rss_article_clusters.id = rss_article_clusters_entity_"+type+".id "
+                           +"where rss_article_clusters.id = " + str(cluster.id))
+            row = cursor.fetchone()[0]
+            if row == 0:
+                append = False
+                break
+        if append:
+            cl.append(cluster)
+    clusters = cl
+    
+    
     for cluster in clusters:
         clusterData = {}
         clusterData['id'] = cluster.id
@@ -40,7 +58,10 @@ def index(request):
                         +"WHERE rss_article_clusters.id = " + str(cluster.id) + " "
                         +"ORDER BY rss_article_clusters_rss_articles DESC "
                         +"LIMIT 1")
-        total_rows = cursor.fetchone()[0].split(",")
+        try:
+            total_rows = cursor.fetchone()[0][1:-1].split(",")
+        except:
+            continue
         centroid = {}
         centroid['link'] = total_rows[0]
         centroid['source_url'] = total_rows[1]
