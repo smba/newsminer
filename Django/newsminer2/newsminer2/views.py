@@ -24,9 +24,11 @@ def index(request):
     context = RequestContext(request)
     clusters = RssArticleClusters.objects.raw("WITH timel AS (SELECT max(timestamp) AS latest_timestamp " 
                                               +"FROM rss_article_clusters) "
-                                              +"SELECT id FROM rss_article_clusters, timel "
+                                              +"SELECT id,timestamp FROM rss_article_clusters, timel "
                                               +"WHERE rss_article_clusters.timestamp = timel.latest_timestamp "
                                               +"ORDER BY score DESC, common_entities DESC")
+    max_timestamp = clusters[0].timestamp
+    timelinks = {'older':"/"+str(max_timestamp)+"/", 'newer':'/'}
     clusterDatas = []
     cursor = connection.cursor()
     
@@ -34,6 +36,15 @@ def index(request):
     cl = []
     for cluster in clusters:
         append = True
+        
+        cursor.execute("select count(*) from rss_article_clusters_rss_articles "
+                        +"join rss_article_clusters on rss_article_clusters.id = rss_article_clusters_rss_articles.id "
+                        +"where rss_article_clusters_rss_articles.id = " + str(cluster.id))
+        row = cursor.fetchone()[0]
+        if row < 2:
+            append = False
+            continue
+        
         for type in ["locations", "organizations", "persons"]:
             cursor.execute("select count(*) from rss_article_clusters "
                            +"join rss_article_clusters_entity_"+type+" "
@@ -87,15 +98,18 @@ def index(request):
         for row in images_row:
             images.append(row[0])
         clusterData["images"] = images
-        print images
+        clusterData["score"] = cluster.score
         clusterDatas.append(clusterData)
         
         
     specific_context_dict = {
                              'clusterDatas' : clusterDatas,
+                             'older'      : timelinks['older'],
+                             'newer'        : timelinks['newer'] 
                              }
     index_context_dict = dict(context_dict.items() + specific_context_dict.items())
     return render_to_response('index.html', index_context_dict, context)
+
 
 '''
 Generic view for the dossiers.
