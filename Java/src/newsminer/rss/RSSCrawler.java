@@ -63,7 +63,7 @@ import newsminer.util.DatabaseUtils;
 public class RSSCrawler extends Observable implements Runnable {
   //constants
   /** the interval at which the feeds are crawled */
-  private static final long   TIMESTEP       = TimeUnit.HOURS.toMillis(1);
+  private static final long   TIMESTEP       = TimeUnit.HOURS.toMillis(12);
   /** the maximum amount of worker threads that can be active at one time */
   private static final int    THREAD_COUNT   = 5;
   /** the developer key used for Google API requests */
