@@ -58,7 +58,7 @@ import newsminer.util.DatabaseUtils;
  * 
  * @author  Stefan Muehlbauer
  * @author  Timo Guenther
- * @version 2014-08-18
+ * @version 2014-08-19
  */
 public class RSSCrawler extends Observable implements Runnable {
   //constants
@@ -443,11 +443,11 @@ public class RSSCrawler extends Observable implements Runnable {
     //Synchronize while updating the database.
     Object lock;
     synchronized (lockMap) {
-      final Object lockKey = name; //Name without type neither requires more objects nor does it collide often.
+      final Object lockKey = name; //Simply name (without type) neither requires more objects nor collides often.
       lock = lockMap.get(lockKey);
       if (lock == null) {
         lock = lockKey;
-        lockMap.put(lock, lock);
+        lockMap.put(lockKey, lock);
       }
     }
     synchronized (lock) {

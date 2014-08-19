@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -42,7 +43,7 @@ import edu.ucla.sspace.vector.ScaledDoubleVector;
  * 
  * @author  Stefan Muehlbauer
  * @author  Timo Guenther
- * @version 2014-08-17
+ * @version 2014-08-19
  */
 public class ArticleClusterer implements Observer {
   //constants
@@ -98,9 +99,10 @@ public class ArticleClusterer implements Observer {
     final Matrix       matrix      = new AtomicGrowingSparseMatrix();
     final Set<String>  tagUniverse = new LinkedHashSet<>(); //column headers
           List<String> links       = new LinkedList<>();    //row headers
+          List<String> sourceURLs  = new LinkedList<>();
     try (final Connection        con = DatabaseUtils.getConnectionPool().getConnection();
          final PreparedStatement ps  = con.prepareStatement(
-             "SELECT link, text FROM rss_articles "
+             "SELECT link, source_url, text FROM rss_articles "
              + "WHERE timestamp > (SELECT MAX(timestamp) FROM rss_articles) - ?")) {
       //Get the newest articles.
       ps.setLong(1, TIMEFRAME);
@@ -110,8 +112,9 @@ public class ArticleClusterer implements Observer {
       int i = 0;
       while (rs.next()) {
         //Get the text.
-        final String text = rs.getString("text");
-        final String link = rs.getString("link");
+        final String text       = rs.getString("text");
+        final String link       = rs.getString("link");
+        final String source_url = rs.getString("source_url");
         
         //Get the text's tag distribution.
         final Map<String, Integer> tagDistribution = TextUtils.getTagDistribution(text);
@@ -122,12 +125,14 @@ public class ArticleClusterer implements Observer {
         //Get the vector for this tag distribution and add it as a row to the matrix.
         matrix.setRow(i, getVector(tagUniverse, tagDistribution));
         links.add(link);
+        sourceURLs.add(source_url);
         i++;
       }
     } catch (SQLException sqle) {
       throw new IOException(sqle);
     }
-    links = new ArrayList<>(links); //faster lookup
+    links      = new ArrayList<>(links); //faster lookup
+    sourceURLs = new ArrayList<>(sourceURLs);
     
     //Cluster.
     final Clustering         clustering         = new HierarchicalAgglomerativeClustering();
@@ -143,18 +148,17 @@ public class ArticleClusterer implements Observer {
       final int clusterSize = cluster.size();
       if (clusterSize > 1) {
         //Get each article's score, that is the corresponding vector's similarity to the cluster centroid.
-        final DoubleVector        clusterCentroid = clusterCentroids[clusterIndex];
-        final Map<String, Double> articleScores   = new LinkedHashMap<>(clusterSize);
+        final DoubleVector         clusterCentroid = clusterCentroids[clusterIndex];
+        final Map<Integer, Double> articleScores   = new LinkedHashMap<>(clusterSize);
         for (final int articleIndex : cluster) {
-          final String link  = links.get(articleIndex);
           final double score = Math.abs(Similarity.getSimilarity(SIMILARITY_TYPE, clusterCentroid, matrix.getRowVector(articleIndex)));
-          articleScores.put(link, score);
+          articleScores.put(articleIndex, score);
         }
         
         //Sort the cluster's articles by descending score.
-        final Map<String, Double> articleScoresSorted = new TreeMap<>(new Comparator<String>() {
+        final Map<Integer, Double> articleScoresSorted = new TreeMap<>(new Comparator<Integer>() {
           @Override
-          public int compare(String o1, String o2) {
+          public int compare(Integer o1, Integer o2) {
             return articleScores.get(o2).compareTo(articleScores.get(o1));
           }
         });
@@ -163,7 +167,12 @@ public class ArticleClusterer implements Observer {
         //Get the common entities, that is the entities shared by the cluster and its articles, as well as their scores.
         final Map<String, Map<String, Double>> entityScoresByNameByType = new TreeMap<>();
         try (final Connection con = DatabaseUtils.getConnectionPool().getConnection()) {
-          final Array articlesArray = con.createArrayOf("text", articleScores.keySet().toArray());
+          final List<String> articles = new LinkedList<>();
+          for (int articleIndex : articleScores.keySet()) {
+            final String link = links.get(articleIndex);
+            articles.add(link);
+          }
+          final Array articlesArray = con.createArrayOf("text", articles.toArray());
           for (final String type : new String[] {"location", "organization", "person"}) {
             final PreparedStatement ps = con.prepareStatement(
                 "SELECT e.name, e.popularity FROM "
@@ -199,10 +208,15 @@ public class ArticleClusterer implements Observer {
           final Set<String> entityNames = entityScoresByNameAndType.getValue().keySet();
           commonEntities += entityNames.size();
         }
-        final double common_entities = Math.log(commonEntities);
+        final double common_entities = commonEntities;
         
         //Get the cluster's score.
-        final double score = Math.log(Math.pow(articleScores.keySet().size(), 2));
+        final Set<String> clusterSourceURLs = new HashSet<>();
+        for (int articleIndex : articleScores.keySet()) {
+          final String source_url = sourceURLs.get(articleIndex);
+          clusterSourceURLs.add(source_url);
+        }
+        final double score = clusterSourceURLs.size();
         
         //Store the cluster in the database.
         final int id;
@@ -224,8 +238,8 @@ public class ArticleClusterer implements Observer {
         try (final Connection        con = DatabaseUtils.getConnectionPool().getConnection();
              final PreparedStatement ps  = con.prepareStatement(
                  "INSERT INTO rss_article_clusters_rss_articles VALUES (?, ?, ?)")) {
-          for (final Entry<String, Double> linkAndScore : articleScoresSorted.entrySet()) {
-            final String link         = linkAndScore.getKey();
+          for (final Entry<Integer, Double> linkAndScore : articleScoresSorted.entrySet()) {
+            final String link         = links.get(linkAndScore.getKey());
             final double articleScore = linkAndScore.getValue();
             ps.setInt   (1, id);
             ps.setString(2, link);
