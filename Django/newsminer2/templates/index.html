@@ -28,6 +28,9 @@
 					<article class="article-item">
 						<h2>{{cluster.centroid.title}}</h2>
 						{{cluster.centroid.timestamp}}
+						{% for image in cluster.images %}
+							<img src="https://usercontent.googleapis.com/freebase/v1/image{{image}}"  style="float:left; margin:5px;">
+						{% endfor %}
 					</article>
 				</a><br />
 				<!-- <script type="text/javascript" src="//www.google.com/trends/embed.js?hl=en-US&q={{cluster.centroid.entity_locations.0}},+{{cluster.centroid.entity_locations.1}},+{{cluster.centroid.entity_locations.2}}&date=today+3-m&cmpt=q&content=1&cid=TIMESERIES_GRAPH_0&export=5&w=500&h=330"></script>

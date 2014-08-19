@@ -74,7 +74,23 @@ def index(request):
         centroid['description'] = total_rows[4]
         centroid['text'] = total_rows[5]
         clusterData['centroid'] = centroid
+        
+        #get cluster persons
+        persons = []
+        cursor.execute("select entity_persons.image from rss_article_clusters "
+                       +"join rss_article_clusters_entity_persons on rss_article_clusters_entity_persons.id = rss_article_clusters.id "
+                       +"join entity_persons on rss_article_clusters_entity_persons.name = entity_persons.name "
+                       +"where rss_article_clusters.id = " + str(cluster.id) + " and entity_persons.image <>''"
+                       +"order by entity_persons.popularity DESC limit 4")
+        images_row = cursor.fetchall()
+        images = []
+        for row in images_row:
+            images.append(row[0])
+        clusterData["images"] = images
+        print images
         clusterDatas.append(clusterData)
+        
+        
     specific_context_dict = {
                              'clusterDatas' : clusterDatas,
                              }
