@@ -208,7 +208,7 @@ section .main-section {
   margin: 0 0 1em;
   padding: 10px;
   float: left;
-  width: 55%;
+  width: 50%;
 }
 
 .main-content .article-item:hover { background-color: #eeeeee; }
