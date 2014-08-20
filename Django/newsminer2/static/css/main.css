@@ -210,7 +210,8 @@ section .main-section {
   float: left;
   width: 50%;
 }
-.main-content .article-item:hover { background-color: #eeeeee; }
+
+/*.main-content .article-item:hover { background-color: #eeeeee; }*/
 
 .aside-content {
   background-color: #dddddd;
