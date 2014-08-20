@@ -100,7 +100,7 @@ def index(request, year, month, day):
         
         date = datetime.datetime.fromtimestamp(int(total_rows[2][:-3]))
         df = DateFormat(date)    
-        centroid['timestamp'] = df.format('jS F Y H:i')
+        centroid['timestamp'] = df.format('jS F Y')
         
         centroid['title'] = total_rows[3]
         centroid['description'] = total_rows[4]
@@ -124,10 +124,15 @@ def index(request, year, month, day):
     
     if len(clusterDatas) == 0:
         raise Http404
-        
+    
+    meta_timestamp = datetime.date(int(year), int(month), int(day))
+    dformat = DateFormat(date)
+    meta_timestamp = dformat.format('jS F Y')
+    
     specific_context_dict = {
                              'clusterDatas' : clusterDatas,
                              'time_navigation':time_navigation,
+                             'meta_timestamp':meta_timestamp
                              }
     #print time_navigation
     index_context_dict = dict(context_dict.items() + specific_context_dict.items())
@@ -156,7 +161,7 @@ def dossier(request, cluster_id):
         
         date = datetime.datetime.fromtimestamp(int(str(row[2])[:-3]))
         df = DateFormat(date)
-        article['timestamp'] = df.format('jS F Y H:i')
+        article['timestamp'] = df.format('jS F Y') #H:i
         
         article['title'] = row[3]
         article['description'] = row[4]
@@ -315,6 +320,7 @@ def dossier(request, cluster_id):
         return person_dist
     person_dist = getPersonDistribution() 
     persons = person_dist.keys()
+    
     specific_context_dict = {
                     'dossier_title': "Welcome to Dossier No " + str(cluster_id),
                     'article_text':"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Option congue nihil imperdiet doming id quod mazim placerat facer",
@@ -328,7 +334,7 @@ def dossier(request, cluster_id):
                     'entitiesKeys':allEntities.keys(),
                     'persons':persons,
                     'topPersons':topPersons,
-                    'person_dist':person_dist
+                    'person_dist':person_dist,
                     }
     dossier_context_dict = dict(context_dict.items() + specific_context_dict.items())
     return render_to_response('dossier.html', dossier_context_dict, context)
