@@ -158,14 +158,14 @@ a:hover { color: #333333; }
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   
-  background-color: #dddddd;
+  background-color: #f9f9f9;
   display: inline-block;
   padding: 15px 10px 14px;
 }
 .main-navigation a:hover,
 .main-navigation a.active {
   color: #000000;
-  background-color: #f9f9f9;
+  background-color: #eeeeee;
 }
 
 .time-old {
