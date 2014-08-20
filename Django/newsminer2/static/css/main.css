@@ -158,28 +158,30 @@ a:hover { color: #333333; }
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   
-  background-color: #f9f9f9;
+  background-color: #dddddd;
   display: inline-block;
   padding: 15px 10px 14px;
 }
 .main-navigation a:hover,
 .main-navigation a.active {
   color: #000000;
-  background-color: #dddddd;
+  background-color: #f9f9f9;
 }
 
 .time-old {
 	text-align: left;
 	width: 100%;
+	font-weight: bold;
 }
 
 .time-new {
 	text-align: right;
 	width: 100%;
+	font-weight: bold;
 }
 
 .time-new a:hover, .time-old a:hover{
-	font-weight: bold;
+	font-weight: normal;
 }
 
 /*
@@ -234,11 +236,11 @@ section .main-section {
 .main-content .article-item {
 	margin: 0 -10px 0 1em;
 	padding: 10px;
-	background-color: #eeeeee;
+	background-color: #f9f9f9;
 }
 
 .main-content .dossierlist {
-	background-color: #eeeeee;
+	background-color: #f9f9f9;
 	margin: 0 0 1em;
 	float: left;
 	width: 49%;
