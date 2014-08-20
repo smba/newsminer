@@ -241,7 +241,7 @@ section .main-section {
 }
 
 .equalize {
-	min-height: 160px;
+	min-height: 180px;
 }
 
 .dossierlist:nth-child(odd) { 
