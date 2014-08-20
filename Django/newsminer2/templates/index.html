@@ -31,10 +31,10 @@
 			{% if time_navigation.newer %}
 				<a href='/{{time_navigation.newer.0}}/{{time_navigation.newer.1}}/{{time_navigation.newer.2}}'>[newer]</a>
 			{% endif %}
-						
+			<h1>{{meta_timestamp}}</h1>		
 			{% for cluster in clusterDatas %}
 				<a href='{{dossier}}{{cluster.id}}'>
-					<article class="article-item clearfix">
+					<article class="article-item dossierlist clearfix">
 						<h2>{{cluster.centroid.title}}</h2>
 						{% for image in cluster.images %}
 							<img src="https://usercontent.googleapis.com/freebase/v1/image{{image}}">
