@@ -27,10 +27,10 @@
 			
 			<!-- TIME NAVIGATION -->
 			{% if time_navigation.older %}
-				<a href='/{{time_navigation.older.0}}/{{time_navigation.older.1}}/{{time_navigation.older.2}}'>[older]</a>
+				<a class='time-old' href='/{{time_navigation.older.0}}/{{time_navigation.older.1}}/{{time_navigation.older.2}}'>« older</a>
 			{% endif %}
 			{% if time_navigation.newer %}
-				<a href='/{{time_navigation.newer.0}}/{{time_navigation.newer.1}}/{{time_navigation.newer.2}}'>[newer]</a>
+				<a class='time-new' href='/{{time_navigation.newer.0}}/{{time_navigation.newer.1}}/{{time_navigation.newer.2}}'>newer »</a>
 			{% endif %}
 			<br />
 					
