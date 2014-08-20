@@ -175,6 +175,18 @@ a:hover { color: #333333; }
 }
 
 .inactive {
+    -webkit-border-top-left-radius: 10px;
+    -webkit-border-top-right-radius: 10px;
+    -moz-border-radius-topleft: 10px;
+    -moz-border-radius-topright: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  
+    background-color: #f9f9f9;
+    display: inline-block;
+    padding: 15px 10px 14px;
+  
+    font-weight: bold;
 	color: #dddddd;
 }
 
