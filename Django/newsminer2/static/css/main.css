@@ -165,29 +165,13 @@ a:hover { color: #333333; }
   background-color: #f9f9f9;
   display: inline-block;
   padding: 15px 10px 14px;
+  
+  font-weight: bold;
 }
 .main-navigation a:hover,
 .main-navigation a.active {
   color: #000000;
   background-color: #dddddd;
-}
-
-.time-old {
-	text-align: left;
-	float: left;
-	width: 50%;
-	font-weight: bold;
-}
-
-.time-new {
-	text-align: right;
-	float: right;
-	width: 50%;
-	font-weight: bold;
-}
-
-.time-new a:hover, .time-old a:hover{
-	font-weight: normal;
 }
 
 /*
