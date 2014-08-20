@@ -225,6 +225,7 @@ section .main-section {
 	margin: 0 0 1em;
 	float: left;
 	width: 49%;
+	min-height: 200px;
 }
 
 .dossierlist:nth-child(odd) { 
