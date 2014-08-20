@@ -204,6 +204,12 @@ section .main-section {
   width: 80%;
 }
 
+.main-content .article-item {
+	margin: 0 -10px 0 1em;
+	padding: 10px;
+	background-color: #eeeeee;
+}
+
 .main-content .dossierlist {
 	background-color: #eeeeee;
 	margin: 0 0 1em;
