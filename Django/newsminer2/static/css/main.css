@@ -204,22 +204,22 @@ section .main-section {
   width: 80%;
 }
 
-.main-content .article-item .dossierlist {
+.main-content .dossierlist {
 	background-color: #eeeeee;
 	margin: 0 0 1em;
 	float: left;
 	width: 49%;
 }
 
-.main-content .article-item .dossierlist:nth-child(odd) { 
+.main-content .dossierlist:nth-child(odd) { 
 	margin: 0 1% 1em 0; 
 }
 
-.main-content .article-item .dossierlist:nth-child(even) { 
+.main-content .dossierlist:nth-child(even) { 
 	margin: 0 0 1em 1%; 
 }
 
-.main-content .article-item .dossierlist a { 
+.main-content .dossierlist a { 
     display: block;
     padding: 10px;
 }
