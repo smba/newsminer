@@ -165,7 +165,7 @@ a:hover { color: #333333; }
 .main-navigation a:hover,
 .main-navigation a.active {
   color: #000000;
-  background-color: #eeeeee;
+  background-color: #dddddd;
 }
 
 .time-old {
