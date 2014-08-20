@@ -15,8 +15,18 @@
 			<h1 class='logo'><a href="/">NewsMiner+</a></h1>
 			<nav role='navigation' class='main-navigation'>
 				<ul class='clearfix'>
+					{% if time_navigation.older %}
+						<li>
+							<a href='/{{time_navigation.older.0}}/{{time_navigation.older.1}}/{{time_navigation.older.2}}'>« older</a>
+						</li>
+					{% endif %}
+					</li>
 					<li><a href='{% url 'index' %}' class='active'>Dossiers</a></li>
-					<li><a href='{% url 'what' %}'>What is NewsMiner+?</a></li>
+					{% if time_navigation.newer %}
+						<li>
+							<a href='/{{time_navigation.newer.0}}/{{time_navigation.newer.1}}/{{time_navigation.newer.2}}'>newer »</a>
+						</li>
+					{% endif %}
 					<li><a href='{% url 'impressum' %}'>Imprint</a></li>
 				</ul>
 			</nav>
@@ -36,7 +46,6 @@
 					<a href='/{{time_navigation.newer.0}}/{{time_navigation.newer.1}}/{{time_navigation.newer.2}}'>newer »</a>
 				</div>
 			{% endif %}
-			<div class='clearfix'></div>
 					
 			{% for cluster in clusterDatas %}
 				<article class="dossierlist">
