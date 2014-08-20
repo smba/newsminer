@@ -27,15 +27,16 @@
 			
 			<!-- TIME NAVIGATION -->
 			{% if time_navigation.older %}
-				<p class='time-old'>
+				<div class='time-old'>
 					<a href='/{{time_navigation.older.0}}/{{time_navigation.older.1}}/{{time_navigation.older.2}}'>« older</a>
-				</p>
+				</div>
 			{% endif %}
 			{% if time_navigation.newer %}
-				<p class='time-new'>
+				<div class='time-new'>
 					<a href='/{{time_navigation.newer.0}}/{{time_navigation.newer.1}}/{{time_navigation.newer.2}}'>newer »</a>
-				</p>
+				</div>
 			{% endif %}
+			<br />
 					
 			{% for cluster in clusterDatas %}
 				<article class="dossierlist">
