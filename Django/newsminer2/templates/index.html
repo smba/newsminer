@@ -32,6 +32,7 @@
 			{% if time_navigation.newer %}
 				<a href='/{{time_navigation.newer.0}}/{{time_navigation.newer.1}}/{{time_navigation.newer.2}}'>[newer]</a>
 			{% endif %}
+			<br />
 					
 			{% for cluster in clusterDatas %}
 				<article class="dossierlist clearfix">
@@ -47,6 +48,23 @@
 			{% endfor %}
 		</section>
 	</main>
+	<aside class='aside-content'>
+		<div class="widget">
+			<h2>What is Newsminer?</h2>	
+			<p>
+				NewsMiner+ is a web blog providing mashups regarding recent topics. Imagine, as different
+				newspapers almost deal the same topics, it's rather complicated to get an overview over different
+				articles at first and the topic bakground at second.
+			</p>	
+			<p>
+				Technically, the application crawls a large collection of RSS feeds from all over the world, such as 
+				Le Monde, The Guardian or The New York Times.
+				After clustering the articles, all relevant entities are detected and the NewsMiner+ searches for 
+				additional informations to describe them, using Freebase, GoogleMaps and 
+				Leaflet/Open Street Maps.
+			</p>
+		</div>	
+	</aside>
 	</div>
  </body>
 
