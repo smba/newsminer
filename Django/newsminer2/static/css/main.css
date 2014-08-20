@@ -41,7 +41,7 @@ body {
   background: #222222 url(../bg_wood.jpg) repeat;
   color: #434a54;
   font-family: 'Roboto', Arial, Helvetica, sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   font-size: 1rem;
 } 
 
@@ -364,7 +364,7 @@ section .main-section {
 	-khtml-box-shadow:1px 1px 6px #292929; /* Konqueror */ 
 	box-shadow:1px 1px 6px #292929; /* CSS3 */
 	background-color: #f9f9f9;
-	font-size: 80%;
+	font-size: 90%;
 }
 
 .custom_widget {
