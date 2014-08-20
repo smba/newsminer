@@ -275,11 +275,19 @@ def dossier(request, cluster_id):
 
         entitiesDict = {}
         for organization in organizations.keys():
-            entitiesDict[organization] = EntityOrganizations.objects.filter(name=organization)[0].__dict__
-            entitiesDict[organization]['type'] = 'organization'
+            o = EntityOrganizations.objects.filter(name=organization)[0].__dict__
+            if o['description'] != None:
+                entitiesDict[organization] = o
+                entitiesDict[organization]['type'] = 'organization'
+            else:
+                del organizations[organization]
         for person in persons.keys():
-            entitiesDict[person] = EntityPersons.objects.filter(name=person)[0].__dict__
-            entitiesDict[person]['type'] = 'person'
+            p = EntityPersons.objects.filter(name=person)[0].__dict__
+            if p['image'] != None and p['description'] != None:
+                entitiesDict[person] = p
+                entitiesDict[person]['type'] = 'person'
+            else:
+                del persons[person]
             
         topPersons = sorted(persons.iteritems(), key=operator.itemgetter(1), reverse=True)[:k]
         allEntities = dict(organizations.items() + persons.items())
