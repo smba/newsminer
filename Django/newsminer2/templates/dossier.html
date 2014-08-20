@@ -85,9 +85,12 @@
     			<div class='widget-content' id="popularity_widget" style="display:none">
     				{% with articles|access:0 as article %} 
     				<script type="text/javascript" src="//www.google.com/trends/embed.js?hl=en-US&q={% for name in article.entity_persons %}{% if forloop.counter < 3 %}name,+{% endif %}{% endfor %}&date=today+1-m&gprop=news&cmpt=q&content=1&cid=TIMESERIES_GRAPH_0&export=5&w=220&h=160"></script>
-    				{% endwith %}
-    			</div>
-    		</div>
+
+					{% endwith %}
+
+				</div>
+
+			</div>
     		    		
     		<!-- PERSON BAR DIAGRAM -->
     		<div class="persons widget">
@@ -102,7 +105,7 @@
 			<!-- CUSTOMIZED WIDGET -->
     		<div class="custom_widget" id="custom-widget">
 				<div class='widget-title'>
-					<div id="custom-widget-title" style="display:inline;">
+					<div id="custom-widget-title">
 						Custom Widget
 					</div>
 					<a href="#" onclick="javascript:showHide('custom-widget-description');">[show/hide]</a>
@@ -167,7 +170,7 @@
             	    	}
             	}
         	}
-		}	
+		}
 	</script>
 	<script type="text/javascript">
 	google.load("visualization", "1", {packages:["corechart"]});
