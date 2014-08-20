@@ -117,6 +117,19 @@ small {
   line-height: 1.75;
 }
 
+figure {
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-size: cover;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+    float: left;
+    height: 50px;
+    margin: 0 5px 0 0;
+    width: 50px;
+}
+
 /*
 ==============================================
 	LINKS

@@ -42,7 +42,7 @@
 					<a href='{{dossier}}{{cluster.id}}'>
 						<h2>{{cluster.centroid.title}}</h2>
 						{% for image in cluster.images %}
-							<img src="https://usercontent.googleapis.com/freebase/v1/image{{image}}">
+							<figure style="background-image:url(https://usercontent.googleapis.com/freebase/v1/image{{image}});"></figure>
 						{% endfor %}
 					</a>
 				</article>
