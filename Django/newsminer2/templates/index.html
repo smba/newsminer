@@ -38,8 +38,8 @@
 			{% endif %}
 					
 			{% for cluster in clusterDatas %}
-				<article class="dossierlist clearfix">
-					<a href='{{dossier}}{{cluster.id}}'>
+				<article class="dossierlist">
+					<a href='{{dossier}}{{cluster.id}}' class='equalize clearfix'>
 						<h2>{{cluster.centroid.title}}</h2>
 						{% for image in cluster.images %}
 							<figure style="background-image:url(https://usercontent.googleapis.com/freebase/v1/image{{image}});"></figure>
