@@ -23,6 +23,7 @@
     	</header>
 		<main role='main' class='main-content clearfix'>
 			<section class='main-section clearfix'>
+			<h1>Dossiers, {{meta_timestamp}}</h1>
 			
 			<!-- TIME NAVIGATION -->
 			{% if time_navigation.older %}
@@ -31,7 +32,7 @@
 			{% if time_navigation.newer %}
 				<a href='/{{time_navigation.newer.0}}/{{time_navigation.newer.1}}/{{time_navigation.newer.2}}'>[newer]</a>
 			{% endif %}
-			<h1>Dossiers, {{meta_timestamp}}</h1>		
+					
 			{% for cluster in clusterDatas %}
 				<a href='{{dossier}}{{cluster.id}}'>
 					<article class="article-item dossierlist clearfix">
