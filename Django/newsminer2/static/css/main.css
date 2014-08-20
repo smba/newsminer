@@ -156,11 +156,13 @@ a:hover { color: #333333; }
 }
 
 .time-old {
-	float: left;
+	text-align: left;
+	width: 100%;
 }
 
 .time-new {
-	float: right;
+	text-align: right;
+	width: 100%;
 }
 
 /*
