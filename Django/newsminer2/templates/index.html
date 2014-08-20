@@ -23,8 +23,15 @@
     	</header>
 		<main role='main' class='main-content clearfix'>
 			<section class='main-section clearfix'>
-			<a href='/{{time_navigation.older.0}}/{{time_navigation.older.1}}/{{time_navigation.older.2}}'>[older]</a>
-			<a href='/{{time_navigation.newer.0}}/{{time_navigation.newer.1}}/{{time_navigation.newer.2}}'>[newer]</a>
+			
+			<!-- TIME NAVIGATION -->
+			{% if time_navigation.older %}
+				<a href='/{{time_navigation.older.0}}/{{time_navigation.older.1}}/{{time_navigation.older.2}}'>[older]</a>
+			{% endif %}
+			{% if time_navigation.newer %}
+				<a href='/{{time_navigation.newer.0}}/{{time_navigation.newer.1}}/{{time_navigation.newer.2}}'>[newer]</a>
+			{% endif %}
+						
 			{% for cluster in clusterDatas %}
 				<a href='{{dossier}}{{cluster.id}}'>
 					<article class="article-item clearfix">
