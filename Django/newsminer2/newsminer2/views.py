@@ -38,14 +38,14 @@ def index(request, year, month, day):
     latest = RssArticleClusters.objects.all().aggregate(Max('timestamp'))['timestamp__max']
     time_navigation = {}
     if str(date) == str(timestampToDate(int(str(latest)[:-3]))):
-        time_navigation['newer'] = date
+        time_navigation['newer'] = None
     else:
         time_navigation['newer'] = tomorrow(date)
     
     oldest = RssArticleClusters.objects.all().aggregate(Min('timestamp'))['timestamp__min']
     #print str(timestampToDate(int(str(oldest)[:-3])))
     if str(date) == str(timestampToDate(int(str(oldest)[:-3]))):
-        time_navigation['older'] = date
+        time_navigation['older'] = None
     else:
         time_navigation['older'] = yesterday(date)
 
