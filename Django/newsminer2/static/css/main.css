@@ -238,7 +238,10 @@ section .main-section {
 	margin: 0 0 1em;
 	float: left;
 	width: 49%;
-	min-height: 180px;
+}
+
+.equalize {
+	min-height: 160px;
 }
 
 .dossierlist:nth-child(odd) { 
