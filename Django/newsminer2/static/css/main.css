@@ -205,10 +205,10 @@ section .main-section {
 }
 
 .main-content .article-item {
-  margin: 0 0 1em;
+  margin: 0 1% 1em;
   padding: 10px;
   float: left;
-  width: 50%;
+  width: 49.5%;
   background-color: #eeeeee;
 }
 
