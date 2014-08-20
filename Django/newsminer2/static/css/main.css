@@ -240,8 +240,8 @@ section .main-section {
 	width: 49%;
 }
 
-.dossierlist .equalize {
-	min-height: 180px;
+.main-content .dossierlist h2 { 
+	min-height: 80px; 
 }
 
 .dossierlist:nth-child(odd) { 
