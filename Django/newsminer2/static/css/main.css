@@ -130,6 +130,10 @@ figure {
     width: 50px;
 }
 
+.flags {
+	border: border: 1px solid #999;
+}
+
 /*
 ==============================================
 	LINKS
