@@ -204,20 +204,24 @@ section .main-section {
   width: 80%;
 }
 
-.main-content .article-item {
+.main-content .article-item .dossierlist {
 	background-color: #eeeeee;
 	margin: 0 0 1em;
-	padding: 10px;
 	float: left;
 	width: 49%;
 }
 
-.main-content .article-item:nth-child(odd) { 
+.main-content .article-item .dossierlist:nth-child(odd) { 
 	margin: 0 1% 1em 0; 
 }
 
-.main-content .article-item:nth-child(even) { 
+.main-content .article-item .dossierlist:nth-child(even) { 
 	margin: 0 0 1em 1%; 
+}
+
+.main-content .article-item .dossierlist a { 
+    display: block;
+    padding: 10px;
 }
 
 .aside-content {
