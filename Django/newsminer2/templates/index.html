@@ -17,14 +17,14 @@
 				<ul class='clearfix'>
 					{% if time_navigation.older %}
 						<li>
-							<a href='/{{time_navigation.older.0}}/{{time_navigation.older.1}}/{{time_navigation.older.2}}'>« older</a>
+							<a href='/{{time_navigation.older.0}}/{{time_navigation.older.1}}/{{time_navigation.older.2}}'>« Older</a>
 						</li>
 					{% endif %}
 					</li>
 					<li><a href='{% url 'index' %}' class='active'>Dossiers</a></li>
 					{% if time_navigation.newer %}
 						<li>
-							<a href='/{{time_navigation.newer.0}}/{{time_navigation.newer.1}}/{{time_navigation.newer.2}}'>newer »</a>
+							<a href='/{{time_navigation.newer.0}}/{{time_navigation.newer.1}}/{{time_navigation.newer.2}}'>Newer »</a>
 						</li>
 					{% endif %}
 					<li><a href='{% url 'impressum' %}'>Imprint</a></li>
@@ -35,18 +35,6 @@
 			<section class='main-section clearfix'>
 			<h1>Dossiers, {{meta_timestamp}}</h1>
 			
-			<!-- TIME NAVIGATION -->
-			{% if time_navigation.older %}
-				<div class='time-old'>
-					<a href='/{{time_navigation.older.0}}/{{time_navigation.older.1}}/{{time_navigation.older.2}}'>« older</a>
-				</div>
-			{% endif %}
-			{% if time_navigation.newer %}
-				<div class='time-new'>
-					<a href='/{{time_navigation.newer.0}}/{{time_navigation.newer.1}}/{{time_navigation.newer.2}}'>newer »</a>
-				</div>
-			{% endif %}
-					
 			{% for cluster in clusterDatas %}
 				<article class="dossierlist">
 					<a href='{{dossier}}{{cluster.id}}' class='clearfix'>
