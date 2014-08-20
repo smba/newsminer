@@ -140,9 +140,9 @@ def dossier(request, cluster_id):
         article['text'] = row[5]
         
         #determine locations
-        cursor.execute("SELECT name FROM rss_articles JOIN rss_articles_entity_locations "
-                        +"ON rss_articles.link = rss_articles_entity_locations.link "
-                        +"WHERE rss_articles.link = '" + article['link'] + "'")
+        cursor.execute('SELECT name FROM rss_articles JOIN rss_articles_entity_locations '
+                        +'ON rss_articles.link = rss_articles_entity_locations.link '
+                        +'WHERE rss_articles.link = \'' + article['link'].replace("'","''") + '\'')
         c = []
         for loc in cursor.fetchall():
             c.append(loc[0])
@@ -151,7 +151,7 @@ def dossier(request, cluster_id):
         #determine organizations
         cursor.execute("SELECT name FROM rss_articles JOIN rss_articles_entity_organizations "
                         +"ON rss_articles.link = rss_articles_entity_organizations.link "
-                        +"WHERE rss_articles.link = '" + article['link'] + "'")
+                        +'WHERE rss_articles.link = \'' + article['link'].replace("'","''") + '\'')
         c = []
         for loc in cursor.fetchall():
             c.append(loc[0])
@@ -160,7 +160,7 @@ def dossier(request, cluster_id):
         #determine persons
         cursor.execute("SELECT name FROM rss_articles JOIN rss_articles_entity_persons "
                         +"ON rss_articles.link = rss_articles_entity_persons.link "
-                        +"WHERE rss_articles.link = '" + article['link'] + "'")
+                        +'WHERE rss_articles.link = \'' + article['link'].replace("'","''") + '\'')
         c = []
         for loc in cursor.fetchall():
             c.append(loc[0])
