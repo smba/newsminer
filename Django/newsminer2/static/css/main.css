@@ -178,6 +178,10 @@ a:hover { color: #333333; }
 	width: 100%;
 }
 
+.time-new a:hover, .time-old a:hover{
+	font-weight: bold;
+}
+
 /*
 ==============================================
 	LAYOUT
