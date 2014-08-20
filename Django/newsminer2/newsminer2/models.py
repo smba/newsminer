@@ -117,7 +117,7 @@ class RssArticleClusters(models.Model):
     id              = models.IntegerField(primary_key = True)
     score           = models.FloatField()
     common_entities = models.FloatField()
-    
+    timestamp   = models.BigIntegerField()
     class Meta:
         managed  = False
         db_table = 'rss_article_clusters'

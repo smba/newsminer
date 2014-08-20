@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 from newsminer2.models import RssArticleClusters, RssFeeds, RssArticles, EntityLocations, EntityOrganizations, EntityPersons, RssArticleClustersEntityRssArticles
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
 from warnings import catch_warnings
 from django.db import connection
+from django.shortcuts import redirect
 from django.utils.dateformat import DateFormat
+from django.db.models import Max, Min #
 import operator
 import datetime
+import time
 
 # from django.template import Template, Context
 # from django.template.loader import get_template
@@ -20,15 +23,33 @@ context_dict = {
                 }
 
 
-def index(request):
+def index(request, year, month, day):
     context = RequestContext(request)
-    clusters = RssArticleClusters.objects.raw("WITH timel AS (SELECT max(timestamp) AS latest_timestamp " 
-                                              +"FROM rss_article_clusters) "
-                                              +"SELECT id,timestamp FROM rss_article_clusters, timel "
-                                              +"WHERE rss_article_clusters.timestamp = timel.latest_timestamp "
+    
+    
+    
+    date = (int(year),int(month),int(day))
+    timestamps = dateToTimestamp(date)
+
+    clusters = RssArticleClusters.objects.raw("SELECT id,timestamp FROM rss_article_clusters "
+                                              +"WHERE rss_article_clusters.timestamp BETWEEN " + str(timestamps[0]*1000) + " AND " + str(timestamps[1]*1000) + " "
                                               +"ORDER BY score DESC, common_entities DESC")
-    max_timestamp = clusters[0].timestamp
-    timelinks = {'older':"/"+str(max_timestamp)+"/", 'newer':'/'}
+
+    latest = RssArticleClusters.objects.all().aggregate(Max('timestamp'))['timestamp__max']
+    time_navigation = {}
+    if str(date) == str(timestampToDate(int(str(latest)[:-3]))):
+        time_navigation['newer'] = date
+    else:
+        time_navigation['newer'] = tomorrow(date)
+    
+    oldest = RssArticleClusters.objects.all().aggregate(Min('timestamp'))['timestamp__min']
+    #print str(timestampToDate(int(str(oldest)[:-3])))
+    if str(date) == str(timestampToDate(int(str(oldest)[:-3]))):
+        time_navigation['older'] = date
+    else:
+        time_navigation['older'] = yesterday(date)
+
+    
     clusterDatas = []
     cursor = connection.cursor()
     
@@ -100,13 +121,15 @@ def index(request):
         clusterData["images"] = images
         clusterData["score"] = cluster.score
         clusterDatas.append(clusterData)
-        
+    
+    if len(clusterDatas) == 0:
+        raise Http404
         
     specific_context_dict = {
                              'clusterDatas' : clusterDatas,
-                             'older'      : timelinks['older'],
-                             'newer'        : timelinks['newer'] 
+                             'time_navigation':time_navigation,
                              }
+    #print time_navigation
     index_context_dict = dict(context_dict.items() + specific_context_dict.items())
     return render_to_response('index.html', index_context_dict, context)
 
@@ -302,6 +325,17 @@ def dossier(request, cluster_id):
     dossier_context_dict = dict(context_dict.items() + specific_context_dict.items())
     return render_to_response('dossier.html', dossier_context_dict, context)
 
+#testview
+def testview(request, a, b, c):
+    date = (int(a),int(b),int(c))
+    timestamps = dateToTimestamp(date)
+    html = "<html><body>It is now between " + str(timestamps[0]) + " and " +  str(timestamps[1]) + "</body></html>"
+    return HttpResponse(html)
+
+
+def index_redirect(request):
+    latest = RssArticleClusters.objects.all().aggregate(Max('timestamp'))['timestamp__max']
+    return redirect('/%s/%s/%s' % timestampToDate(int(str(latest)[:-3])))
 
 '''
 View for the impressum.
@@ -316,3 +350,21 @@ View for the what page
 def what(request):
     context = RequestContext(request)
     return render_to_response('what.html', context)
+
+def dateToTimestamp(date):
+    start = datetime.date(date[0], date[1], date[2])
+    return (int(time.mktime(start.timetuple())), int(time.mktime(start.timetuple()))+24*60*60)
+
+def timestampToDate(timestamp):
+    date = datetime.datetime.fromtimestamp(timestamp)
+    year = date.year
+    month = date.month
+    day = date.day
+    return (year,month,day)
+
+def yesterday(date):
+    timestamps = dateToTimestamp(date)
+    return timestampToDate(timestamps[0]-24*60*60)
+def tomorrow(date):
+    timestamps = dateToTimestamp(date)
+    return timestampToDate(timestamps[0]+24*60*60)
