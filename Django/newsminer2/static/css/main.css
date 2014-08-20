@@ -227,11 +227,11 @@ section .main-section {
 	width: 49%;
 }
 
-.main-content .dossierlist:nth-child(even) { 
+.dossierlist:nth-child(even) { 
 	margin: 0 1% 1em 0; 
 }
 
-.main-content .dossierlist:nth-child(odd) { 
+.dossierlist:nth-child(odd) { 
 	margin: 0 0 1em 1%; 
 }
 
