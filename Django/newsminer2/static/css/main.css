@@ -205,10 +205,11 @@ section .main-section {
 }
 
 .main-content .article-item {
-margin: 0 0 1em;
-padding: 10px;
-float: left;
-width: 49%;
+	background-color: #eeeeee;
+	margin: 0 0 1em;
+	padding: 10px;
+	float: left;
+	width: 49%;
 }
 
 .main-content .article-item:nth-child(odd) { 
