@@ -102,7 +102,7 @@ def index(request, year, month, day):
         df = DateFormat(date)    
         centroid['timestamp'] = df.format('jS F Y')
         
-        centroid['title'] = total_rows[3]
+        centroid['title'] = total_rows[3].replace('"',"")
         centroid['description'] = total_rows[4]
         centroid['text'] = total_rows[5]
         clusterData['centroid'] = centroid
