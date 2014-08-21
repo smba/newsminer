@@ -91,9 +91,11 @@ def index(request, year, month, day):
                         +"ORDER BY rss_article_clusters_rss_articles DESC "
                         +"LIMIT 1")
         try:
-            total_rows = cursor.fetchone()[0][1:-1].split(",")
+            total_rows = cursor.fetchone()[0][1:-1]
         except:
             continue
+        rowstring = total_rows 
+        total_rows = total_rows.split(",")
         centroid = {}
         centroid['link'] = total_rows[0]
         centroid['source_url'] = total_rows[1]
@@ -102,9 +104,9 @@ def index(request, year, month, day):
         df = DateFormat(date)    
         centroid['timestamp'] = df.format('jS F Y')
         
-        centroid['title'] = total_rows[3].replace('"',"")
-        centroid['description'] = total_rows[4]
-        centroid['text'] = total_rows[5]
+        title_start = rowstring.find('"')
+        title_end = rowstring.find('"', title_start+1)
+        centroid['title'] = rowstring[title_start+1:title_end]
         clusterData['centroid'] = centroid
         
         #get cluster persons
