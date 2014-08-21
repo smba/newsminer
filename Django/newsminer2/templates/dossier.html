@@ -56,7 +56,6 @@
 					{% endfor %}
 					...
 				</span>	
-				<span class="toggle"> Read more</span>
 				<span class="article_text">
 					{% for word in article.text|striptags|split:' ' %}
 						{% if word in location_match.keys %}
@@ -69,6 +68,7 @@
 					{% endfor %}	
 				</span>
 			</p>
+				<span class="toggle"> Read more</span>
 				<p class="source">«{{article.newspaper}}», {{article.timestamp}}</p> 
 			</article>
 			{% endfor %}
