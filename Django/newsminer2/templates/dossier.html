@@ -81,6 +81,19 @@
     				{% endif %}
     			</div>
     		{% endfor %}
+			
+			<!-- CUSTOMIZED WIDGET -->
+    		<div class="custom_widget" id="custom-widget">
+				<div class='widget-title'>
+					<div id="custom-widget-title">
+						More...
+					</div>
+					<a href="#" onclick="javascript:showHide('custom-widget-description');">[show/hide]</a>
+				</div>
+				<div style="display:none" id="custom-widget-description">
+					Information about additional persons, locations and organizations.
+				</div>
+    		</div>
     		
     		<!-- GOOGLE TREND WIDGET -->
     		<div class="popularity widget">
@@ -105,19 +118,6 @@
     			<div class='widget-content' id="persons_widget"  style="display:none">
     				<!-- content generated onload by javascript:drawChart() -->
     			</div>
-    		</div>
-    		
-			<!-- CUSTOMIZED WIDGET -->
-    		<div class="custom_widget" id="custom-widget">
-				<div class='widget-title'>
-					<div id="custom-widget-title">
-						Custom Widget
-					</div>
-					<a href="#" onclick="javascript:showHide('custom-widget-description');">[show/hide]</a>
-				</div>
-				<div style="display:none" id="custom-widget-description">
-					Hallo
-				</div>
     		</div>
 		</aside>
 		</div>
