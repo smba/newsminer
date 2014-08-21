@@ -14,26 +14,27 @@
 			<h1 class='logo'><a href="/">NewsMiner+</a></h1>
 			<nav role='navigation' class='main-navigation'>
 				<ul class='clearfix'>
+				<li class="inactive">« Older</li>
 				<li><a href='{% url 'index' %}'>Dossiers</a></li>
-				<li><a href='{% url 'what' %}' class='active'>What is NewsMiner+?</a></li>
+				<li class="inactive">Newer »</li>
+				<li><a href='{% url 'archive' %}' class='active'>Archive</a></li>
 				<li><a href='{% url 'impressum' %}'>Imprint</a></li>
 					</ul>
 				</nav>
 	    	</header>
 			<main role='main' class='main-content clearfix'>
 				<section class='main-section'>
-				<h1>What is NewsMiner+?</h1>
+				<h1>Archive</h1>
 				<p>
-					NewsMiner+ is a web blog providing mashups regarding recent topics. Imagine, as different
-					newspapers almost deal the same topics, it's rather complicated to get an overview over different
-					articles at first and the topic bakground at second.
-				</p>	
-				<p>
-					Technically, the application crawls a large collection of RSS feeds from all over the world, such as 
-					Le Monde, The Guardian or The New York Times.
-					After clustering the articles, all relevant entities are detected and the NewsMiner+ searches for 
-					additional informations to describe them, using Freebase, GoogleMaps and 
-					Leaflet/Open Street Maps.
+					{% for dossier in dossierlist %}
+						<article class="dossierlist">
+							<ul>
+							<li><a href='{{dossier}}' class='clearfix'>
+								<h2>Dossiers, Datum</h2>
+							</a></li>
+						</ul>
+						</article>
+					{% endfor %}
 				</p>
 				<center><img src="{% static "happygei.png" %}" alt="So much text to read..."></center>	
 					</section>
