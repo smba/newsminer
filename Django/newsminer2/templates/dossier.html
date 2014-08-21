@@ -55,7 +55,7 @@
 				<div class='widget-title' id="widget-name-{{forloop.counter}}">
 					Map <a href="#" onclick="javascript:showHide('widget-description-{{forloop.counter}}');">[show/hide]</a>
 				</div>
-				<div class='widget-content' id="widget-description-{{forloop.counter}}" style="display:none">
+				<div class='widget-content' id="widget-description-{{forloop.counter}}">
 					{% leaflet_map "yourmap" callback="window.map_init_basic" creatediv="True"%}
 				</div>	
 			</div>	
