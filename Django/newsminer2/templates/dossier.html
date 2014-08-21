@@ -143,7 +143,7 @@
 
 	    // toggle
 	    if($(this).next('.widget-content').is(':hidden') == true){
-	        $(this).next().slideDown();
+	        $(this).next().stop().slideDown();
 	    }
 
 	    event.preventDefault();
