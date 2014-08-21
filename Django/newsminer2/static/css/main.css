@@ -394,4 +394,5 @@ section .main-section {
 
 .widget-title {
 	font-weight: bold;
+	margin: 0 0 0 0.5em;
 }
