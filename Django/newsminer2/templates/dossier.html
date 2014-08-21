@@ -52,9 +52,9 @@
 								{{word|html_escape}} 
 							{% endif %}
 						{% endif %}
-					{% endfor %}...
+					{% endfor %}... [read more / hide]
 				</p>	
-				<p id="{{article.link}}" class="article_text">
+				<p class="article_text">
 					{% for word in article.text|striptags|split:' ' %}
 						{% if word in location_match.keys %}
 							<a href="#" class="entity_link" id='map-navigation:{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> 
@@ -65,7 +65,6 @@
 						{% endif %}
 					{% endfor %}	
 				</p>
-				[read more / hide]
 				<p class="source">«{{article.newspaper}}», {{article.timestamp}}</p> 
 			</article>
 			{% endfor %}
@@ -171,10 +170,10 @@
 
 	});
 	
-	$('.main-content > .main-section > .article-description').click(function(){
+	$('.main-content > .article-item > .article-description').click(function(){
 
 	    // close
-	    $('.main-content .article_text').stop().slideUp();
+	    $('.article-item .article_text').stop().slideUp();
 
 	    // toggle
 	    if($(this).next('.article_text').is(':hidden') == true){
