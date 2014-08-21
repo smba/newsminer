@@ -59,6 +59,24 @@ figure {
 	width: auto\9;
 }
 
+figure {
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-size: cover;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+    float: left;
+    height: 50px;
+    margin: 0 5px 0 0;
+    width: 50px;
+}
+
+.flags {
+	border: 1px solid #999;
+	height: 1.35em;
+}
+
 /*
 ==============================================
 	TYPOGRAPHY
@@ -115,23 +133,6 @@ small {
 
 .main-content {
   line-height: 1.75;
-}
-
-figure {
-    background-position: center top;
-    background-repeat: no-repeat;
-    background-size: cover;
-	-webkit-background-size: cover;
-	-moz-background-size: cover;
-	-o-background-size: cover;
-    float: left;
-    height: 50px;
-    margin: 0 5px 0 0;
-    width: 50px;
-}
-
-.flags {
-	border: 1px solid #999;
 }
 
 /*
