@@ -27,10 +27,10 @@
 				<h1>Archive</h1>
 				<p>
 					{% for dossier in dossierlist %}
-						<article class="dossierlist">
+						<article>
 							<ul>
 							<li><a href='{{dossier.link}}' class='clearfix'>
-								<h2>Dossiers, {{dossier.string}}</h2>
+								Dossiers, {{dossier.string}}
 							</a></li>
 						</ul>
 						</article>
