@@ -75,6 +75,7 @@ figure {
 .flags {
 	border: 1px solid #999;
 	height: 1.35em;
+	float: right;
 }
 
 /*
@@ -133,6 +134,11 @@ small {
 
 .main-content {
   line-height: 1.75;
+}
+
+.source {
+	text-align: right;
+	font-style: italic;
 }
 
 /*
