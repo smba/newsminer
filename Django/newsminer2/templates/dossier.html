@@ -57,7 +57,7 @@
 			<!-- LEAFLET MAP WIDGET -->
 			<div class="widget">
 				<div class='widget-title' id="widget-name-{{forloop.counter}}">
-					Map <a href="#" onclick="javascript:showHide('widget-description-{{forloop.counter}}');">[show/hide]</a>
+					Map [show/hide]</a>
 				</div>
 				<div class='widget-content' id="widget-description-{{forloop.counter}}">
 					{% leaflet_map "yourmap" callback="window.map_init_basic" creatediv="True"%}
@@ -87,10 +87,10 @@
     		{% endfor %}
 			
 			<!-- CUSTOMIZED WIDGET -->
-    		<div class="custom_widget" id="custom-widget">
+    		<div class="custom widget" id="custom-widget">
 				<div class='widget-title'>
 					<div id="custom-widget-title">
-						More... <a href="#" onclick="javascript:showHide('custom-widget-description');">[show/hide]</a>
+						More... [show/hide]</a>
 					</div>
 				</div>
 				<div style="display:none" id="custom-widget-description">
@@ -101,7 +101,7 @@
     		<!-- GOOGLE TREND WIDGET -->
     		<div class="popularity widget">
     			<div class='widget-title' id="widget-name-{{forloop.counter}}">
-    						Popularity <a href="#" onclick="javascript:showHide('popularity_widget');">[show/hide]</a>
+    						Popularity [show/hide]</a>
     			</div>
     			<div class='widget-content' id="popularity_widget" style="display:none">
     				{% with articles|access:0 as article %} 
@@ -116,7 +116,7 @@
     		<!-- PERSON BAR DIAGRAM -->
     		<div class="persons widget">
     			<div class='widget-title' id="widget-name">
-    						Peoples <a href="#" onclick="javascript:showHide('persons_widget');">[show/hide]</a>
+    						Peoples [show/hide]</a>
     			</div>
     			<div class='widget-content' id="persons_widget"  style="display:none">
     				<!-- content generated onload by javascript:drawChart() -->
@@ -134,14 +134,20 @@
 	<script src="https://code.jquery.com/jquery-1.6.2.min.js"></script>
 	
 	<!-- JSCRIPT FUNCTIONS -->
-	<script type="text/javascript" charset="utf-8">
-	  	function showHide(elementid){
-	    	if (document.getElementById(elementid).style.display == 'none'){
-	      		document.getElementById(elementid).style.display = '';
-	    	} else {
-	      		document.getElementById(elementid).style.display = 'none';
-	    	}
-	  	}
+	<script>$('.aside-content > .widget > .widget-title').click(function(){
+
+	    // close
+	    $('.aside-content .widget-content').stop().slideUp();
+
+	    // toggle
+	    if($(this).next('.widget-content').is(':hidden') == true){
+	        $(this).next().slideDown();
+	    }
+
+	    event.preventDefault();
+	    return false;
+
+	});
 		
     	function changeContent(id, msg) {
      		var el = document.getElementById(id);
