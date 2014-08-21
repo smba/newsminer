@@ -405,7 +405,7 @@ section .main-section {
 }
 
 
-.widget-content, .article_text {
+.widget-content {
     display: none;
 }
 
