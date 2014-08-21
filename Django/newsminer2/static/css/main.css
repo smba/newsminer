@@ -391,8 +391,12 @@ section .main-section {
 }
 
 
-.widget-content {
+.widget-content, .article_text {
     display: none;
+}
+
+.article_description {
+	cursor: pointer;
 }
 
 .custom {
