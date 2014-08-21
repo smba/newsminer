@@ -33,7 +33,8 @@ def index(request, year, month, day):
 
     clusters = RssArticleClusters.objects.raw("SELECT id,timestamp FROM rss_article_clusters "
                                               +"WHERE rss_article_clusters.timestamp BETWEEN " + str(timestamps[0]*1000) + " AND " + str(timestamps[1]*1000) + " "
-                                              +"ORDER BY score DESC, common_entities DESC")
+                                              +"ORDER BY score DESC, common_entities DESC "
+                                              +"LIMIT 10")
 
     latest = RssArticleClusters.objects.all().aggregate(Max('timestamp'))['timestamp__max']
     time_navigation = {}
