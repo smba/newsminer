@@ -280,6 +280,7 @@ section .main-section {
 .aside-content {
   background-color: #dddddd;
   float: right;
+  display: inline;
   padding: 15px;
   width: 32.5%;
   position: fixed;
