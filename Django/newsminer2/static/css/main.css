@@ -291,10 +291,12 @@ section .main-section {
   background-color: #dddddd;
   float: right;
   display: inline;
-  padding: 15px;
+  padding: 20px;
   width: 31.5%;
   margin: 0 0 0 1%;
   position: fixed;
+  max-height: 700px;
+  overflow-y: scroll;
 }
 
 .archivelist a:hover{
@@ -379,7 +381,7 @@ section .main-section {
 /* ======= Dossier ======= */ 
 .widget {
 	padding: 1%;
-	margin: 2%;
+	margin: 0 0 5px;
 	border: 7px solid white;
 	-moz-box-shadow: 1px 1px 6px #292929; /* Firefox */ 
 	-webkit-box-shadow:1px 1px 6px #292929; /* Chrome, Safari */
