@@ -36,12 +36,13 @@
 			{% for article in articles %}
 			<article class="article-item clearfix">
 				<h2 class="article_title">{{article.title}}</h2>
+				<img src="{% static 'flags_small/' %}{{article.country}}.png" class='flags'>
 				<p class="article_description">{% for word in article.description|striptags|split:' ' %}{% if forloop.counter < 50 %}{% if word in location_match.keys %}<a href="#" class="entity_link" id='map-navigation:d{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> {% elif word in entities.keys %} <a href='#' class="entity_link" onclick="changeContent('custom-widget-title', '{{entities|access:word|access:'name'}}');changeContent('custom-widget-description', '{{entities|access:word|access:'description'}}');">{{word}}</a> {% else %}{{word}} {% endif %}{% endif %}{% endfor %}...</p>	
 				<p id="{{article.link}}" class="article_text" style="display:none;">
 					{% for word in article.text|striptags|split:' ' %}{% if word in location_match.keys %}<a href="#" class="entity_link" id='map-navigation:{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> {% elif word in entities.keys %} <a href='#' class="entity_link" onclick="changeContent('custom-widget-title','{{entities|access:word|access:'name'}}');changeContent('custom-widget-description', '{{entities|access:word|access:'description'}}');">{{word}}</a> {% else %}{{word}} {% endif %}{% endfor %}	
 				</p>
 				<a href="#{{article.link}}" onclick="javascript:showHide('{{article.link}}');"> [read more...]</a>
-			<p><img src="{% static 'flags_small/' %}{{article.country}}.png" class='flags'> «{{article.newspaper}}» {{article.timestamp}}</p> 
+			<p> «{{article.newspaper}}» {{article.timestamp}}</p> 
 			</article>
 			{% endfor %}
 			
