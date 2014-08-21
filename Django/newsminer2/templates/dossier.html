@@ -53,8 +53,9 @@
 								{{word|html_escape}} 
 							{% endif %}
 						{% endif %}
-					{% endfor %}... [read more / hide]
+					{% endfor %}
 				</span>	
+				<span class="toggle">Read more</span>
 				<span class="article_text">
 					{% for word in article.text|striptags|split:' ' %}
 						{% if word in location_match.keys %}
@@ -188,7 +189,7 @@
 	    	}, 500);
 	    	return false;
 
-		});
+	});
 	</script>
 		
    <script> 	
