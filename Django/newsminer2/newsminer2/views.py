@@ -17,7 +17,7 @@ import time
 global context_dict
 context_dict = {
                 'dossier':'/dossier/',
-                'what':'/what/',
+                'archive':'/archive/',
                 'impressum':'/impressum/',
                 'home':'/'
                 }
@@ -362,11 +362,11 @@ def impressum(request):
     return render_to_response('impressum.html', context)
 
 '''
-View for the what page
+View for the archive page
 '''
-def what(request):
+def archive(request):
     context = RequestContext(request)
-    return render_to_response('what.html', context)
+    return render_to_response('archive.html', context)
 
 def dateToTimestamp(date):
     start = datetime.date(date[0], date[1], date[2])
