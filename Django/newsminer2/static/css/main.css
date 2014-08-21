@@ -413,18 +413,6 @@ section .main-section {
 	cursor: pointer;
 }
 
-.custom {
-	margin: 2%;
-	padding: 1%;
-	border: 7px solid white;
-	-moz-box-shadow: 1px 1px 6px #292929; /* Firefox */ 
-	-webkit-box-shadow:1px 1px 6px #292929; /* Chrome, Safari */
-	-khtml-box-shadow:1px 1px 6px #292929; /* Konqueror */ 
-	box-shadow:1px 1px 6px #292929; /* CSS3 */
-	background-color: #f9f9f9;
-	font-size: 90%;
-}
-
 .entity_link {
 	font-weight: bold;
 }
