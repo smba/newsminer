@@ -41,7 +41,7 @@
 				<p id="{{article.link}}" class="article_text" style="display:none;">
 					{% for word in article.text|striptags|split:' ' %}{% if word in location_match.keys %}<a href="#" class="entity_link" id='map-navigation:{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> {% elif word in entities.keys %} <a href='#' class="entity_link" onclick="changeContent('custom-widget-title','{{entities|access:word|access:'name'}}');changeContent('custom-widget-description', '{{entities|access:word|access:'description'}}');">{{word}}</a> {% else %}{{word}} {% endif %}{% endfor %}	
 				</p>
-				<a href="#{{article.link}}" onclick="javascript:showHide('{{article.link}}');"> [read more/less...]</a>
+				<a href="#{{article.link}}" onclick="javascript:showHide('{{article.link}}');"> [read more / hide]</a>
 			<p class="source">«{{article.newspaper}}», {{article.timestamp}}</p> 
 			</article>
 			{% endfor %}
