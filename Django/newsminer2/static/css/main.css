@@ -387,9 +387,15 @@ section .main-section {
 	box-shadow:1px 1px 6px #292929; /* CSS3 */
 	background-color: #f9f9f9;
 	font-size: 90%;
+	cursor: pointer;
 }
 
-.custom_widget {
+
+.widget-content {
+    display: none;
+}
+
+.custom {
 	margin: 2%;
 	padding: 1%;
 	border: 7px solid white;
