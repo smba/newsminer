@@ -258,6 +258,18 @@ section .main-section {
 	box-shadow:1px 1px 6px #292929; /* CSS3 */
 }
 
+.article {
+    height: 50px;
+    overflow: hidden;
+}
+
+.article-description {
+    display: block;
+    margin: 0 0 1em;
+}
+
+.toggle { cursor: pointer; }
+
 .main-content .dossierlist {
 	background-color: #f9f9f9;
 	margin: 0 0 1em;
