@@ -172,19 +172,17 @@
 
 	});
 	
-		$('.main-content > .article-item > .article_description').click(function(){
+		$(document).ready(function() {
+	   		var $pArticle = $('p.article');
+	    	var innerHeight = $pArticle.removeClass('article').height();
+	    	$pArticle.addClass('article');
 
-	    // close
-	    $('.article-item .article_text').stop().slideUp();
-
-	    // toggle
-	    if($(this).next('.article_text').is(':hidden') == true){
-	        $(this).next().stop().slideDown();
-	    }
-
-	    event.preventDefault();
-	    return false;
-
+	    	$('.toggle').click(function() {
+	        	$('p.article').animate({
+	          	  height: (($pArticle.height() == 50)? innerHeight  : "50px")
+	        	}, 500);
+	        	return false;
+	    	});
 		});
 	</script>
 		
