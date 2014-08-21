@@ -122,9 +122,9 @@
     			<div class='widget-title' id="widget-name-{{forloop.counter}}">
     						Popularity [show/hide]</a>
     			</div>
-    			<div class='widget-content' id="popularity_widget" style="display:none">
+    			<div class='widget-content' id="popularity_widget">
     				{% with articles|access:0 as article %} 
-    				<script type="text/javascript" src="//www.google.com/trends/embed.js?hl=en-US&q={% for name in article.entity_persons %}{% if forloop.counter < 3 %}{{name}},+{% endif %}{% endfor %}&date=today+1-m&gprop=news&cmpt=q&content=1&cid=TIMESERIES_GRAPH_0&export=5&w=400"></script>
+    				<script src="//www.google.com/trends/embed.js?hl=en-US&q={% for name in article.entity_persons %}{% if forloop.counter < 3 %}{{name}},+{% endif %}{% endfor %}&date=today+1-m&gprop=news&cmpt=q&content=1&cid=TIMESERIES_GRAPH_0&export=5&w=400"></script>
 
 					{% endwith %}
 
@@ -137,7 +137,7 @@
     			<div class='widget-title' id="widget-name">
     						Peoples [show/hide]</a>
     			</div>
-    			<div class='widget-content' id="persons_widget"  style="display:none">
+    			<div class='widget-content' id="persons_widget">
     				<!-- content generated onload by javascript:drawChart() -->
     			</div>
     		</div>
@@ -154,8 +154,8 @@
 	
 	<!-- JSCRIPT FUNCTIONS -->
 	<script>
-	$('.aside-content > .widget:first-child > .widget-content').show();
-	$('.aside-content > .widget > .widget-title').click(function(){
+		$('.aside-content > .widget:first-child > .widget-content').show();
+		$('.aside-content > .widget > .widget-title').click(function(){
 
 	    // close
 	    $('.aside-content .widget-content').stop().slideUp();
@@ -170,7 +170,7 @@
 
 	});
 	
-	$('.main-content > .article-item > .article_description').click(function(){
+		$('.main-content > .article-item > .article_description').click(function(){
 
 	    // close
 	    $('.article-item .article_text').stop().slideUp();
@@ -183,10 +183,11 @@
 	    event.preventDefault();
 	    return false;
 
-	});
+		});
 	</script>
 		
-   <script> 	function changeContent(id, msg) {
+   <script> 	
+   		function changeContent(id, msg) {
      		var el = document.getElementById(id);
     		if (id) {
     			el.innerHTML = msg;
@@ -223,6 +224,7 @@
         	}
 		}
 	</script>
+	
 	<script type="text/javascript">
 	google.load("visualization", "1", {packages:["corechart"]});
     google.setOnLoadCallback(drawChart);
