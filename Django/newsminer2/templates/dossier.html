@@ -134,7 +134,9 @@
 	<script src="https://code.jquery.com/jquery-1.6.2.min.js"></script>
 	
 	<!-- JSCRIPT FUNCTIONS -->
-	<script>$('.aside-content > .widget > .widget-title').click(function(){
+	<script>
+	$('.aside-content > .widget:first-child > .widget-content').show();
+	$('.aside-content > .widget > .widget-title').click(function(){
 
 	    // close
 	    $('.aside-content .widget-content').stop().slideUp();
