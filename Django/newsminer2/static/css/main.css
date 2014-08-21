@@ -282,7 +282,8 @@ section .main-section {
   float: right;
   display: inline;
   padding: 15px;
-  width: 32.5%;
+  width: 31.5%;
+  margin: 0 0 0 1%;
   position: fixed;
 }
 
