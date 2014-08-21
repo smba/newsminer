@@ -29,8 +29,8 @@
 					{% for dossier in dossierlist %}
 						<article class="dossierlist">
 							<ul>
-							<li><a href='{{dossier}}' class='clearfix'>
-								<h2>Dossiers, Datum</h2>
+							<li><a href='{{dossier.link}}' class='clearfix'>
+								<h2>Dossiers, {{dossier.string}}</h2>
 							</a></li>
 						</ul>
 						</article>

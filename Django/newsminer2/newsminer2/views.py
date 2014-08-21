@@ -366,7 +366,32 @@ View for the archive page
 '''
 def archive(request):
     context = RequestContext(request)
-    return render_to_response('archive.html', context)
+    
+    clusters = RssArticleClusters.objects.all().order_by('-timestamp')
+    dateStrings = []
+    dateLinks  = []
+    for cluster in clusters:
+        timestamp = cluster.timestamp
+        date = timestampToDate(int(str(timestamp)[:-3]))
+        
+        dateLink = str(date[0]) +"/"+ str(date[1]) +"/"+ str(date[2])
+        dateString = str(date[2])+"."+str(date[1]) +"."+ str(date[0])
+        if dateString not in dateStrings:
+            dateStrings.append(dateString)
+            dateLinks.append(dateLink)
+    dossierlist = []
+    
+    for i in range(len(dateStrings)):
+        d = {}
+        d["link"] = dateLinks[i]
+        d["string"] = dateStrings[i]
+        dossierlist.append(d)
+        
+    context_dict = {
+                    'dossierlist':dossierlist,
+                    }
+    
+    return render_to_response('archive.html', context_dict, context)
 
 def dateToTimestamp(date):
     start = datetime.date(date[0], date[1], date[2])
