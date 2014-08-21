@@ -172,17 +172,22 @@
 
 	});
 	
-		$(document).ready(function() {
-	   		var $pArticle = $('p.article');
-	    	var innerHeight = $pArticle.removeClass('article').height();
-	    	$pArticle.addClass('article');
+		var $pArticle = $('p.article');
+		var innerHeight = $pArticle.removeClass('article').height();
 
-	    	$('.toggle').click(function() {
-	        	$('p.article').animate({
-	          	  height: (($pArticle.height() == 50)? innerHeight  : "50px")
-	        	}, 500);
-	        	return false;
-	    	});
+		$pArticle.addClass('article');
+
+		$('.main-section > .article-item > .toggle').click(function() {
+
+			// switch text for usability
+	    	$(this).text($(this).text() == 'Read more' ? 'Minimize' : 'Read more');
+    
+	    	// toggle height
+	    	$(this).prev('p.article').first().animate({
+	        	height: (($pArticle.height() == 50)? innerHeight  : "50px")
+	    	}, 500);
+	    	return false;
+
 		});
 	</script>
 		
