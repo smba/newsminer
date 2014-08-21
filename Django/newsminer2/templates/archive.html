@@ -25,9 +25,9 @@
 			<main role='main' class='main-content clearfix'>
 				<section class='main-section'>
 				<h1>Archive</h1>
-				<p>
+				<p class='dossierlist'>
 					{% for dossier in dossierlist %}
-						<article>
+						<article class='archivelist'>
 							<ul>
 							<li><a href='{{dossier.link}}' class='clearfix'>
 								Dossiers, {{dossier.string}}
