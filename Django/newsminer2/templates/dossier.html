@@ -101,7 +101,7 @@
     			</div>
     			<div class='widget-content' id="popularity_widget" style="display:none">
     				{% with articles|access:0 as article %} 
-    				<script type="text/javascript" src="//www.google.com/trends/embed.js?hl=en-US&q={% for name in article.entity_persons %}{% if forloop.counter < 3 %}{{name}},+{% endif %}{% endfor %}&date=today+1-m&gprop=news&cmpt=q&content=1&cid=TIMESERIES_GRAPH_0&export=5"></script>
+    				<script type="text/javascript" src="//www.google.com/trends/embed.js?hl=en-US&q={% for name in article.entity_persons %}{% if forloop.counter < 3 %}{{name}},+{% endif %}{% endfor %}&date=today+1-m&gprop=news&cmpt=q&content=1&cid=TIMESERIES_GRAPH_0&export=5&w=420"></script>
 
 					{% endwith %}
 
