@@ -41,7 +41,8 @@
 			<article class="article-item clearfix">
 				<img src="{% static 'flags_small/' %}{{article.country}}.png" class='flags'>
 				<h2 class="article_title">{{article.title}}</h2>
-				<p class="article_description">
+				<p class='article'>
+				<span class="article_description">
 					{% for word in article.description|striptags|split:' ' %}
 						{% if forloop.counter < 50 %}
 							{% if word in location_match.keys %}
@@ -53,8 +54,8 @@
 							{% endif %}
 						{% endif %}
 					{% endfor %}... [read more / hide]
-				</p>	
-				<p class="article_text">
+				</span>	
+				<span class="article_text">
 					{% for word in article.text|striptags|split:' ' %}
 						{% if word in location_match.keys %}
 							<a href="#" class="entity_link" id='map-navigation:{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> 
@@ -64,7 +65,8 @@
 							{{word}} 
 						{% endif %}
 					{% endfor %}	
-				</p>
+				</span>
+			</p>
 				<p class="source">«{{article.newspaper}}», {{article.timestamp}}</p> 
 			</article>
 			{% endfor %}
