@@ -307,7 +307,7 @@ section .main-section {
   width: 31.5%;
   margin: 0 0 0 1%;
   position: fixed;
-  max-height: 700px;
+  max-height: 600px;
   overflow-y: scroll;
 }
 
