@@ -43,7 +43,7 @@ import edu.ucla.sspace.vector.ScaledDoubleVector;
  * 
  * @author  Stefan Muehlbauer
  * @author  Timo Guenther
- * @version 2014-08-19
+ * @version 2014-08-22
  */
 public class ArticleClusterer implements Observer {
   //constants
@@ -178,7 +178,7 @@ public class ArticleClusterer implements Observer {
                 "SELECT e.name, e.popularity FROM "
                 + "("
                   + "("
-                    + "SELECT name "
+                    + "SELECT DISTINCT name "
                     + "FROM rss_articles_entity_" + type + "s "
                     + "WHERE link = ANY(?) "
                   + ") AS a "

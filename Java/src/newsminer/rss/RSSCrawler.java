@@ -10,18 +10,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Observable;
 import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequestFactory;
@@ -33,6 +28,7 @@ import com.google.code.geocoder.model.GeocodeResponse;
 import com.google.code.geocoder.model.GeocoderRequest;
 import com.google.code.geocoder.model.GeocoderResult;
 import com.google.code.geocoder.model.LatLng;
+import com.google.common.util.concurrent.Striped;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.fetcher.FetcherException;
@@ -63,8 +59,6 @@ public class RSSCrawler extends Observable implements Runnable {
   //constants
   /** the interval at which the feeds are crawled */
   private static final long   TIMESTEP       = TimeUnit.HOURS.toMillis(24);
-  /** the maximum amount of worker threads that can be active at one time */
-  private static final int    THREAD_COUNT   = 5;
   /** the developer key used for Google API requests */
   private static final String GOOGLE_API_KEY;
   static {
@@ -76,8 +70,10 @@ public class RSSCrawler extends Observable implements Runnable {
       throw new RuntimeException(ioe);
     }
   }
+  /** the maximum amount of worker threads that can be active at one time */
+  private static final int           THREAD_COUNT = 5;
   /** used to synchronize the worker threads */
-  private static final Map<Object, Object> lockMap = new HashMap<>();
+  private static final Striped<Lock> LOCKS        = Striped.lazyWeakLock(THREAD_COUNT);
   
   //attributes
   /** the classifier to use */
@@ -182,7 +178,6 @@ public class RSSCrawler extends Observable implements Runnable {
       } catch (InterruptedException ie) {
         throw new IOException(ie);
       }
-      lockMap.clear();
       if (empty) {
         throw new IllegalArgumentException("The database table containing the RSS feed links may not be empty");
       }
@@ -239,12 +234,6 @@ public class RSSCrawler extends Observable implements Runnable {
         continue;
       }
       
-      //Get the entity names from the article's text.
-      final Map<String, Set<String>> entityNamesByType = getEntityNamesByType(text);
-      
-      //Normalize the entity names and store their information.
-      final Map<String, Set<String>> normalizedEntityNamesByType = getNormalizedEntityNamesByType(entityNamesByType);
-      
       //Store the article in the database.
       try (final Connection        con = DatabaseUtils.getConnectionPool().getConnection();
            final PreparedStatement ps  = con.prepareStatement(
@@ -260,19 +249,42 @@ public class RSSCrawler extends Observable implements Runnable {
         throw new IOException(sqle);
       }
       
-      //Store the article's entities in the database.
-      for (final Entry<String, Set<String>> normalizedEntityNamesAndType : normalizedEntityNamesByType.entrySet()) {
-        final String      type                  = normalizedEntityNamesAndType.getKey();
-        final Set<String> normalizedEntityNames = normalizedEntityNamesAndType.getValue();
+      //Get the normalized entity names from the article's text and store them in the database.
+      final List<Triple<String, Integer, Integer>> characterOffsets  = classifier.classifyToCharacterOffsets(text);
+      for (Triple<String, Integer, Integer> characterOffset : characterOffsets) {
+        //Get the type.
+        final String type = characterOffset.first.toLowerCase();
+        switch (type) {
+          case "location":
+          case "organization":
+          case "person":
+            break;
+          default:
+            continue;
+        }
+        
+        //Get the name offsets.
+        final int startIndex = characterOffset.second;
+        final int endIndex   = characterOffset.third;
+        
+        //Get the search name.
+        final String searchName = text.substring(startIndex, endIndex);
+        
+        //Normalize the name and store it and its information in the database.
+        final String name = getNormalizedEntityName(type, searchName);
+        if (name == null) {
+          continue;
+        }
+        
+        //Store the entity occurrence in the database.
         try (final Connection        con = DatabaseUtils.getConnectionPool().getConnection();
-             final PreparedStatement ps  = con.prepareStatement(
-                 "INSERT INTO rss_articles_entity_" + type + "s VALUES (?, ?)")) {
-          for (final String name : normalizedEntityNames) {
-            ps.setString(1, link);
-            ps.setString(2, name);
-            ps.addBatch();
-          }
-          ps.executeBatch();
+            final PreparedStatement ps  = con.prepareStatement(
+                "INSERT INTO rss_articles_entity_" + type + "s VALUES (?, ?, ?, ?)")) {
+          ps.setString(1, link);
+          ps.setInt   (2, startIndex);
+          ps.setInt   (3, endIndex);
+          ps.setString(4, name);
+          ps.executeUpdate();
         } catch (SQLException sqle) {
           throw new IOException(sqle);
         }
@@ -313,60 +325,6 @@ public class RSSCrawler extends Observable implements Runnable {
       throw new IOException(bpe);
     }
     return text;
-  }
-  
-  /**
-   * Returns the names of entities (value) by their type (key).
-   * @param  text text to extract named entities from
-   * @return the names of entities (value) by their type (key)
-   */
-  private Map<String, Set<String>> getEntityNamesByType(String text) {
-    final Map<String, Set<String>>               entityNamesByType = new TreeMap<>();
-    final List<Triple<String, Integer, Integer>> characterOffsets  = classifier.classifyToCharacterOffsets(text);
-    for (Triple<String, Integer, Integer> characterOffset : characterOffsets) {
-      final String type = characterOffset.first.toLowerCase();
-      switch (type) {
-        case "location":
-        case "organization":
-        case "person":
-          break;
-        default:
-          continue;
-      }
-      final String entityName = text.substring(characterOffset.second, characterOffset.third);
-      Set<String> entityNames = entityNamesByType.get(type);
-      if (entityNames == null) {
-        entityNames = new LinkedHashSet<>();
-      }
-      entityNames.add(entityName);
-      entityNamesByType.put(type, entityNames);
-    }
-    return entityNamesByType;
-  }
-  
-  /**
-   * Returns the normalized entity names (value) by their type (key).
-   * @param  entityNamesByType the names of entities (value) by their type (key)
-   * @return the normalized entity names (value) by their type (key)
-   * @throws IOException if interaction with the database or Freebase failed
-   */
-  private Map<String, Set<String>> getNormalizedEntityNamesByType(Map<String, Set<String>> entityNamesByType) throws IOException {
-    final Map<String, Set<String>> normalizedEntityNamesByType = new TreeMap<>();
-    for (final Entry<String, Set<String>> entityNamesAndType : entityNamesByType.entrySet()) {
-      final String      type                  = entityNamesAndType.getKey();
-      final Set<String> entityNames           = entityNamesAndType.getValue();
-      final Set<String> normalizedEntityNames = new LinkedHashSet<>();
-      for (final String entityName : entityNames) {
-        final String normalizedEntityName = getNormalizedEntityName(type, entityName);
-        if (normalizedEntityName != null) {
-          normalizedEntityNames.add(normalizedEntityName);
-        }
-      }
-      if (!normalizedEntityNames.isEmpty()) {
-        normalizedEntityNamesByType.put(type, normalizedEntityNames);
-      }
-    }
-    return normalizedEntityNamesByType;
   }
   
   /**
@@ -422,16 +380,10 @@ public class RSSCrawler extends Observable implements Runnable {
     }
     
     //Synchronize while updating the database.
-    Object lock;
-    synchronized (lockMap) {
-      final Object lockKey = name; //Simply name (without type) neither requires more objects nor collides often.
-      lock = lockMap.get(lockKey);
-      if (lock == null) {
-        lock = lockKey;
-        lockMap.put(lockKey, lock);
-      }
-    }
-    synchronized (lock) {
+    final Lock lock = LOCKS.get(type + name);
+    System.out.println(lock + ": " + name);
+    lock.lock();
+    try {
       //Check if the normalized name is already in the database.
       if (!searchName.equals(name)) {
         try (final Connection        con = DatabaseUtils.getConnectionPool().getConnection();
@@ -508,12 +460,14 @@ public class RSSCrawler extends Observable implements Runnable {
             ps.executeUpdate();
             break;
         }
-        
-        //Return the normalized name.
-        return name;
       } catch (SQLException sqle) {
         throw new IOException(sqle);
       }
+      
+      //Return the normalized name.
+      return name;
+    } finally {
+      lock.unlock();
     }
   }
   

@@ -1,7 +1,6 @@
 INSERT INTO rss_feeds VALUES
-  ('http://rss.nytimes.com/services/xml/rss/nyt/World.xml',          'New York Times',      'United_States_of_America'),
   ('http://www.buenosairesherald.com/articles/rss.aspx',             'Buenos Aires Herald', 'Argentinia'),
-  ('https://www.irishtimes.com/cmlink/news-1.1319192',               'Irish Times',         'Ireland'),
+  ('http://www.irishtimes.com/cmlink/news-1.1319192',                'Irish Times',         'Ireland'),
   ('http://rss.feedsportal.com/c/266/f/3503/index.rss',              'The Independent',     'United_Kingdom'),
   ('http://www.theguardian.com/world/rss',                           'The Guardian',        'United_Kingdom'),
   ('http://mondediplo.com/backend',                                  'Le Monde',            'France'),
