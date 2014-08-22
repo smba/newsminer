@@ -220,7 +220,7 @@ a:hover { color: #333333; }
 
 .main-navigation {
   float: right;
-  padding: 10px 0 0;
+  padding: 15px 0 0;
 }
 .main-navigation ul {
   list-style: none;
@@ -238,7 +238,7 @@ a:hover { color: #333333; }
 .main-content {
   background-color: #dddddd;
   float: left;
-  padding: 20px 20px 5px;
+  padding: 10px 20px 5px;
   width: 66.5%;
 }
 
