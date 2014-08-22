@@ -207,7 +207,7 @@ a:hover { color: #333333; }
 */
 
 .wrapper {
-  margin: 10px auto 25px;
+  margin: 0 auto 25px;
   max-width: 1024px;
   width: 98%;
 }
