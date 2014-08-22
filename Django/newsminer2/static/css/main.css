@@ -258,14 +258,13 @@ section .main-section {
 	box-shadow:1px 1px 6px #292929; /* CSS3 */
 }
 
-.article {
-    height: 50px;
-    overflow: hidden;
-}
-
 .article-description {
     display: block;
     margin: 0 0 1em;
+}
+
+.article_text {
+	display: none;
 }
 
 .toggle { cursor: pointer; }
