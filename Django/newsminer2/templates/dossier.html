@@ -57,7 +57,11 @@
 					</p>
 				</header>	
 				<p class="article">
-					{% for word in article.text|striptags|split:' ' %}
+					<p>
+					{{article.text|linebreaks}}
+					</p>
+					TESTSTINGTESTINGESTING
+					{% for word in article.text|split:' ' %}
 						{% if word in location_match.keys %}
 							<a href="#" class="entity_link" id='map-navigation:{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> 
 						{% elif word in entities.keys %} 
