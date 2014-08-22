@@ -41,7 +41,7 @@
 			<article class="article-item clearfix">
 				<img src="{% static 'flags_small/' %}{{article.country}}.png" class='flags' alt='{{article.country}}' title='{{article.country}}' >
 				<header class="article-head">
-					<h2 class="article_title toggle">{{article.title}}</h2>
+					<h2 class="article_title titletoggle">{{article.title}}</h2>
 				  	<p class="article-description">
 						{% for word in article.description|striptags|split:' ' %}
 							{% if forloop.counter < 50 %}
@@ -192,6 +192,22 @@
 	    });
 
 	});
+	
+	$('.article-item').each(function() {
+
+	    $('.titletoggle',this).click(function() {
+
+	        var container = $(this).parents('.article-item'),
+	            article = $('.article',container);
+
+	        $(article).slideToggle();
+			
+			return false;
+
+	    });
+
+	});
+	
 	</script>
 		
    <script> 	
