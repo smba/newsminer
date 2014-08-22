@@ -55,10 +55,11 @@
 							{% endif %}
 						{% endfor %}
 					</p>
-				</header>	
+				</header>
+				<span class="toggle">Read more</span>	
 				<p class="article">
 					<p>
-					{{article.text|linebreaks}}
+					{{article.text}}
 					</p>
 					TESTSTINGTESTINGESTING
 					{% for word in article.text|split:' ' %}
@@ -71,7 +72,6 @@
 						{% endif %}
 					{% endfor %}	
 				</p>
-				<span class="toggle">Read more</span>
 				<p class="source">«{{article.newspaper}}», {{article.timestamp}}</p> 
 			</article>
 			{% endfor %}
