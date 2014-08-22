@@ -59,7 +59,7 @@
 				<span class="toggle">Read more</span>	
 				<p class="article">
 					<p>
-					{{article.text}}
+					{{article.text|linebreaks}}
 					</p>
 					TESTSTINGTESTINGESTING
 					{% for word in article.text|split:' ' %}
