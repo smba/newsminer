@@ -179,10 +179,9 @@
 	        var container = $(this).parents('.article-item'),
 	            article = $('.article_text',container);
 
-	        $(this).text($(this).text() == 'Read more' ? 'Minimize' : 'Read more');
-
 	        $(article).slideToggle();
 			
+			$(this).text($(this).text() == 'Read more' ? 'Minimize' : 'Read more');
         
 	        return false;
 
