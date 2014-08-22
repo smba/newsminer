@@ -6,7 +6,7 @@ import java.text.ParseException;
  * Provides methods for parsing JSON input according to RFC 4627.
  * 
  * @author  Timo Guenther
- * @version 2014-08-15
+ * @version 2014-08-22
  */
 public abstract class JSONParser {
   /**
@@ -202,7 +202,7 @@ public abstract class JSONParser {
           }
         } else if (line.charAt(currentIndex) == JSONProtocol.CHAR_QUOTATION_MARK) { //string end
           currentIndex++;
-          return new ValueAndEndIndex(new JSONString(stringBuilder.toString()), currentIndex);
+          return new ValueAndEndIndex(new JSONString(stringBuilder.toString(), false), currentIndex);
         }
         stringBuilder.append(line.charAt(currentIndex));
         currentIndex++;

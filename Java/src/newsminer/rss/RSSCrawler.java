@@ -1,6 +1,5 @@
 package newsminer.rss;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,9 +55,9 @@ import newsminer.util.DatabaseUtils;
  * The URLs to the feeds are taken from the database.
  * Notifies the observers ({@link ArticleClusterer}) once all feeds have been crawled.
  * 
- * @author  Stefan Muehlbauer
  * @author  Timo Guenther
- * @version 2014-08-19
+ * @author  Stefan Muehlbauer
+ * @version 2014-08-22
  */
 public class RSSCrawler extends Observable implements Runnable {
   //constants
@@ -104,24 +103,6 @@ public class RSSCrawler extends Observable implements Runnable {
       throw new IOException(cce);
     } catch (ClassNotFoundException cnfe) {
       throw new IOException(cnfe);
-    }
-    
-    //Prevent the error message "Could not find fetcher.properties on classpath".
-    boolean fetcherPropertiesExists = false;
-    final String[] classpaths = System.getProperty("java.class.path").split(File.pathSeparator);
-    File first = null;
-    for (String classpath : classpaths) {
-      final File file = new File(classpath, "fetcher.properties");
-      if (first == null) {
-        first = file;
-      }
-      if (file.exists()) {
-        fetcherPropertiesExists = true;
-        break;
-      }
-    }
-    if (!fetcherPropertiesExists) {
-      first.createNewFile();
     }
   }
   

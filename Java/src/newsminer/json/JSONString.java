@@ -7,7 +7,7 @@ import java.util.Locale;
  * Contains any amount of characters enclosed in quotation marks.
  * 
  * @author  Timo Guenther
- * @version 2014-08-15
+ * @version 2014-08-22
  * @see     JSONPrimitive
  */
 public class JSONString extends JSONPrimitive {
@@ -20,7 +20,7 @@ public class JSONString extends JSONPrimitive {
   private final String wrap;
   
   /**
-   * Constructs a new instance of this class.
+   * Constructs a new, empty instance of this class.
    */
   public JSONString() {
     this.wrap = new String();
@@ -28,23 +28,46 @@ public class JSONString extends JSONPrimitive {
   
   /**
    * Constructs a new instance of this class from the given String.
-   * Note that the source String will not be escaped by default and as such does not conform to the JSON standard.
-   * It is advisable to call {@link escape(String)} before this constructor.
-   * @param value
+   * Note that this will escape the String to conform to the JSON standard.
+   * @param val String to wrap
    * @see   escape(String)
    */
   public JSONString(String val) {
+    this(val, true);
+  }
+  
+  /**
+   * Constructs a new instance of this class from the given String.
+   * @param val String to wrap
+   * @param escape true to escape the String
+   * @see   escape(String)
+   */
+  public JSONString(String val, boolean escape) {
+    if (escape) {
+      val = escape(val);
+    }
     this.wrap = val;
   }
   
   /**
-   * Returns this as String without quotation marks.
-   * Note that this will not unescape the source String if it has been escaped earlier.
-   * This may also be the case when this instance was retrieved through the {@link JSONParser}.
-   * @return this as String without quotation marks
+   * Returns this as unescaped String without quotation marks.
+   * @return this as unescaped String without quotation marks
    * @see    unescape(String)
    */
   public String getString() {
+    return getString(true);
+  }
+  
+  /**
+   * Returns this as String without quotation marks.
+   * @param  unescape true to unescape the String
+   * @return this as String without quotation marks
+   * @see    unescape(String)
+   */
+  public String getString(boolean unescape) {
+    if (unescape) {
+      return unescape(wrap);
+    }
     return wrap;
   }
   
@@ -84,28 +107,28 @@ public class JSONString extends JSONPrimitive {
   @Override
   public <T> T castTo(Class<T> clazz) throws ClassCastException {
     if (clazz == String.class) {
-      return clazz.cast(wrap);
+      return clazz.cast(getString());
     }
     if (clazz == Boolean.class) {
-      return clazz.cast(Boolean.parseBoolean(wrap));
+      return clazz.cast(Boolean.parseBoolean(getString()));
     }
     if (clazz == Byte.class) {
-      return clazz.cast(Byte.parseByte(wrap));
+      return clazz.cast(Byte.parseByte(getString()));
     }
     if (clazz == Short.class) {
-      return clazz.cast(Short.parseShort(wrap));
+      return clazz.cast(Short.parseShort(getString()));
     }
     if (clazz == Integer.class) {
-      return clazz.cast(Integer.parseInt(wrap));
+      return clazz.cast(Integer.parseInt(getString()));
     }
     if (clazz == Long.class) {
-      return clazz.cast(Long.parseLong(wrap));
+      return clazz.cast(Long.parseLong(getString()));
     }
     if (clazz == Float.class) {
-      return clazz.cast(Float.parseFloat(wrap));
+      return clazz.cast(Float.parseFloat(getString()));
     }
     if (clazz == Double.class) {
-      return clazz.cast(Double.parseDouble(wrap));
+      return clazz.cast(Double.parseDouble(getString()));
     }
     return super.castTo(clazz);
   }
