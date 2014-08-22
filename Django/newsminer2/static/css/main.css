@@ -267,6 +267,7 @@ section .main-section {
 
 .toggle { 
 	cursor: pointer; 
+	display: block;
 	margin: 0 0 10px 0;
 }
 
