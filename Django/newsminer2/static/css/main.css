@@ -253,6 +253,7 @@ section .main-section {
 	-webkit-box-shadow:1px 1px 6px #292929; /* Chrome, Safari */
 	-khtml-box-shadow:1px 1px 6px #292929; /* Konqueror */ 
 	box-shadow:1px 1px 6px #292929; /* CSS3 */
+	text-align: justify;
 }
 
 .article-description {
