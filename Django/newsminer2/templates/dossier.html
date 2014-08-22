@@ -58,9 +58,9 @@
 				</header>
 				<span class="toggle">Read more</span>	
 				<p class="article">
-					<p>
+					<span>
 					{{article.text|linebreaks}}
-					</p>
+				</span>
 					TESTSTINGTESTINGESTING
 					{% for word in article.text|split:' ' %}
 						{% if word in location_match.keys %}
