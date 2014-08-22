@@ -41,8 +41,7 @@
 			<article class="article-item clearfix">
 				<img src="{% static 'flags_small/' %}{{article.country}}.png" class='flags'>
 				<h2 class="article_title">{{article.title}}</h2>
-				<p class='article'>
-				<span class="article_description">
+				  <p class="article-description">
 					{% for word in article.description|striptags|split:' ' %}
 						{% if forloop.counter < 50 %}
 							{% if word in location_match.keys %}
@@ -55,8 +54,8 @@
 						{% endif %}
 					{% endfor %}
 					...
-				</span>	
-				<span class="article_text">
+				</p>	
+				<p class="article_text">
 					{% for word in article.text|striptags|split:' ' %}
 						{% if word in location_match.keys %}
 							<a href="#" class="entity_link" id='map-navigation:{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> 
@@ -66,8 +65,7 @@
 							{{word}} 
 						{% endif %}
 					{% endfor %}	
-				</span>
-			</p>
+				</p>
 				<span class="toggle"> Read more</span>
 				<p class="source">«{{article.newspaper}}», {{article.timestamp}}</p> 
 			</article>
@@ -174,31 +172,16 @@
 
 	});
 	
-	var $pArticle = $('p.article');
-	var innerHeight = $pArticle.removeClass('article').height();
-
-	$pArticle.addClass('article');
-
 	$('.article-item').each(function() {
 
 	    $('.toggle',this).click(function() {
 
 	        var container = $(this).parents('.article-item'),
-	            article = $('.article',container),
-	            curHeight = $(article).height(),
-	            newHeight = 0;
+	            article = $('.article_text',container);
 
 	        $(this).text($(this).text() == 'Read more' ? 'Minimize' : 'Read more');
 
-	        if(curHeight == 50) {
-	            newHeight = innerHeight;
-	        } else {
-	            newHeight = 50
-	        }
-        
-	        $(article).animate({
-	            height: newHeight
-	        }, 500);
+	        $(article).slideToggle();
         
 	        return false;
 
