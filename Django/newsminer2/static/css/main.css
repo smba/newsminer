@@ -178,8 +178,11 @@ a:hover { color: #333333; }
 }
 .main-navigation a:hover,
 .main-navigation a.active {
-  color: #000000;
   background-color: #dddddd;
+}
+
+.main-navigation a.active:hover {
+  background-color: #f9f9f9;
 }
 
 .inactive {
