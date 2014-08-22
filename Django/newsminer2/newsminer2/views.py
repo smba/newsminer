@@ -129,7 +129,7 @@ def index(request, year, month, day):
         raise Http404
     
     meta_timestamp = datetime.date(int(year), int(month), int(day))
-    dformat = DateFormat(date)
+    dformat = DateFormat(meta_timestamp)
     meta_timestamp = dformat.format('jS F Y')
     
     specific_context_dict = {
