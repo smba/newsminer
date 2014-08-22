@@ -265,7 +265,10 @@ section .main-section {
 	display: none;
 }
 
-.toggle { cursor: pointer; }
+.toggle { 
+	cursor: pointer; 
+	margin: 0 0 10px 0;
+}
 
 .main-content .dossierlist {
 	background-color: #f9f9f9;
