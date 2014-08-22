@@ -305,7 +305,7 @@ def dossier(request, cluster_id):
             temp.append(topk[0])
         return temp, entitiesDict, topPersons
     
-    temp = getEntities(3)
+    temp = getEntities(5)
     topK = temp[0]
     allEntities = temp[1]
 
