@@ -154,7 +154,7 @@ def dossier(request, cluster_id):
     cluster = RssArticleClusters.objects.filter(id=cluster_id)[0]
     cursor.execute("SELECT rss_articles.link, source_url, timestamp, title, description, text "
                   +"FROM rss_articles JOIN rss_article_clusters_rss_articles "
-                  +"ON rss_article_clusters_rss_articles.link = rss_articles.link WHERE id = " + str(cluster_id))
+                  +"ON rss_article_clusters_rss_articles.link = rss_articles.link WHERE id = " + str(cluster_id) + " ORDER BY score DESC")
     total_rows = cursor.fetchall()
     i= 0
     for row in total_rows:
