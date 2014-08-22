@@ -238,7 +238,7 @@ a:hover { color: #333333; }
 .main-content {
   background-color: #dddddd;
   float: left;
-  padding: 10px 20px 5px;
+  padding: 15px 20px 5px;
   width: 66.5%;
 }
 
@@ -353,7 +353,7 @@ section .main-section {
 */
 
 .wrapper {
-  margin-top: 50px;
+  margin-top: 30px;
   width: 88%;
 }
 
