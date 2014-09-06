@@ -59,18 +59,11 @@
 				<span class="toggle">Read more</span>	
 				<p class="article">
 					<span>
-					{{article.text|linebreaksbr}}
+
+					{{article.text|safe}}
+					
 					</span>
-					TESTSTINGTESTINGESTING
-					{% for word in article.text|split:' ' %}
-						{% if word in location_match.keys %}
-							<a href="#" class="entity_link" id='map-navigation:{{forloop.counter}}' class="map-navigation" data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word}}</a> 
-						{% elif word in entities.keys %} 
-							<a href='#' class="entity_link" onclick="changeContent('custom-widget-title','{{entities|access:word|access:'name'|escape}}');changeContent('custom-widget-description', '{{entities|access:word|access:'description'}}');">{{word}}</a> 
-						{% else %}
-							{{word}} 
-						{% endif %}
-					{% endfor %}	
+						
 				</p>
 				<p class="source">«{{article.newspaper}}», {{article.timestamp}}</p> 
 			</article>
@@ -105,7 +98,7 @@
     						{{entities|access:entity|access:'name'|escape}} <a href="#" onclick="javascript:showHide('widget-description-{{forloop.counter}}');">[show/hide]</a>
     					</div>
     					<div class='widget-content' id="widget-description-{{forloop.counter}}" style="display:none">
-    						<img src="https://usercontent.googleapis.com/freebase/v1/image{{entities|access:entity|access:'image'}}" alt="https://www.googleapis.com/freebase/v1/image/m/03s72mc" style="float:left; margin:5px;">
+    						<img src="https://usercontent.googleapis.com/freebase/v1/image{{entities|access:entity|access:'image'}}" alt="" style="float:left; margin:5px;">
     						{{entities|access:entity|access:'description'}}
     					</div>
     				{% endif %}

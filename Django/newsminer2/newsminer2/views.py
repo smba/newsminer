@@ -158,6 +158,7 @@ def dossier(request, cluster_id):
     total_rows = cursor.fetchall()
     i= 0
     for row in total_rows:
+        entities = []
         article = {}
         article['link'] = row[0]
         article['source_url'] = row[1]
@@ -170,32 +171,54 @@ def dossier(request, cluster_id):
         article['description'] = row[4]
         article['text'] = row[5]
         
-        #determine locations
-        cursor.execute('SELECT name FROM rss_articles JOIN rss_articles_entity_locations '
+        #determine article_locations
+        cursor.execute('SELECT name, start_index, end_index FROM rss_articles JOIN rss_articles_entity_locations '
                         +'ON rss_articles.link = rss_articles_entity_locations.link '
                         +'WHERE rss_articles.link = \'' + article['link'].replace("'","''") + '\'')
         c = []
         for loc in cursor.fetchall():
             c.append(loc[0])
+            entities.append({
+                             'type'         :   'location',
+                             'name'         :   loc[0],
+                             'start_index'  :   loc[1],
+                             'end_index'    :   loc[2],
+                             })
         article['entity_locations'] = c
         
-        #determine organizations
-        cursor.execute("SELECT name FROM rss_articles JOIN rss_articles_entity_organizations "
+        #determine article_organizations
+        cursor.execute("SELECT name, start_index, end_index FROM rss_articles JOIN rss_articles_entity_organizations "
                         +"ON rss_articles.link = rss_articles_entity_organizations.link "
                         +'WHERE rss_articles.link = \'' + article['link'].replace("'","''") + '\'')
         c = []
-        for loc in cursor.fetchall():
-            c.append(loc[0])
+        for org in cursor.fetchall():
+            c.append(org[0])
+            entities.append({
+                             'type'         :   'organization',
+                             'name'         :   org[0],
+                             'start_index'  :   org[1],
+                             'end_index'    :   org[2],
+                             })
         article['entity_organizations'] = c
         
-        #determine persons
-        cursor.execute("SELECT name FROM rss_articles JOIN rss_articles_entity_persons "
+        #determine article_persons
+        cursor.execute("SELECT name, start_index, end_index FROM rss_articles JOIN rss_articles_entity_persons "
                         +"ON rss_articles.link = rss_articles_entity_persons.link "
                         +'WHERE rss_articles.link = \'' + article['link'].replace("'","''") + '\'')
         c = []
-        for loc in cursor.fetchall():
-            c.append(loc[0])
+        for per in cursor.fetchall():
+            c.append(per[0])
+            entities.append({
+                             'type'         :   'person',
+                             'name'         :   per[0],
+                             'start_index'  :   per[1],
+                             'end_index'    :   per[2],
+                             })
         article['entity_persons'] = c
+        
+        #Sort the entities ascending
+        entities = sorted(entities, key=operator.itemgetter('start_index')) 
+        article['entities'] = entities        
         articles.append(article)
     articlesCopy = []
     for i in range(len(articles)):
@@ -324,6 +347,49 @@ def dossier(request, cluster_id):
     person_dist = getPersonDistribution() 
     persons = person_dist.keys()
     
+    #Create the links in the article's.text
+    def buildLink(name, type, i):
+        if type == 'location':
+            if name in location_match.keys():
+                lat = location_match[name]['lat']
+                lng = location_match[name]['lng']
+                
+                link = "<a href='#' class='entity_link' id='map-navigation:"+str(i)+"'class='map-navigation' data-zoom='8' data-position='"+str(lat)+","+str(lng)+"'>"+name+"</a>"
+                return link
+        elif type == 'organization':
+            if name in allEntities.keys():
+                description = allEntities[name]['description']
+                stop= description.find("\n")
+                description = description[:stop]
+                area = "custom-widget-title"
+                link = "<a href='#' class='entity_link' onclick=\"changeContent('"+area+"','"+name+"');changeContent('custom-widget-description','" + description +"');\">"+name+"</a>"
+                return link
+        elif type == 'person':
+            if name in allEntities.keys():
+                description = allEntities[name]['description']
+                image = allEntities[name]['image']
+                stop= description.find("\n")
+                description = description[:stop]
+                area = "custom-widget-title"
+                link = "<a href='#' class='entity_link' onclick=\"changeContent('"+area+"','"+name+"');changeContent('custom-widget-description','" + description +"');\">"+name+"</a>"
+                return link
+    for article in articles:
+        for i in range(len(article['entities'])):
+            
+            name = article['entities'][i]['name']
+            type = article['entities'][i]['type']
+            start = article['entities'][i]['start_index']
+            end = article['entities'][i]['end_index']
+            link = buildLink(name, type, i)
+            if link != None:
+                delta = len(link) - (end-start)
+                article['text'] = replaceSubstring(article['text'], start, end, link)
+                for entity in article['entities']:
+                    entity['start_index'] += delta
+                    entity['end_index'] += delta
+            else:
+                continue
+            
     specific_context_dict = {
                     'dossier_title': "Welcome to Dossier No " + str(cluster_id),
                     'article':"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Option congue nihil imperdiet doming id quod mazim placerat facer",
@@ -393,6 +459,19 @@ def archive(request):
     
     return render_to_response('archive.html', context_dict, context)
 
+
+"""
+Utility methods
+"""
+def replaceSubstring(old, start, end, replace):
+    head = old[:start]
+    tail = old[end:]
+    return head + replace + tail
+
+def increaseIndices(entities, delta):
+    for i in range(len(entities)):
+        entities[i]['start_index'] += delta
+        entities[i]['end_index'] += delta
 def dateToTimestamp(date):
     start = datetime.date(date[0], date[1], date[2])
     return (int(time.mktime(start.timetuple())), int(time.mktime(start.timetuple()))+24*60*60)
