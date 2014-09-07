@@ -367,7 +367,7 @@ def dossier(request, cluster_id):
                 return link
         elif type == 'person':
             if name in allEntities.keys():
-                description = allEntities[name]['description']
+                description = allEntities[name]['description'] #
                 image = allEntities[name]['image']
                 stop= description.find("\n")
                 description = cgi.escape(description.replace("\n","").replace("'","&lsquo;"), True)
