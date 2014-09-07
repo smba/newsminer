@@ -8,6 +8,7 @@ from django.db import connection
 from django.shortcuts import redirect
 from django.utils.dateformat import DateFormat
 from django.db.models import Max, Min #
+import cgi
 import operator
 import datetime
 import time
@@ -360,7 +361,7 @@ def dossier(request, cluster_id):
             if name in allEntities.keys():
                 description = allEntities[name]['description']
                 stop= description.find("\n")
-                description = description[:stop]
+                description = cgi.escape(description.replace("\n","").replace("'","&lsquo;"), True)
                 area = "custom-widget-title"
                 link = "<a href='#' class='entity_link' onclick=\"changeContent('"+area+"','"+name+"');changeContent('custom-widget-description','" + description +"');\">"+name+"</a>"
                 return link
@@ -369,7 +370,8 @@ def dossier(request, cluster_id):
                 description = allEntities[name]['description']
                 image = allEntities[name]['image']
                 stop= description.find("\n")
-                description = description.replace("\n","").replace("'","&lsquo;")
+                description = cgi.escape(description.replace("\n","").replace("'","&lsquo;"), True)
+                description = description[:5]
                 
                 area = "custom-widget-title"
                 link = "<a href='#' class='entity_link' onclick=\"changeContent('"+area+"','"+name+"');changeContent('custom-widget-description','" + description +"');\">"+name+"</a>"
