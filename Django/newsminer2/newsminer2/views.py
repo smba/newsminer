@@ -371,7 +371,7 @@ def dossier(request, cluster_id):
                 image = allEntities[name]['image']
                 stop= description.find("\n")
                 description = cgi.escape(description.replace("\n","").replace("'","&lsquo;"), True)
-                description = description[:5]
+
                 
                 area = "custom-widget-title"
                 link = "<a href='#' class='entity_link' onclick=\"changeContent('"+area+"','"+name+"');changeContent('custom-widget-description','" + description +"');\">"+name+"</a>"
