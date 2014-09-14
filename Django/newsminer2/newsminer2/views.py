@@ -321,7 +321,7 @@ def dossier(request, cluster_id):
             else:
                 del persons[person]
             
-        topPersons = sorted(persons.iteritems(), key=operator.itemgetter(1), reverse=True)[:k]
+        topPersons = sorted(persons.iteritems(), key=operator.itemgetter(1), reverse=True)
         allEntities = dict(organizations.items() + persons.items())
         topK = sorted(allEntities.iteritems(), key=operator.itemgetter(1), reverse=True)[:k]
         temp = []
@@ -332,22 +332,33 @@ def dossier(request, cluster_id):
     temp = getEntities(5)
     topK = temp[0]
     allEntities = temp[1]
-
     topPersons = temp[2]
+
     
     def getPersonDistribution():
         personlist = topPersons
         person_dist = {}
-        for article in articles:
-            person_dist[article['link']] = []
-        for article in articles:
-            for person in personlist:
-                i = article['text'].count(person[0])
-                person_dist[article['link']].append(i)
+        #cursor.execute("SELECT DISTINCT rss_articles_entity_persons.name FROM rss_articles_entity_persons "
+        #               + "JOIN rss_articles ON rss_articles.link = rss_articles_entity_persons.link "
+        #               + "JOIN rss_article_clusters_rss_articles ON rss_article_clusters_rss_articles.link = rss_articles.link "
+        #               + "WHERE rss_article_clusters_rss_articles.id = " + str(cluster_id))
+        # d = cursor.fetchall()
+        #for person in d:
+        #    personlist.append(person[0])
+        print personlist
+        for person in personlist:
+            cursor.execute("SELECT COUNT(*) FROM rss_articles_entity_persons "
+                            + "JOIN rss_articles ON rss_articles.link = rss_articles_entity_persons.link "
+                            + "JOIN rss_article_clusters_rss_articles ON rss_article_clusters_rss_articles.link = rss_articles.link "
+                            + "WHERE rss_articles_entity_persons.name = '" + person[0] + "' AND rss_article_clusters_rss_articles.id = " + str(cluster_id))
+            i = int(cursor.fetchone()[0])
+            print i
+            person_dist[person[0]] = i
         return person_dist
     person_dist = getPersonDistribution() 
     persons = person_dist.keys()
-    
+    topPersons = sorted(person_dist.iteritems(), key=operator.itemgetter(1), reverse=True)[:5]
+    print topPersons
     #Create the links in the article's.text
     def buildLink(name, type, i):
         if type == 'location':
