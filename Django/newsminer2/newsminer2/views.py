@@ -90,7 +90,7 @@ def index(request, year, month, day):
                         +"ON rss_article_clusters.id=rss_article_clusters_rss_articles.id "
                         +"JOIN rss_articles ON rss_articles.link = rss_article_clusters_rss_articles.link "
                         +"WHERE rss_article_clusters.id = " + str(cluster.id) + " "
-                        +"ORDER BY rss_article_clusters_rss_articles DESC "
+                        +"ORDER BY rss_article_clusters_rss_articles.score DESC "
                         +"LIMIT 1")
         try:
             total_rows = cursor.fetchone()[0][1:-1]
