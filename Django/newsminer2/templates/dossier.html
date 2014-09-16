@@ -187,6 +187,15 @@
 
 	});
 	
+	$('.entity_link').click(function(){
+	    var maps = $('.aside-content > .widget:first-child > .widget-content');
+    
+	    if ($(maps).is(':hidden') == true) {
+	        $('.aside-content .widget-content').stop().slideUp();
+	        $(maps).stop().slideDown();
+	    }
+	});
+	
 	</script>
 		
    <script> 	
