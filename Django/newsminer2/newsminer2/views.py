@@ -366,7 +366,7 @@ def dossier(request, cluster_id):
                 lat = location_match[name]['lat']
                 lng = location_match[name]['lng']
                 
-                link = "<a href='#' class='entity_link' id='map-navigation:"+str(i)+"'class='map-navigation' data-zoom='8' data-position='"+str(lat)+","+str(lng)+"'>"+name+"</a>"
+                link = "<a href='#' class='entity_link map-navigation' id='map-navigation:"+str(i)+"' data-zoom='8' data-position='"+str(lat)+","+str(lng)+"'>"+name+"</a>"
                 return link
         elif type == 'organization':
             if name in allEntities.keys():
