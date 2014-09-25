@@ -74,7 +74,7 @@
 		<aside class='aside-content'>
 		
 			<!-- LEAFLET MAP WIDGET -->
-			<div class="widget" id="map=widget">
+			<div class="widget" id="map-widget">
 				<div class='widget-title' id="widget-name-{{forloop.counter}}">
 					Map [show/hide]</a>
 				</div>
@@ -187,7 +187,7 @@
 
 	});
 	
-	$('.entity_link').click(function(){
+	$('.map-navigation').click(function(){
 	    var maps = $('.aside-content > .widget:first-child > .widget-content');
     
 	    if ($(maps).is(':hidden') == true) {
