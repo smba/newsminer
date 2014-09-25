@@ -76,7 +76,7 @@
 			<!-- LEAFLET MAP WIDGET -->
 			<div class="widget" id="map-widget">
 				<div class='widget-title' id="widget-name-{{forloop.counter}}">
-					Map [show/hide]</a>
+					Map [show/hide]
 				</div>
 				<div class='widget-content' id="widget-description-{{forloop.counter}}">
 					{% leaflet_map "yourmap" callback="window.map_init_basic" creatediv="True"%}
@@ -88,14 +88,14 @@
     			<div class="freebase widget">
     				{% if entities|access:entity|access:'type' == 'organization' %}
     					<div class='widget-title' id="widget-name-{{forloop.counter}}">
-    						{{entities|access:entity|access:'name'|escape}} <a href="#" onclick="javascript:showHide('widget-description-{{forloop.counter}}');">[show/hide]</a>
+    						{{entities|access:entity|access:'name'|escape}} [show/hide]
     					</div>
     					<div class='widget-content' id="widget-description-{{forloop.counter}}" style="display:none">
     						{{entities|access:entity|access:'description'}}
     					</div>
     				{% elif entities|access:entity|access:'type' == 'person' %}
     					<div class='widget-title' id="widget-name-{{forloop.counter}}">
-    						{{entities|access:entity|access:'name'|escape}} <a href="#" onclick="javascript:showHide('widget-description-{{forloop.counter}}');">[show/hide]</a>
+    						{{entities|access:entity|access:'name'|escape}} [show/hide]
     					</div>
     					<div class='widget-content' id="widget-description-{{forloop.counter}}" style="display:none">
     						<img src="https://usercontent.googleapis.com/freebase/v1/image{{entities|access:entity|access:'image'}}" alt="" style="float:left; margin:5px;">
