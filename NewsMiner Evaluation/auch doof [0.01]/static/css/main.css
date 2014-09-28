@@ -1,0 +1,428 @@
+/*
+==============================================
+	IMPORTS
+==============================================
+*/
+
+@import url(http://fonts.googleapis.com/css?family=Roboto:400,700,500,400italic|Yanone+Kaffeesatz);
+
+
+/*
+==============================================
+	RESET
+==============================================
+*/
+
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,main,section,summary,time,mark,audio,video{border:0;font-size:100%;font:inherit;vertical-align:baseline;margin:0;padding:0}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,main,section{display:block}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:none}table{border-collapse:collapse;border-spacing:0}
+
+/*
+==============================================
+	BASE
+==============================================
+*/
+
+* {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+	-webkit-text-size-adjust: 100%;
+	-ms-text-size-adjust: 100%;
+	font-size: 100%;
+	min-width: 768px;
+	overflow-y: scroll;
+	width: 100%;
+}
+
+body {
+  background: #222222 url(../bg_wood.jpg) repeat;
+  color: #434a54;
+  font-family: 'Roboto', Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-size: 0.9rem;
+} 
+
+/*
+==============================================
+	IMAGES
+==============================================
+*/
+
+img,
+figure {
+	-ms-interpolation-mode: bicubic;
+	max-width: 100%;
+	height: auto;
+	width: auto\9;
+}
+
+figure {
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-size: cover;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+    float: left;
+    height: 50px;
+    margin: 0 5px 0 0;
+    width: 50px;
+}
+
+.flags {
+	border: 1px solid #999;
+	height: 1.35em;
+	float: right;
+}
+
+/*
+==============================================
+	TYPOGRAPHY
+==============================================
+*/
+
+h1,
+h2 {
+  color: #151d28;
+	font-family: 'Yanone Kaffeesatz', Arial, Helvetica, sans-serif;
+	line-height: 1.35;
+	margin: 0;
+	text-rendering: optimizelegibility;
+}
+
+h1 {
+  font-size: 28px;
+  font-size: 1.75rem;
+  margin-bottom: .75em;
+}
+
+h2 {
+  font-size: 24px;
+  font-size: 1.5rem;
+  margin-bottom: .5em;
+}
+
+h3 {
+  font: 600 16px 'Roboto', Arial, Helvetica, sans-serif;
+  font-size: 1rem;
+  margin-bottom: .25em;
+}
+
+p { margin: 0 0 1.5em; }
+
+strong,
+b {	font-weight: 600; }
+
+em,
+i {	font-style: italic; }
+
+small {
+	font-size: 14px;
+	font-size: 1rem;
+}
+
+.logo {
+  float: left;
+  font-size: 42px;
+  font-size: 2.625rem;
+  line-height: inherit;
+  margin: 15px 0 0;
+}
+
+.main-content {
+  line-height: 1.75;
+}
+
+.source {
+	text-align: right;
+	font-style: italic;
+	font-size: 90%;
+}
+
+/*
+==============================================
+	LINKS
+==============================================
+*/
+
+a {
+	color: #000000;
+  	text-decoration: none;
+}
+a:hover { color: #333333; }
+
+.logo a { color: #c88b18; }
+
+/* NAVIGATION
+---------------------------------------------- */
+.main-navigation a {
+  -webkit-border-top-left-radius: 10px;
+  -webkit-border-top-right-radius: 10px;
+  -moz-border-radius-topleft: 10px;
+  -moz-border-radius-topright: 10px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  
+  background-color: #f9f9f9;
+  display: inline-block;
+  padding: 15px 10px 16px;
+
+}
+.main-navigation a:hover,
+.main-navigation a.active {
+  background-color: #dddddd;
+}
+
+.main-navigation a.active:hover {
+  background-color: #f9f9f9;
+}
+
+.inactive {
+    -webkit-border-top-left-radius: 10px;
+    -webkit-border-top-right-radius: 10px;
+    -moz-border-radius-topleft: 10px;
+    -moz-border-radius-topright: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  
+    background-color: #f9f9f9;
+    display: inline-block;
+    padding: 15px 10px 16px;
+  
+	color: #cccccc;
+}
+
+/*
+==============================================
+	LAYOUT
+==============================================
+*/
+
+.wrapper {
+  margin: 0 auto 25px;
+  max-width: 1024px;
+  width: 98%;
+}
+
+/* MAIN HEADER
+---------------------------------------------- */
+.main-header {
+  padding: 0 33.5% 0 0;
+}
+
+.main-navigation {
+  float: right;
+  padding: 15px 0 0;
+}
+.main-navigation ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.main-navigation li {
+  display: block;
+  float: left;
+  margin: 0 0 0 5px;
+}
+
+/* MAIN CONTENT
+---------------------------------------------- */
+.main-content {
+  background-color: #dddddd;
+  float: left;
+  padding: 15px 20px 5px;
+  width: 66.5%;
+}
+
+section .main-section {
+  background-color: #dddddd;
+  float: left;
+  padding: 20px 20px 5px;
+  width: 80%;
+}
+
+.main-content .article-item {
+	margin: 0 0 1em;
+	padding: 10px;
+	background-color: #f9f9f9;
+	border: 7px solid white;
+	-moz-box-shadow: 1px 1px 6px #292929; /* Firefox */ 
+	-webkit-box-shadow:1px 1px 6px #292929; /* Chrome, Safari */
+	-khtml-box-shadow:1px 1px 6px #292929; /* Konqueror */ 
+	box-shadow:1px 1px 6px #292929; /* CSS3 */
+	text-align: justify;
+}
+
+.article-description {
+    display: block;
+    margin: 0 0 1em;
+}
+
+.article {
+	display: none;
+}
+
+.toggle { 
+	cursor: pointer; 
+	display: block;
+	margin: 0 0 10px 0;
+}
+
+.titletoggle { 
+	cursor: pointer; 
+}
+
+.main-content .dossierlist {
+	background-color: #f9f9f9;
+	margin: 0 0 1em;
+	float: left;
+	width: 49%;
+	border: 7px solid white;
+	-moz-box-shadow: 1px 1px 6px #292929; /* Firefox */ 
+	-webkit-box-shadow:1px 1px 6px #292929; /* Chrome, Safari */
+	-khtml-box-shadow:1px 1px 6px #292929; /* Konqueror */ 
+	box-shadow:1px 1px 6px #292929; /* CSS3 */
+}
+
+.main-content .dossierlist h2 { 
+	min-height: 100px; 
+}
+
+.dossierlist:nth-child(even) { 
+	margin: 0 1% 1em 0; 
+}
+
+.dossierlist:nth-child(odd) { 
+	margin: 0 0 1em 1%; 
+}
+
+.main-content .dossierlist a { 
+    display: block;
+    padding: 10px;
+}
+
+.aside-content {
+  background-color: #dddddd;
+  float: right;
+  display: inline;
+  padding: 20px;
+  width: 31.5%;
+  margin: 0 0 0 1%;
+  position: fixed;
+  max-height: 700px;
+  overflow-y: scroll;
+}
+
+.archivelist a:hover{
+	font-weight: bold;
+}
+
+/* MAIN FOOTER
+---------------------------------------------- */
+
+
+/*
+==============================================
+	Non-Semantic Helper Classes
+==============================================
+*/
+
+.clearfix:before, .clearfix:after { content: ""; display: table; }
+.clearfix:after { clear: both; }
+.clearfix { *zoom: 1; }
+
+/*
+	=====================================================================
+	=                                                                   =
+	=                      T A B L E T - landscape                 		=
+	=                                                                   =
+	=====================================================================
+*/
+
+@media only screen and (min-width: 1024px){
+
+.logo {
+  font-size: 60px;
+  font-size: 3.75rem;
+  margin: 0;
+}
+
+/*
+==============================================
+	LAYOUT
+==============================================
+*/
+
+.wrapper {
+  margin-top: 20px;
+  width: 88%;
+}
+
+/* MAIN HEADER
+---------------------------------------------- */
+.main-header { padding: 0 30.5% 0 0; }
+
+/* MAIN CONTENT
+---------------------------------------------- */
+.main-content { width: 69.5%; }
+
+.aside-content { width: 29.5%; }
+  
+}
+
+/* ======= Leaflet ======= */ 
+.leaflet-container {  /* all maps */
+}	
+.leaflet-label {
+	background: #C0D6E4;
+	background-clip: padding-box;
+	border-color: rgba(102,117,127,0.15);
+	border-radius: 4px;
+	border-style: solid;
+	border-width: 4px;
+	color: rgb(41, 47, 51);
+	display: block;
+	padding: 1px 6px;
+	position: absolute;
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	    -ms-user-select: none;
+	        user-select: none;
+	white-space: nowrap;
+	z-index: 6;
+}
+
+/* ======= Dossier ======= */ 
+.widget {
+	padding: 1%;
+	margin: 0 0 5px;
+	border: 7px solid white;
+	-moz-box-shadow: 1px 1px 6px #292929; /* Firefox */ 
+	-webkit-box-shadow:1px 1px 6px #292929; /* Chrome, Safari */
+	-khtml-box-shadow:1px 1px 6px #292929; /* Konqueror */ 
+	box-shadow:1px 1px 6px #292929; /* CSS3 */
+	background-color: #f9f9f9;
+	font-size: 90%;
+	cursor: pointer;
+}
+
+
+.widget-content {
+    display: none;
+}
+
+.article_description {
+	cursor: pointer;
+}
+
+.entity_link {
+	font-weight: bold;
+}
+
+.widget-title {
+	font-weight: bold;
+	margin: 0 0 0.5em 0;
+}

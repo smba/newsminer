@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+<html>
+
+    <head>
+        <title>NewsMiner+</title>
+        <link rel="stylesheet" type="text/css" href="../static/css/main.css">
+        
+        
+
+
+<script src="../static/leaflet/leaflet.js" type="text/javascript"></script>
+
+
+
+<script src="../static/leaflet/leaflet.extras.js" type="text/javascript"></script>
+<script type="text/javascript">
+    
+    L.Control.ResetView.TITLE = "Reset view";
+    L.Control.ResetView.ICON = "url(/static/leaflet/images/reset-view.png)";
+</script>
+
+        
+<link rel="stylesheet" href="../static/leaflet/leaflet.css" />
+<!--[if lte IE 8]>
+    <link rel="stylesheet" href="/static/leaflet/leaflet.ie.css" />
+<![endif]-->
+<style>.leaflet-container-default {min-height: 300px;}</style>
+
+
+		
+    </head>
+
+    <body>
+		<div class='wrapper'>
+    	<header class='main-header clearfix'>
+			<h1 class='logo'><a href="../index.html">NewsMiner+</a></h1>
+			<nav role='navigation' class='main-navigation'>
+				<ul class='clearfix'>
+				<li class="inactive">« Older</li>
+				<li><a href='../index.html' class='active'>Dossiers</a></li>
+				<li class="inactive">Newer »</li>
+				<li><a href='../archive.html'>Archive</a></li>
+				<li><a href='../impressum.html'>Imprint</a></li>
+			</ul>
+			</nav>
+    	</header>
+		<main role='main' class='main-content clearfix'>
+			<section class='main-section'>
+				
+			
+			<article class="article-item clearfix">
+				<img src="../static/flags_small/Qatar.png" class='flags' alt='Qatar' title='Qatar' >
+				<header class="article-head">
+					<h2 class="article_title">How to take control of your online advertising profile</h2>
+				  	<p class="article-description">
+						
+							
+								
+									Data 
+								
+							
+						
+							
+								
+									marketers 
+								
+							
+						
+							
+								
+									expose 
+								
+							
+						
+							
+								
+									insights 
+								
+							
+						
+							
+								
+									into 
+								
+							
+						
+							
+								
+									our 
+								
+							
+						
+							
+								
+									collected 
+								
+							
+						
+							
+								
+									interest 
+								
+							
+						
+							
+								
+									profiles 
+								
+							
+						
+							
+								
+									but 
+								
+							
+						
+							
+								
+									not 
+								
+							
+						
+							
+								
+									much 
+								
+							
+						
+							
+								
+									else 
+								
+							
+						
+					</p>
+				</header>
+				<span class="toggle">Read more</span>	
+				<p class="article">
+					<span>
+
+					How to take control of your online advertising profile<br />Data marketers expose insights into our collected interest profiles but not much else<br />September 22, 2014 9:58PM ET<br />by Sara M. Watson @smwat<br />Editor's Note: This is the second installment of the Living with Data series exploring how our online data is tracked, collected and used. Do you have questions about how your personal data is being used? Curious to learn more about your daily encounters with algorithms? Email The Decoder at thedecoder@aljazeera.net  or submit your question via the form  here . Screen shots and links are helpful clues! <br />I have owned a truck and am interested in buying another, according to my Acxiom AboutTheData.com profile. But neither of these data points is true.<br /><a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Acxiom Corporation');changeContent('custom-widget-description','Acxiom (Acxiom Corporation) is a marketing technology and services company with offices in the United States, Europe, Asia and South America. Acxiom offers various marketing and information management services, including multichannel marketing, addressable advertising and database management. Acxiom collects, analyzes, and parses customer and business information for clients, helping them to target advertising campaigns, score leads, and more.Its client base in the United States consists primarily of companies in the financial services, insurance, information services, direct marketing, media, retail, consumer packaged goods, technology, automotive, healthcare, travel and telecommunications industries, and the government sector.It has been described as &quot;one of the biggest companies you&amp;lsquo;ve never heard of.&quot; In addition to collecting detailed information about people, the company helps marketers anticipate the future needs of consumers, according to the documentary &quot;The Persuaders.&quot; As the world&amp;lsquo;s largest processor of consumer data, Acxiom has identified 70 types of consumers with its segmentation product PersonicX.Forrester Research named Acxiom one of the largest database');">Acxiom Corporation</a> , one of the largest marketing data brokers, pools data about individuals from sources like direct-mail responses, consumer survey data, public records and browsing history. My AboutTheData.com profile incorrectly listed my parents’ address, and I wasn’t able to correct that, even after contacting support directly. I’m guessing the truck detail was pulled from old public motor vehicle records , but my parents haven’t owned a truck since the 1990s.<br /><a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Acxiom Corporation');changeContent('custom-widget-description','Acxiom (Acxiom Corporation) is a marketing technology and services company with offices in the United States, Europe, Asia and South America. Acxiom offers various marketing and information management services, including multichannel marketing, addressable advertising and database management. Acxiom collects, analyzes, and parses customer and business information for clients, helping them to target advertising campaigns, score leads, and more.Its client base in the United States consists primarily of companies in the financial services, insurance, information services, direct marketing, media, retail, consumer packaged goods, technology, automotive, healthcare, travel and telecommunications industries, and the government sector.It has been described as &quot;one of the biggest companies you&amp;lsquo;ve never heard of.&quot; In addition to collecting detailed information about people, the company helps marketers anticipate the future needs of consumers, according to the documentary &quot;The Persuaders.&quot; As the world&amp;lsquo;s largest processor of consumer data, Acxiom has identified 70 types of consumers with its segmentation product PersonicX.Forrester Research named Acxiom one of the largest database');">Acxiom Corporation</a> lets me edit and remove this data point from my profile so that I won’t be targeted on this detail. But I still don’t have a clear sense of how editing my profile affects my experience. How does this influence the ads I see or the segmentation models I might be grouped into ( Truckin’ & Stylin’ )? How might <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Acxiom Corporation');changeContent('custom-widget-description','Acxiom (Acxiom Corporation) is a marketing technology and services company with offices in the United States, Europe, Asia and South America. Acxiom offers various marketing and information management services, including multichannel marketing, addressable advertising and database management. Acxiom collects, analyzes, and parses customer and business information for clients, helping them to target advertising campaigns, score leads, and more.Its client base in the United States consists primarily of companies in the financial services, insurance, information services, direct marketing, media, retail, consumer packaged goods, technology, automotive, healthcare, travel and telecommunications industries, and the government sector.It has been described as &quot;one of the biggest companies you&amp;lsquo;ve never heard of.&quot; In addition to collecting detailed information about people, the company helps marketers anticipate the future needs of consumers, according to the documentary &quot;The Persuaders.&quot; As the world&amp;lsquo;s largest processor of consumer data, Acxiom has identified 70 types of consumers with its segmentation product PersonicX.Forrester Research named Acxiom one of the largest database');">Acxiom Corporation</a>’s third-party customers use this information about me?<br />The biggest players in commercial Internet platforms and the social Web are starting to take users’ data concerns seriously, offering us a peek into our data profiles. More often than not, these steps toward opening up the data only raise more questions.<br />Follow the blue arrow<br />In The Decoder last week, we explored the inner workings of retargeted ads that follow us around. We can learn more about our personal data profiles when we come across these ads if we dig a little deeper.<br />Some of the retargeted ads I saw last week had a little blue arrow symbol in the corner.<br />That’s the AdChoices advertising option icon . The Digital Advertising Alliance (DAA) has developed this as the standard symbol to mark where we have options about the ads we see. Following this link from an ad leads to a website that looks like it was designed with Web 1.0 aesthetics: http://www.aboutads.info .<br />The DAA runs one of the largest consortiums in the industry to coordinate opting out of targeted data marketing. When I went to the DAA opt-out page, 102 out of 115 participating companies had left their mark on my browser.<br />Depending on where you encounter the arrow, clicking will take you to settings pages on the given platform, like <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','YouTube');changeContent('custom-widget-description','YouTube is a video-sharing website, created by three former PayPal employees in February 2005, on which users can upload, view and share videos. The company is based in San Bruno, California, and uses Adobe Flash Video and HTML5 technology to display a wide variety of user-generated video content, including movie clips, TV clips, and music videos, as well as amateur content such as video blogging and short original videos.Most of the content on YouTube has been uploaded by individuals, although media corporations including CBS, the BBC, VEVO, Hulu, and other organizations offer some of their material via the site, as part of the YouTube partnership program. Unregistered users can watch videos, while registered users can upload an unlimited number of videos. Videos considered to contain offensive content are available only to registered users at least 18 years old. In November 2006, YouTube, LLC was bought by Google for US$1.65 billion, and now operates as a subsidiary of Google.YouTube was founded by Chad Hurley, Steve Chen, and Jawed Karim, who were all early employees of PayPal. Hurley had studied design at Indiana University of Pennsylvania, while Chen and Karim studied');">YouTube</a> or <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Google');changeContent('custom-widget-description','Google Inc. (NASDAQ: GOOG) is an American multinational corporation which provides Internet-related products and services, including Internet search, cloud computing, software and advertising technologies. Advertising revenues from AdWords generate almost all of the company&amp;lsquo;s profits.The company was founded by Larry Page and Sergey Brin while both attended Stanford University. Together, Brin and Page own about 16 percent of the company&amp;lsquo;s stake. Google was first incorporated as a privately held company on September 4, 1998, and its initial public offering followed on August 19, 2004. The company&amp;lsquo;s mission statement from the outset was &quot;to organize the world&amp;lsquo;s information and make it universally accessible and useful&quot;, and the company&amp;lsquo;s unofficial slogan is &quot;Don&amp;lsquo;t be evil&quot;. In 2006, the company moved to its current headquarters in Mountain View, California.Rapid growth since incorporation has triggered a chain of products, acquisitions, and partnerships beyond the company&amp;lsquo;s core web search engine. The company offers online productivity software including email, an office suite, and social networking. Google&amp;lsquo;s products extend to the desktop as well, with applications for web');">Google</a>. Or it might tell you more about where the ad is coming from or what advertising technology company is behind it.<br />These companies are starting to reflect our data profiles back to us, giving us the opportunity to correct when our browsing history doesn’t reflect our actual interests. The standard has been that data marketers make all kinds of assumptions about why you are doing what you are doing. That won’t change without our input about what we really want.<br />So let’s take a closer look at some of the biggest and most common places we can not just opt out but also interact with our profile data.<br />Interests: flowers and gangs?<br /><a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Google');changeContent('custom-widget-description','Google Inc. (NASDAQ: GOOG) is an American multinational corporation which provides Internet-related products and services, including Internet search, cloud computing, software and advertising technologies. Advertising revenues from AdWords generate almost all of the company&amp;lsquo;s profits.The company was founded by Larry Page and Sergey Brin while both attended Stanford University. Together, Brin and Page own about 16 percent of the company&amp;lsquo;s stake. Google was first incorporated as a privately held company on September 4, 1998, and its initial public offering followed on August 19, 2004. The company&amp;lsquo;s mission statement from the outset was &quot;to organize the world&amp;lsquo;s information and make it universally accessible and useful&quot;, and the company&amp;lsquo;s unofficial slogan is &quot;Don&amp;lsquo;t be evil&quot;. In 2006, the company moved to its current headquarters in Mountain View, California.Rapid growth since incorporation has triggered a chain of products, acquisitions, and partnerships beyond the company&amp;lsquo;s core web search engine. The company offers online productivity software including email, an office suite, and social networking. Google&amp;lsquo;s products extend to the desktop as well, with applications for web');">Google</a> offers a number of ways to influence the ads I see on <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Google');changeContent('custom-widget-description','Google Inc. (NASDAQ: GOOG) is an American multinational corporation which provides Internet-related products and services, including Internet search, cloud computing, software and advertising technologies. Advertising revenues from AdWords generate almost all of the company&amp;lsquo;s profits.The company was founded by Larry Page and Sergey Brin while both attended Stanford University. Together, Brin and Page own about 16 percent of the company&amp;lsquo;s stake. Google was first incorporated as a privately held company on September 4, 1998, and its initial public offering followed on August 19, 2004. The company&amp;lsquo;s mission statement from the outset was &quot;to organize the world&amp;lsquo;s information and make it universally accessible and useful&quot;, and the company&amp;lsquo;s unofficial slogan is &quot;Don&amp;lsquo;t be evil&quot;. In 2006, the company moved to its current headquarters in Mountain View, California.Rapid growth since incorporation has triggered a chain of products, acquisitions, and partnerships beyond the company&amp;lsquo;s core web search engine. The company offers online productivity software including email, an office suite, and social networking. Google&amp;lsquo;s products extend to the desktop as well, with applications for web');">Google</a> and ads across the Web through <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Google');changeContent('custom-widget-description','Google Inc. (NASDAQ: GOOG) is an American multinational corporation which provides Internet-related products and services, including Internet search, cloud computing, software and advertising technologies. Advertising revenues from AdWords generate almost all of the company&amp;lsquo;s profits.The company was founded by Larry Page and Sergey Brin while both attended Stanford University. Together, Brin and Page own about 16 percent of the company&amp;lsquo;s stake. Google was first incorporated as a privately held company on September 4, 1998, and its initial public offering followed on August 19, 2004. The company&amp;lsquo;s mission statement from the outset was &quot;to organize the world&amp;lsquo;s information and make it universally accessible and useful&quot;, and the company&amp;lsquo;s unofficial slogan is &quot;Don&amp;lsquo;t be evil&quot;. In 2006, the company moved to its current headquarters in Mountain View, California.Rapid growth since incorporation has triggered a chain of products, acquisitions, and partnerships beyond the company&amp;lsquo;s core web search engine. The company offers online productivity software including email, an office suite, and social networking. Google&amp;lsquo;s products extend to the desktop as well, with applications for web');">Google</a>’s ad network. The most interesting  ad setting page  exposes my account history and the  interest categories  I’ve accrued over time.<br />Looking at my interest profile, I wasn’t surprised by some things, on the basis of my  recent browsing history , including an interest in ISPs because I had been looking at my Internet bill and comparing prices. (Spoiler alert: There’s no competition.) But I was a little concerned to find that apparently I’m interested in nuclear energy and gangs and organized crime. I have no logical browsing history explanation for that, not even from news articles.<br />We get to see what our browsing history says about us to advertisers, and we get a chance to correct when it doesn’t match up with what we really want.<br />But I still have no idea where certain categories of interest are coming from or how they might affect my personalized ads. And I really don’t have a sense of how these interests might affect other personalized <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Google');changeContent('custom-widget-description','Google Inc. (NASDAQ: GOOG) is an American multinational corporation which provides Internet-related products and services, including Internet search, cloud computing, software and advertising technologies. Advertising revenues from AdWords generate almost all of the company&amp;lsquo;s profits.The company was founded by Larry Page and Sergey Brin while both attended Stanford University. Together, Brin and Page own about 16 percent of the company&amp;lsquo;s stake. Google was first incorporated as a privately held company on September 4, 1998, and its initial public offering followed on August 19, 2004. The company&amp;lsquo;s mission statement from the outset was &quot;to organize the world&amp;lsquo;s information and make it universally accessible and useful&quot;, and the company&amp;lsquo;s unofficial slogan is &quot;Don&amp;lsquo;t be evil&quot;. In 2006, the company moved to its current headquarters in Mountain View, California.Rapid growth since incorporation has triggered a chain of products, acquisitions, and partnerships beyond the company&amp;lsquo;s core web search engine. The company offers online productivity software including email, an office suite, and social networking. Google&amp;lsquo;s products extend to the desktop as well, with applications for web');">Google</a> experiences.<br />Why am I seeing this ad?<br /><a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','YouTube');changeContent('custom-widget-description','YouTube is a video-sharing website, created by three former PayPal employees in February 2005, on which users can upload, view and share videos. The company is based in San Bruno, California, and uses Adobe Flash Video and HTML5 technology to display a wide variety of user-generated video content, including movie clips, TV clips, and music videos, as well as amateur content such as video blogging and short original videos.Most of the content on YouTube has been uploaded by individuals, although media corporations including CBS, the BBC, VEVO, Hulu, and other organizations offer some of their material via the site, as part of the YouTube partnership program. Unregistered users can watch videos, while registered users can upload an unlimited number of videos. Videos considered to contain offensive content are available only to registered users at least 18 years old. In November 2006, YouTube, LLC was bought by Google for US$1.65 billion, and now operates as a subsidiary of Google.YouTube was founded by Chad Hurley, Steve Chen, and Jawed Karim, who were all early employees of PayPal. Hurley had studied design at Indiana University of Pennsylvania, while Chen and Karim studied');">YouTube</a> just took a big step toward articulating the causal links between our actions and the ads we see. This summer <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','YouTube');changeContent('custom-widget-description','YouTube is a video-sharing website, created by three former PayPal employees in February 2005, on which users can upload, view and share videos. The company is based in San Bruno, California, and uses Adobe Flash Video and HTML5 technology to display a wide variety of user-generated video content, including movie clips, TV clips, and music videos, as well as amateur content such as video blogging and short original videos.Most of the content on YouTube has been uploaded by individuals, although media corporations including CBS, the BBC, VEVO, Hulu, and other organizations offer some of their material via the site, as part of the YouTube partnership program. Unregistered users can watch videos, while registered users can upload an unlimited number of videos. Videos considered to contain offensive content are available only to registered users at least 18 years old. In November 2006, YouTube, LLC was bought by Google for US$1.65 billion, and now operates as a subsidiary of Google.YouTube was founded by Chad Hurley, Steve Chen, and Jawed Karim, who were all early employees of PayPal. Hurley had studied design at Indiana University of Pennsylvania, while Chen and Karim studied');">YouTube</a> introduced an ad preferences feature to answer the question “ Why am I seeing this? ”<br />The next time you click on the arrow or the X in the corner of a <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','YouTube');changeContent('custom-widget-description','YouTube is a video-sharing website, created by three former PayPal employees in February 2005, on which users can upload, view and share videos. The company is based in San Bruno, California, and uses Adobe Flash Video and HTML5 technology to display a wide variety of user-generated video content, including movie clips, TV clips, and music videos, as well as amateur content such as video blogging and short original videos.Most of the content on YouTube has been uploaded by individuals, although media corporations including CBS, the BBC, VEVO, Hulu, and other organizations offer some of their material via the site, as part of the YouTube partnership program. Unregistered users can watch videos, while registered users can upload an unlimited number of videos. Videos considered to contain offensive content are available only to registered users at least 18 years old. In November 2006, YouTube, LLC was bought by Google for US$1.65 billion, and now operates as a subsidiary of Google.YouTube was founded by Chad Hurley, Steve Chen, and Jawed Karim, who were all early employees of PayPal. Hurley had studied design at Indiana University of Pennsylvania, while Chen and Karim studied');">YouTube</a> ad, a few options will appear. When I was doing research on retargeted ads , <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','YouTube');changeContent('custom-widget-description','YouTube is a video-sharing website, created by three former PayPal employees in February 2005, on which users can upload, view and share videos. The company is based in San Bruno, California, and uses Adobe Flash Video and HTML5 technology to display a wide variety of user-generated video content, including movie clips, TV clips, and music videos, as well as amateur content such as video blogging and short original videos.Most of the content on YouTube has been uploaded by individuals, although media corporations including CBS, the BBC, VEVO, Hulu, and other organizations offer some of their material via the site, as part of the YouTube partnership program. Unregistered users can watch videos, while registered users can upload an unlimited number of videos. Videos considered to contain offensive content are available only to registered users at least 18 years old. In November 2006, YouTube, LLC was bought by Google for US$1.65 billion, and now operates as a subsidiary of Google.YouTube was founded by Chad Hurley, Steve Chen, and Jawed Karim, who were all early employees of PayPal. Hurley had studied design at Indiana University of Pennsylvania, while Chen and Karim studied');">YouTube</a> explained that one of the reasons I was seeing one ad was that Ringly wanted to reach people who had visited its website.<br />There are options to adjust my settings and preferences and to be removed from the interest or profile details that advertisers were targeting. I could tell <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','YouTube');changeContent('custom-widget-description','YouTube is a video-sharing website, created by three former PayPal employees in February 2005, on which users can upload, view and share videos. The company is based in San Bruno, California, and uses Adobe Flash Video and HTML5 technology to display a wide variety of user-generated video content, including movie clips, TV clips, and music videos, as well as amateur content such as video blogging and short original videos.Most of the content on YouTube has been uploaded by individuals, although media corporations including CBS, the BBC, VEVO, Hulu, and other organizations offer some of their material via the site, as part of the YouTube partnership program. Unregistered users can watch videos, while registered users can upload an unlimited number of videos. Videos considered to contain offensive content are available only to registered users at least 18 years old. In November 2006, YouTube, LLC was bought by Google for US$1.65 billion, and now operates as a subsidiary of Google.YouTube was founded by Chad Hurley, Steve Chen, and Jawed Karim, who were all early employees of PayPal. Hurley had studied design at Indiana University of Pennsylvania, while Chen and Karim studied');">YouTube</a> that I didn’t want to keep seeing ads for the particular dress that I already bought. <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','YouTube');changeContent('custom-widget-description','YouTube is a video-sharing website, created by three former PayPal employees in February 2005, on which users can upload, view and share videos. The company is based in San Bruno, California, and uses Adobe Flash Video and HTML5 technology to display a wide variety of user-generated video content, including movie clips, TV clips, and music videos, as well as amateur content such as video blogging and short original videos.Most of the content on YouTube has been uploaded by individuals, although media corporations including CBS, the BBC, VEVO, Hulu, and other organizations offer some of their material via the site, as part of the YouTube partnership program. Unregistered users can watch videos, while registered users can upload an unlimited number of videos. Videos considered to contain offensive content are available only to registered users at least 18 years old. In November 2006, YouTube, LLC was bought by Google for US$1.65 billion, and now operates as a subsidiary of Google.YouTube was founded by Chad Hurley, Steve Chen, and Jawed Karim, who were all early employees of PayPal. Hurley had studied design at Indiana University of Pennsylvania, while Chen and Karim studied');">YouTube</a> let me state my reason, “I keep seeing this,” which is effectively like telling <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','YouTube');changeContent('custom-widget-description','YouTube is a video-sharing website, created by three former PayPal employees in February 2005, on which users can upload, view and share videos. The company is based in San Bruno, California, and uses Adobe Flash Video and HTML5 technology to display a wide variety of user-generated video content, including movie clips, TV clips, and music videos, as well as amateur content such as video blogging and short original videos.Most of the content on YouTube has been uploaded by individuals, although media corporations including CBS, the BBC, VEVO, Hulu, and other organizations offer some of their material via the site, as part of the YouTube partnership program. Unregistered users can watch videos, while registered users can upload an unlimited number of videos. Videos considered to contain offensive content are available only to registered users at least 18 years old. In November 2006, YouTube, LLC was bought by Google for US$1.65 billion, and now operates as a subsidiary of Google.YouTube was founded by Chad Hurley, Steve Chen, and Jawed Karim, who were all early employees of PayPal. Hurley had studied design at Indiana University of Pennsylvania, while Chen and Karim studied');">YouTube</a> that retargeted ads aren’t working for me.<br /><a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','YouTube');changeContent('custom-widget-description','YouTube is a video-sharing website, created by three former PayPal employees in February 2005, on which users can upload, view and share videos. The company is based in San Bruno, California, and uses Adobe Flash Video and HTML5 technology to display a wide variety of user-generated video content, including movie clips, TV clips, and music videos, as well as amateur content such as video blogging and short original videos.Most of the content on YouTube has been uploaded by individuals, although media corporations including CBS, the BBC, VEVO, Hulu, and other organizations offer some of their material via the site, as part of the YouTube partnership program. Unregistered users can watch videos, while registered users can upload an unlimited number of videos. Videos considered to contain offensive content are available only to registered users at least 18 years old. In November 2006, YouTube, LLC was bought by Google for US$1.65 billion, and now operates as a subsidiary of Google.YouTube was founded by Chad Hurley, Steve Chen, and Jawed Karim, who were all early employees of PayPal. Hurley had studied design at Indiana University of Pennsylvania, while Chen and Karim studied');">YouTube</a> also has a pretty thorough  explainer page  about ads that says advertisers sometimes have broad categories or might have used overlapping interests to target audiences, so my interest input might not block those ads completely.<br />But I’m still seeing only one of the reasons behind an ad. So while the direction toward transparency is commendable, partial transparency has the harmful potential of oversimplifying a very complex interaction. We change one thing, but we don’t know the effects elsewhere in our digital experience.<br />About the data<br />Last fall <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Acxiom Corporation');changeContent('custom-widget-description','Acxiom (Acxiom Corporation) is a marketing technology and services company with offices in the United States, Europe, Asia and South America. Acxiom offers various marketing and information management services, including multichannel marketing, addressable advertising and database management. Acxiom collects, analyzes, and parses customer and business information for clients, helping them to target advertising campaigns, score leads, and more.Its client base in the United States consists primarily of companies in the financial services, insurance, information services, direct marketing, media, retail, consumer packaged goods, technology, automotive, healthcare, travel and telecommunications industries, and the government sector.It has been described as &quot;one of the biggest companies you&amp;lsquo;ve never heard of.&quot; In addition to collecting detailed information about people, the company helps marketers anticipate the future needs of consumers, according to the documentary &quot;The Persuaders.&quot; As the world&amp;lsquo;s largest processor of consumer data, Acxiom has identified 70 types of consumers with its segmentation product PersonicX.Forrester Research named Acxiom one of the largest database');">Acxiom Corporation</a> opened up its trove of consumer behavior and marketing data to the public with profiles accessible on AboutTheData.com . It was an industry-leading step toward self-regulation and greater transparency to consumers, but as a beta experiment, it has its limits too.<br /><a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Acxiom Corporation');changeContent('custom-widget-description','Acxiom (Acxiom Corporation) is a marketing technology and services company with offices in the United States, Europe, Asia and South America. Acxiom offers various marketing and information management services, including multichannel marketing, addressable advertising and database management. Acxiom collects, analyzes, and parses customer and business information for clients, helping them to target advertising campaigns, score leads, and more.Its client base in the United States consists primarily of companies in the financial services, insurance, information services, direct marketing, media, retail, consumer packaged goods, technology, automotive, healthcare, travel and telecommunications industries, and the government sector.It has been described as &quot;one of the biggest companies you&amp;lsquo;ve never heard of.&quot; In addition to collecting detailed information about people, the company helps marketers anticipate the future needs of consumers, according to the documentary &quot;The Persuaders.&quot; As the world&amp;lsquo;s largest processor of consumer data, Acxiom has identified 70 types of consumers with its segmentation product PersonicX.Forrester Research named Acxiom one of the largest database');">Acxiom Corporation</a>’s data is just one of the inputs that could go into the ads I see on Facebook, for example. Some of the data is core data, which is listed as fact, and some of it is inferred data, based on modeled insights. Both types are exposed in consumer profiles on the site, in sections including my household, vehicle and purchasing behaviors.<br />The website also gives consumers the opportunity to edit individual items. For example, it said that I had completed only high school, so I changed that because it seemed significant. When the site launched, <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Acxiom Corporation');changeContent('custom-widget-description','Acxiom (Acxiom Corporation) is a marketing technology and services company with offices in the United States, Europe, Asia and South America. Acxiom offers various marketing and information management services, including multichannel marketing, addressable advertising and database management. Acxiom collects, analyzes, and parses customer and business information for clients, helping them to target advertising campaigns, score leads, and more.Its client base in the United States consists primarily of companies in the financial services, insurance, information services, direct marketing, media, retail, consumer packaged goods, technology, automotive, healthcare, travel and telecommunications industries, and the government sector.It has been described as &quot;one of the biggest companies you&amp;lsquo;ve never heard of.&quot; In addition to collecting detailed information about people, the company helps marketers anticipate the future needs of consumers, according to the documentary &quot;The Persuaders.&quot; As the world&amp;lsquo;s largest processor of consumer data, Acxiom has identified 70 types of consumers with its segmentation product PersonicX.Forrester Research named Acxiom one of the largest database');">Acxiom Corporation</a> CEO Scott Howe looked at his profile and changed incorrect details about his mortgage. He reports that the most popular edits that visitors to the site make address political party, income, education, marital status and occupation — all categories that really reflect our sense of self, but it also means that <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Acxiom Corporation');changeContent('custom-widget-description','Acxiom (Acxiom Corporation) is a marketing technology and services company with offices in the United States, Europe, Asia and South America. Acxiom offers various marketing and information management services, including multichannel marketing, addressable advertising and database management. Acxiom collects, analyzes, and parses customer and business information for clients, helping them to target advertising campaigns, score leads, and more.Its client base in the United States consists primarily of companies in the financial services, insurance, information services, direct marketing, media, retail, consumer packaged goods, technology, automotive, healthcare, travel and telecommunications industries, and the government sector.It has been described as &quot;one of the biggest companies you&amp;lsquo;ve never heard of.&quot; In addition to collecting detailed information about people, the company helps marketers anticipate the future needs of consumers, according to the documentary &quot;The Persuaders.&quot; As the world&amp;lsquo;s largest processor of consumer data, Acxiom has identified 70 types of consumers with its segmentation product PersonicX.Forrester Research named Acxiom one of the largest database');">Acxiom Corporation</a> was getting these things wrong somehow.<br />As consumers, we can begin to guess how education and mortgage details could affect our profile to marketers, but it’s hard to follow through on how changing these details here might have effects elsewhere. Marketing becomes more relevant to me with my input. But what are the effects of these individual data points in aggregate, depending on how they are combined and used with other data in the future?<br /><a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Acxiom Corporation');changeContent('custom-widget-description','Acxiom (Acxiom Corporation) is a marketing technology and services company with offices in the United States, Europe, Asia and South America. Acxiom offers various marketing and information management services, including multichannel marketing, addressable advertising and database management. Acxiom collects, analyzes, and parses customer and business information for clients, helping them to target advertising campaigns, score leads, and more.Its client base in the United States consists primarily of companies in the financial services, insurance, information services, direct marketing, media, retail, consumer packaged goods, technology, automotive, healthcare, travel and telecommunications industries, and the government sector.It has been described as &quot;one of the biggest companies you&amp;lsquo;ve never heard of.&quot; In addition to collecting detailed information about people, the company helps marketers anticipate the future needs of consumers, according to the documentary &quot;The Persuaders.&quot; As the world&amp;lsquo;s largest processor of consumer data, Acxiom has identified 70 types of consumers with its segmentation product PersonicX.Forrester Research named Acxiom one of the largest database');">Acxiom Corporation</a> and other marketing data companies offer the ability to opt out. But <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Acxiom Corporation');changeContent('custom-widget-description','Acxiom (Acxiom Corporation) is a marketing technology and services company with offices in the United States, Europe, Asia and South America. Acxiom offers various marketing and information management services, including multichannel marketing, addressable advertising and database management. Acxiom collects, analyzes, and parses customer and business information for clients, helping them to target advertising campaigns, score leads, and more.Its client base in the United States consists primarily of companies in the financial services, insurance, information services, direct marketing, media, retail, consumer packaged goods, technology, automotive, healthcare, travel and telecommunications industries, and the government sector.It has been described as &quot;one of the biggest companies you&amp;lsquo;ve never heard of.&quot; In addition to collecting detailed information about people, the company helps marketers anticipate the future needs of consumers, according to the documentary &quot;The Persuaders.&quot; As the world&amp;lsquo;s largest processor of consumer data, Acxiom has identified 70 types of consumers with its segmentation product PersonicX.Forrester Research named Acxiom one of the largest database');">Acxiom Corporation</a> doesn’t make it easy. The link to opt out leads to a page with at least three places to opt out of different data types. I can also choose individual elements in my profile that I don’t want to be targeted on by clicking on “Remove this data about me for online marketing purposes,” as I did with the truck information.<br />The Catch-22 is that telling advertisers about our preferences ensures that they know more about us, not less. Better experiences require greater exposure, not less. So while the PR effect is that these companies are becoming more transparent, they are also enlisting us to make their advertising more effective. That’s why <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','YouTube');changeContent('custom-widget-description','YouTube is a video-sharing website, created by three former PayPal employees in February 2005, on which users can upload, view and share videos. The company is based in San Bruno, California, and uses Adobe Flash Video and HTML5 technology to display a wide variety of user-generated video content, including movie clips, TV clips, and music videos, as well as amateur content such as video blogging and short original videos.Most of the content on YouTube has been uploaded by individuals, although media corporations including CBS, the BBC, VEVO, Hulu, and other organizations offer some of their material via the site, as part of the YouTube partnership program. Unregistered users can watch videos, while registered users can upload an unlimited number of videos. Videos considered to contain offensive content are available only to registered users at least 18 years old. In November 2006, YouTube, LLC was bought by Google for US$1.65 billion, and now operates as a subsidiary of Google.YouTube was founded by Chad Hurley, Steve Chen, and Jawed Karim, who were all early employees of PayPal. Hurley had studied design at Indiana University of Pennsylvania, while Chen and Karim studied');">YouTube</a> keeps asking us to “tell us more about what you like,” to fill out our interest profile in greater detail. Before we offer up more to them, we need to keep prodding them for more details too.<br />What's the full story?<br />All these profiles show us our data, but they rarely describe where it comes from or how it is being used. And that means we’re still not getting the full story.<br /><a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Acxiom Corporation');changeContent('custom-widget-description','Acxiom (Acxiom Corporation) is a marketing technology and services company with offices in the United States, Europe, Asia and South America. Acxiom offers various marketing and information management services, including multichannel marketing, addressable advertising and database management. Acxiom collects, analyzes, and parses customer and business information for clients, helping them to target advertising campaigns, score leads, and more.Its client base in the United States consists primarily of companies in the financial services, insurance, information services, direct marketing, media, retail, consumer packaged goods, technology, automotive, healthcare, travel and telecommunications industries, and the government sector.It has been described as &quot;one of the biggest companies you&amp;lsquo;ve never heard of.&quot; In addition to collecting detailed information about people, the company helps marketers anticipate the future needs of consumers, according to the documentary &quot;The Persuaders.&quot; As the world&amp;lsquo;s largest processor of consumer data, Acxiom has identified 70 types of consumers with its segmentation product PersonicX.Forrester Research named Acxiom one of the largest database');">Acxiom Corporation</a> pulls from thousands of data sources, but it isn’t exposing to consumers exactly where an individual data point — like my listed vehicle or my education — is coming from to be able to correct it there too. On the <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Google');changeContent('custom-widget-description','Google Inc. (NASDAQ: GOOG) is an American multinational corporation which provides Internet-related products and services, including Internet search, cloud computing, software and advertising technologies. Advertising revenues from AdWords generate almost all of the company&amp;lsquo;s profits.The company was founded by Larry Page and Sergey Brin while both attended Stanford University. Together, Brin and Page own about 16 percent of the company&amp;lsquo;s stake. Google was first incorporated as a privately held company on September 4, 1998, and its initial public offering followed on August 19, 2004. The company&amp;lsquo;s mission statement from the outset was &quot;to organize the world&amp;lsquo;s information and make it universally accessible and useful&quot;, and the company&amp;lsquo;s unofficial slogan is &quot;Don&amp;lsquo;t be evil&quot;. In 2006, the company moved to its current headquarters in Mountain View, California.Rapid growth since incorporation has triggered a chain of products, acquisitions, and partnerships beyond the company&amp;lsquo;s core web search engine. The company offers online productivity software including email, an office suite, and social networking. Google&amp;lsquo;s products extend to the desktop as well, with applications for web');">Google</a> interest pages, I can’t see how categories match up with certain searches or websites I have visited. There are few connections made, and we’re left speculating about where the information came from and what it all means. <br />In the case of <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Acxiom Corporation');changeContent('custom-widget-description','Acxiom (Acxiom Corporation) is a marketing technology and services company with offices in the United States, Europe, Asia and South America. Acxiom offers various marketing and information management services, including multichannel marketing, addressable advertising and database management. Acxiom collects, analyzes, and parses customer and business information for clients, helping them to target advertising campaigns, score leads, and more.Its client base in the United States consists primarily of companies in the financial services, insurance, information services, direct marketing, media, retail, consumer packaged goods, technology, automotive, healthcare, travel and telecommunications industries, and the government sector.It has been described as &quot;one of the biggest companies you&amp;lsquo;ve never heard of.&quot; In addition to collecting detailed information about people, the company helps marketers anticipate the future needs of consumers, according to the documentary &quot;The Persuaders.&quot; As the world&amp;lsquo;s largest processor of consumer data, Acxiom has identified 70 types of consumers with its segmentation product PersonicX.Forrester Research named Acxiom one of the largest database');">Acxiom Corporation</a>, it uses the data to model consumer segments to advertisers and marketers. But as consumers, we have no insights into how we fit into these segments. Many of those data broker segmentations can be alarmingly sensitive when they deal with health — for example, AIDS/HIV — or socioeconomic status.<br />Most of the data we’ve looked at here is being used for marketing purposes. History shows us we ought to keep a closer eye on these uses. There aren’t yet many limits in place to prevent it from being used for more insidious purposes such as insurance underwriting, proxy-based discrimination or predatory loan targeting . Even if you are not targeted for your race, things like the cellphone plan you use, your ZIP code and your Twitter usage can stand in for race. That will change as policymakers and the industry begin to explore means for regulation of inappropriate uses of this data. But we’re still figuring out what “inappropriate” means.<br /><a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Richard Howe, 1st Earl Howe');changeContent('custom-widget-description','Admiral of the Fleet Richard Howe, 1st Earl Howe KG (8 March 1726 – 5 August 1799) was a British naval officer, notable in particular for his service during the American War of Independence and French Revolutionary Wars. He was the brother of William Howe and George Howe.Howe joined the navy at the age of thirteen and served throughout the War of the Austrian Succession. During the Seven Years War he gained a reputation for his role in amphibious operations against the French coast as part of Britain&amp;lsquo;s policy of naval descents. He took part in the decisive British naval victory at the Battle of Quiberon Bay in 1759. He is best known for his service during the American War of Independence, when he acted as a naval commander and a peace commissioner with the American rebels, and for his command of the British fleet during the Glorious First of June in 1794.Howe was born in London, the second son of Emanuel Scrope Howe, 2nd Viscount Howe, who died as governor of Barbados in March 1735, and of Charlotte, a daughter of Baroness von Kielmansegg, afterwards Countess of Darlington, the half-sister of King George I which does much to explain his early rise in the navy. Richard Howe');">Richard Howe, 1st Earl Howe</a> acknowledges the problem, saying, “I think we as consumers would feel better knowing that data about us is being used responsibly.” That’s why he’s is arguing for the data broker industry to self-regulate by excluding use of their data for credit or insurance purposes. “Companies must commit that marketing data be used only for marketing purposes,” he says. But it’s not always clear to consumers how these data brokers will hold their customers accountable for appropriate use.<br />If any of this profile data is to be meaningful to us, these companies need to take transparency and accountability a step further. Maybe that means more interactive feedback and follow-through to show us where our data comes from, where it goes and how it is used. But we have to ask for it first.<br />Beyond defaults<br />It may be clear now that investigating our data profiles and providing feedback is a bit of work. If these ads are just creepy or funny to you, it may not seem worth your time, attention and energy. Who is really going to go out of his or her way to tell <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','YouTube');changeContent('custom-widget-description','YouTube is a video-sharing website, created by three former PayPal employees in February 2005, on which users can upload, view and share videos. The company is based in San Bruno, California, and uses Adobe Flash Video and HTML5 technology to display a wide variety of user-generated video content, including movie clips, TV clips, and music videos, as well as amateur content such as video blogging and short original videos.Most of the content on YouTube has been uploaded by individuals, although media corporations including CBS, the BBC, VEVO, Hulu, and other organizations offer some of their material via the site, as part of the YouTube partnership program. Unregistered users can watch videos, while registered users can upload an unlimited number of videos. Videos considered to contain offensive content are available only to registered users at least 18 years old. In November 2006, YouTube, LLC was bought by Google for US$1.65 billion, and now operates as a subsidiary of Google.YouTube was founded by Chad Hurley, Steve Chen, and Jawed Karim, who were all early employees of PayPal. Hurley had studied design at Indiana University of Pennsylvania, while Chen and Karim studied');">YouTube</a> “This ad is useful”? It’s good that these options exist, but they aren’t practical for most of us going about our everyday lives.<br />But I encourage you to start playing around with these profiles. Give your feedback. See what your data is saying about you. Toggle the default settings. The way advertising works with our data won’t change without our input; it’s simple supply and demand. The good news is that companies seem to be listening more carefully these days.<br />That’s the only way to get at the toughest issue: not how the data can be used but how it should be used. The last couple of years have been an exploration of what’s possible. If we’re all going to have a stake in the evolving negotiations about how data can be used in the future, we have to start having more of these conversations out in the open.<br />The Living with Data series explores how our data is tracked, collected and used online. Do you have any questions about how your personal data is being used? Curious to learn more about your daily encounters with algorithms? Email The Decoder at  thedecoder@aljazeera.net , tweet me  @smwat , or submit your issue or question via the form  here . Screen shots and links are helpful clues!<br />Share This:<br />
+					
+					</span>
+						
+				</p>
+				<p class="source">«Al Jazeera», 24th September 2014</p> 
+			</article>
+			
+			<article class="article-item clearfix">
+				<img src="../static/flags_small/Indonesia.png" class='flags' alt='Indonesia' title='Indonesia' >
+				<header class="article-head">
+					<h2 class="article_title">Clearing Up the Confusion Between Correlation and Causation</h2>
+				  	<p class="article-description">
+						
+							
+								
+									we 
+								
+							
+						
+							
+								
+									must 
+								
+							
+						
+							
+								
+									always 
+								
+							
+						
+							
+								
+									insist 
+								
+							
+						
+							
+								
+									on 
+								
+							
+						
+							
+								
+									separate 
+								
+							
+						
+							
+								
+									evidence 
+								
+							
+						
+							
+								
+									to 
+								
+							
+						
+							
+								
+									argue 
+								
+							
+						
+							
+								
+									for 
+								
+							
+						
+							
+								
+									cause-and-effect 
+								
+							
+						
+							
+								
+									— 
+								
+							
+						
+							
+								
+									and 
+								
+							
+						
+							
+								
+									that 
+								
+							
+						
+							
+								
+									evidence 
+								
+							
+						
+							
+								
+									will 
+								
+							
+						
+							
+								
+									not 
+								
+							
+						
+							
+								
+									come 
+								
+							
+						
+							
+								
+									in 
+								
+							
+						
+							
+								
+									the 
+								
+							
+						
+							
+								
+									form 
+								
+							
+						
+							
+								
+									of 
+								
+							
+						
+							
+								
+									a 
+								
+							
+						
+							
+								
+									single 
+								
+							
+						
+							
+								
+									statistical 
+								
+							
+						
+							
+								
+									number.
+The 
+								
+							
+						
+							
+								
+									post 
+								
+							
+						
+							
+								
+									Clearing 
+								
+							
+						
+							
+								
+									Up 
+								
+							
+						
+							
+								
+									the 
+								
+							
+						
+							
+								
+									Confusion 
+								
+							
+						
+							
+								
+									Between 
+								
+							
+						
+							
+								
+									Correlation 
+								
+							
+						
+							
+								
+									and 
+								
+							
+						
+							
+								
+									Causation 
+								
+							
+						
+							
+								
+									appeared 
+								
+							
+						
+							
+								
+									first 
+								
+							
+						
+							
+								
+									on 
+								
+							
+						
+							
+								
+									The 
+								
+							
+						
+							
+								
+									Jakarta 
+								
+							
+						
+							
+								
+									Globe.
+ 
+								
+							
+						
+					</p>
+				</header>
+				<span class="toggle">Read more</span>	
+				<p class="article">
+					<span>
+
+					Tags: science , statistics<br />(JG Graphics/Josep Tri Ronggo)<br />Here’s an historical tidbit you may not be aware of. Between the years 1860 and 1940, as the number of Methodist ministers living in <a href='141.html#' class='entity_link' id='map-navigation:0'class='map-navigation' data-zoom='8' data-position='43.9653889,-70.8226541'>New England</a> increased, so too did the amount of Cuban rum imported into <a href='141.html#' class='entity_link' id='map-navigation:1'class='map-navigation' data-zoom='8' data-position='42.3584308,-71.0597732'>Boston</a> — and they both increased in an extremely similar way. Thus, <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Methodist Church of Great Britain');changeContent('custom-widget-description','The Methodist Church of Great Britain (or simply The Methodist Church) is the largest Wesleyan Methodist body in the United Kingdom, with congregations across Great Britain (although more limited in Scotland). It is the United Kingdom&amp;lsquo;s fourth largest Christian denomination, with around 300,000 members and 6,000 churches. Congregations in the Channel Islands, the Isle of Man, Malta and Gibraltar also form part of the British Methodist Church. According to historians such as Elie Halevy, Eric J. Hobsbawm and E. P. Thompson, Methodism had a major impact in the early decades of the making of the English working class (1760–1820).Methodism arose as a revival movement in the 18th century, largely within the Church of England.The main Methodist movement outside the Church of England was associated with Howell Harris in Wales. This was to become The Calvinistic Methodist Church. Another branch of the Methodist revival was under the ministry of Rev. George Whitfield, resulting in the Countess of Huntingdon&amp;lsquo;s Connexion. A later development of Whitfield&amp;lsquo;s ministry was the Free Church of England, a result of Whitfield&amp;lsquo;s influence upon the Church of England.The largest branch of Methodism');">Methodist Church of Great Britain</a> ministers must have bought up lots of rum in that time period!<br />Actually no, that’s a silly conclusion to draw. What’s really going on is that both quantities — Methodist ministers and Cuban rum — were driven upwards by other factors, such as population growth.<br />In reaching that incorrect conclusion, we’ve made the far-too-common mistake of confusing correlation with causation.<br />Two quantities are said to be correlated if both increase and decrease together (“positively correlated”), or if one increases when the other decreases and vice-versa (“negatively correlated”).<br />Correlation is readily detected through statistical measurements of the <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Lester B. Pearson');changeContent('custom-widget-description','Lester Bowles &quot;Mike&quot; Pearson, PC, OM, CC, OBE (23 April 1897 – 27 December 1972) was a Canadian professor, historian, civil servant, statesman, diplomat, and politician, who won the Nobel Peace Prize in 1957 for organizing the United Nations Emergency Force to resolve the Suez Canal Crisis. He was the 14th Prime Minister of Canada from 22 April 1963 to 20 April 1968, as the head of two back-to-back minority governments following elections in 1963 and 1965.During Pearson&amp;lsquo;s time as Prime Minister, his minority government introduced universal health care, student loans, the Canada Pension Plan, the Order of Canada, and the current Canadian flag. During his tenure, Prime Minister Pearson also convened the Royal Commission on Bilingualism and Biculturalism. With these accomplishments, together with his ground-breaking work at the United Nations and in international diplomacy, Pearson is generally considered among the most influential Canadians of the 20th century.Pearson was born in the town of Newtonbrook (now part of Toronto), the son of Annie Sarah (née Bowles) and Edwin Arthur Pearson, a Methodist (later United Church of Canada) minister. He was brother to Vaughan Whitier Pearson');">Lester B. Pearson</a>’s correlation coefficient, which indicates how tightly locked together the two quantities are, ranging from -1 (perfectly negatively correlated) through 0 (not at all correlated) and up to 1 (perfectly positively correlated).<br />But just because two quantities are correlated does not necessarily mean that one is directly causing the other to change. Correlation does not imply causation, just like cloudy weather does not imply rainfall, even though the reverse is true. If two quantities are correlated then there might well be a genuine cause-and-effect relationship (such as rainfall levels and umbrella sales), but maybe other variables are driving both (such as pirate numbers and global warming), or perhaps it’s just coincidence (such as <a href='141.html#' class='entity_link' id='map-navigation:4'class='map-navigation' data-zoom='8' data-position='37.09024,-95.712891'>United States of America</a> cheese consumption and strangulations-by-bedsheet).<br />Even where causation is present, we must be careful not to mix up the cause with the effect, or else we might conclude, for example, that an increased use of heaters causes colder weather.<br />In order to establish cause-and-effect, we need to go beyond the statistics and look for separate evidence (of a scientific or historical nature) and logical reasoning. Correlation may prompt us to go looking for such evidence in the first place, but it is by no means a proof in its own right.<br />Although the above examples were obviously silly, correlation is very often mistaken for causation in ways that are not immediately obvious in the real world. When reading and interpreting statistics, one must take great care to understand exactly what the data and its statistics are implying — and more importantly, what they are not implying.<br />One recent example of the need for caution in interpreting data is the excitement earlier this year surrounding the apparent groundbreaking detection of gravitational waves — an announcement that appears to have been made prematurely, before all the variables that were affecting the data were accounted for.<br />Unfortunately, analysing statistics, probabilities and risks is not a skill set wired into our human intuition, and so is all too easy to be led astray. Entire books have been written on the subtle ways in which statistics can be misinterpreted (or used to mislead). To help keep your guard up, here are some common slippery statistical problems that you should be aware of:<br />1) The Healthy Worker Effect, where sometimes two groups cannot be directly compared on a level playing field.<br />Consider a hypothetical study comparing the health of a group of office-workers with the health of a group of astronauts. If the study shows no significant difference between the two — no correlation between healthiness and working environment — are we to conclude that living and working in space carries no long-term health risks for astronauts?<br />No! The groups are not on the same footing: the astronaut corps screen applicants to find healthy candidates, who then maintain a comprehensive fitness regime in order to proactively combat the effects of living in “microgravity.”<br />We would therefore expect them to be significant healthier than office workers, on average, and should rightly be concerned if they were not.<br />2) Categorization and the Stage Migration Effect — shuffling people between groups can have dramatic effects on statistical outcomes. This is also known as the Will Rogers effect, after the <a href='141.html#' class='entity_link' id='map-navigation:5'class='map-navigation' data-zoom='8' data-position='37.09024,-95.712891'>United States of America</a> comedian who reportedly quipped:<br />“When the Okies left <a href='141.html#' class='entity_link' id='map-navigation:6'class='map-navigation' data-zoom='8' data-position='35.4675602,-97.5164276'>Oklahoma</a> and moved to <a href='141.html#' class='entity_link' id='map-navigation:7'class='map-navigation' data-zoom='8' data-position='36.778261,-119.4179324'>California</a>, they raised the average intelligence level in both states.”<br />To illustrate, imagine dividing a large group of friends into a “short” group and a “tall” group (perhaps in order to arrange them for a photo). Having done so, it’s surprisingly easy to raise the average height of both groups at once.<br />Simply ask the shortest person in the “tall” group to switch over to the “short” group. The “tall”‘ group lose their shortest member, thus bumping up their average height — but the “short” group gain their tallest member yet, and thus also gain in average height.<br />This has major implications in medical studies, where patients are often sorted into “healthy” or “unhealthy” groups in the course of testing a new treatment. If diagnostic methods improve, some very-slightly-unhealthy patients may be recategorized — leading to the health outcomes of both groups improving, regardless of how effective (or not) the treatment is.<br />3) Data mining — when an abundance of data is present, bits and pieces can be cherry-picked to support any desired conclusion. This is bad statistical practice, but if done deliberately can be hard to spot without knowledge of the original, complete data set.<br />Consider fluoride, for instance — in small amounts it is one of the most effective preventative medicines in history, but the positive effect disappears entirely if one only ever considers toxic quantities of fluoride. For similar reasons, it is important that the procedures for a given statistical experiment are fixed in place before the experiment begins and then remain unchanged until the experiment ends.<br />4) Clustering — which is to be expected even in completely random data.<br />Consider a medical study examining how a particular disease, such as cancer or Multiple sclerosis, is geographically distributed. If the disease strikes at random (and the environment has no effect) we would expect to see numerous clusters of patients as a matter of course. If patients are spread out perfectly evenly, the distribution would be most un-random indeed! So the presence of a single cluster, or a number of small clusters of cases, is entirely normal. Sophisticated statistical methods are needed to determine just how much clustering is required to deduce that something in that area might be causing the illness.<br />Unfortunately, any cluster at all — even a non-significant one — makes for an easy (and at first glance, compelling) news headline. Statistical analysis, like any other powerful tool, must be used very carefully — and in particular, one must always be careful when drawing conclusions based on the fact that two quantities are correlated.<br />Instead, we must always insist on separate evidence to argue for cause-and-effect — and that evidence will not come in the form of a single statistical number.<br />Seemingly compelling correlations, say between given genes and schizophrenia or between a high fat diet and heart disease, may turn out to be based on very dubious methodology.<br />We are perhaps as a species cognitively ill prepared to deal with these issues. As Canadian educator Kieran Egan put it in his book “Getting It Wrong From the Beginning”:<br />“The bad news is that our evolution equipped us to live in small, stable, hunter-gatherer societies. We are Pleistocene people, but our languaged brains have created massive, multicultural, technologically sophisticated and rapidly changing societies for us to live in.” In consequence, we must constantly resist the temptation to see meaning in chance and to confuse correlation and causation.<br />Jonathan Borwein (<a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Lil Jon');changeContent('custom-widget-description','Jonathan Smith (born January 27, 1971), better known by his stage name Lil Jon, is an American rapper, music producer, entrepreneur, and international DJ who was a member of the group Lil Jon &amp; The East Side Boyz. Lil Jon formed the group in 1997, and the group released several albums between then and 2004. He then went solo and released a new album in 2010 called Crunk Rock.Lil&amp;lsquo; Jon was born and raised in Atlanta, Georgia. He graduated from Frederick Douglass High School.After working as a DJ for Atlanta night clubs, he started working for So So Def Recordings between 1993 and 2000. The group signed to the Atlanta-based Mirror Image Records and were distributed by Ichiban Records. In 1997, Lil&amp;lsquo; Jon &amp; the East Side Boyz debuted with Get Crunk, Who U Wit: Da Album. It included singles &quot;Who U Wit?&quot; and &quot;Shawty Freak a Lil&amp;lsquo; Sumthin&amp;lsquo;&quot;, the latter of which came out in 1998. Both singles charted on the Billboard Hot R&amp;B/Hip-Hop Songs chart at No. 70 and No. 62 respectively. In 2000 Jon took part in starting up his own label BME Recordings and signed a distribution agreement with Norcross, Georgia based Southern Music Distribution. There he released his break through album titled We');">Lil Jon</a>) is laureate professor of mathematics at <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Newcastle University');changeContent('custom-widget-description','Newcastle University is a public research university located in Newcastle upon Tyne in the north-east of England. It was established as a School of Medicine and Surgery in 1834 and became the University of Newcastle upon Tyne by an Act of Parliament in August 1963. Newcastle University is a member of the Russell Group, an association of research-intensive UK universities. The University has one of the largest EU research portfolios in the UK. The post-nominal letters of graduates commonly have N&amp;lsquo;cle attached to indicate the institution.The University has its origins in the School of Medicine and Surgery, which was established in Newcastle upon Tyne in October 1834, when it provided basic lectures and practical demonstrations to around 26 students. In June 1851, following a dispute amongst the teaching staff, the School split into two rival institutions. The majority formed the Newcastle College of Medicine, and the others established themselves as the Newcastle upon Tyne College of Medicine and Practical Science. By 1852, the majority college was formally linked to the University of Durham. It awarded its first &amp;lsquo;Licence in Medicine&amp;lsquo; (Lic.Med) in 1856, and its teaching certificates');">Newcastle University</a>. <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Michael Rose');changeContent('custom-widget-description','Michael Rose (born 11 July 1957) is a Grammy award winning reggae singer from Jamaica. Possessing a wide-ranged voice, Rose would regularly meet in Kingston with singers, musicians, writers, and producers such as Dennis Brown, Big Youth, The Wailers, Gregory Isaacs, Sly and Robbie, and others.Rose started his recording career as a solo artist for record producers Yabby You and Niney the Observer. He joined Black Uhuru in 1977 after the departure of Don Carlos and Garth Dennis. He led them to international success in the early 1980s, having written most of their popular material. They won the first-ever Grammy Award for reggae in 1985 for the album Anthem, with the hallmark voice of Rose in the forefront.After the release of Anthem, Rose left Black Uhuru and retired to the Blue Mountains in Jamaica to start a coffee farm. He released a string of singles in Jamaica, but nothing much was heard of him outside the island until 1989, when he was signed to RCA and released the strongly pop influenced album Proud in Europe and Japan. The deal with RCA was short-lived however, and Rose returned to Jamaica to record a new string of Sly and Robbie produced singles. He also recorded for');">Michael Rose</a> is a PhD Candidate at the <a href='141.html#' class='entity_link' onclick="changeContent('custom-widget-title','Australian Defence Force Academy');changeContent('custom-widget-description','The Australian Defence Force Academy (ADFA) is a tri-service military Academy that provides military and tertiary academic education for junior officers of the Australian Defence Force in the Royal Australian Navy (RAN), Australian Army and Royal Australian Air Force (RAAF).Tertiary education is provided by the University of New South Wales (UNSW) Canberra campus, which is the awarding body for ADFA qualifications. Apart from educating future leaders of the Australian Defence Force, UNSW campus also provides postgraduate programs and short courses both to the Department of Defence personnel and the general public.The stated purpose of ADFA is &quot;to serve Australia by providing the Australian Defence Force (ADF) with tertiary graduates who have the foundational attributes, intellect and skills required of an officer.&quot;ADFA is located in the Australian capital city of Canberra, in the suburb of Campbell near the Australian Government district of Russell. It is situated next to Mount Pleasant, which gives some parts of ADFA a view over the rest of Canberra. The ADFA is also adjacent to the Australian Army military academy, the Royal Military College, Duntroon.The junior officers that');">Australian Defence Force Academy</a> at the same university.<br />
+					
+					</span>
+						
+				</p>
+				<p class="source">«Jakarta Globe», 24th September 2014</p> 
+			</article>
+			
+			
+			</section>		
+		</main>
+		<aside class='aside-content'>
+		
+			<!-- LEAFLET MAP WIDGET -->
+			<div class="widget">
+				<div class='widget-title' id="widget-name-">
+					Map [show/hide]</a>
+				</div>
+				<div class='widget-content' id="widget-description-">
+					
+
+<div id="yourmap" class="leaflet-container-default"></div>
+<script type="text/javascript">
+(function () {
+
+    function loadmap() {
+        var djoptions = {"layers": [["OSM", "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", "\u00a9 <a href="http://127.0.0.1:8000/dossier/141/\&quot;http://www.openstreetmap.org/copyright\&quot;">OpenStreetMap</a> contributors"]], "minimap": false, "scale": "metric", "center": [0.0, 0.0], "tilesextent": [], "attributionprefix": null, "zoom": 4, "maxzoom": 21, "minzoom": 1, "extent": [[-90, -180], [90, 180]], "resetview": true, "srid": null, "fitextent": true},
+            options = {djoptions: djoptions, initfunc: loadmap,
+                       globals: false, callback: window.map_init_basic};
+        L.Map.djangoMap('yourmap', options);
+    }
+    var loadevents = ["load"];
+    if (loadevents.length === 0) loadmap();
+    else if (window.addEventListener) for (var i=0; i<loadevents.length; i++) window.addEventListener(loadevents[i], loadmap, false);
+    else if (window.jQuery) jQuery(window).on(loadevents.join(' '), loadmap);
+    
+})();
+</script>
+
+				</div>	
+			</div>	
+    		
+    		<!-- TOP K ENTITIES WIDGET(S) -->
+			
+    			<div class="freebase widget">
+    				
+    					<div class='widget-title' id="widget-name-1">
+    						Acxiom Corporation <a href="141.html#" onclick="javascript:showHide('widget-description-1');">[show/hide]</a>
+    					</div>
+    					<div class='widget-content' id="widget-description-1" style="display:none">
+    						Acxiom (Acxiom Corporation) is a marketing technology and services company with offices in the United States, Europe, Asia and South America. Acxiom offers various marketing and information management services, including multichannel marketing, addressable advertising and database management. Acxiom collects, analyzes, and parses customer and business information for clients, helping them to target advertising campaigns, score leads, and more.
+Its client base in the United States consists primarily of companies in the financial services, insurance, information services, direct marketing, media, retail, consumer packaged goods, technology, automotive, healthcare, travel and telecommunications industries, and the government sector.
+It has been described as &quot;one of the biggest companies you&#39;ve never heard of.&quot; In addition to collecting detailed information about people, the company helps marketers anticipate the future needs of consumers, according to the documentary &quot;The Persuaders.&quot; As the world&#39;s largest processor of consumer data, Acxiom has identified 70 types of consumers with its segmentation product PersonicX.
+Forrester Research named Acxiom one of the largest database
+    					</div>
+    				
+    			</div>
+    		
+    			<div class="freebase widget">
+    				
+    					<div class='widget-title' id="widget-name-2">
+    						YouTube <a href="141.html#" onclick="javascript:showHide('widget-description-2');">[show/hide]</a>
+    					</div>
+    					<div class='widget-content' id="widget-description-2" style="display:none">
+    						YouTube is a video-sharing website, created by three former PayPal employees in February 2005, on which users can upload, view and share videos. The company is based in San Bruno, California, and uses Adobe Flash Video and HTML5 technology to display a wide variety of user-generated video content, including movie clips, TV clips, and music videos, as well as amateur content such as video blogging and short original videos.
+Most of the content on YouTube has been uploaded by individuals, although media corporations including CBS, the BBC, VEVO, Hulu, and other organizations offer some of their material via the site, as part of the YouTube partnership program. Unregistered users can watch videos, while registered users can upload an unlimited number of videos. Videos considered to contain offensive content are available only to registered users at least 18 years old. In November 2006, YouTube, LLC was bought by Google for US$1.65 billion, and now operates as a subsidiary of Google.
+YouTube was founded by Chad Hurley, Steve Chen, and Jawed Karim, who were all early employees of PayPal. Hurley had studied design at Indiana University of Pennsylvania, while Chen and Karim studied
+    					</div>
+    				
+    			</div>
+    		
+    			<div class="freebase widget">
+    				
+    					<div class='widget-title' id="widget-name-3">
+    						Google <a href="141.html#" onclick="javascript:showHide('widget-description-3');">[show/hide]</a>
+    					</div>
+    					<div class='widget-content' id="widget-description-3" style="display:none">
+    						Google Inc. (NASDAQ: GOOG) is an American multinational corporation which provides Internet-related products and services, including Internet search, cloud computing, software and advertising technologies. Advertising revenues from AdWords generate almost all of the company&#39;s profits.
+The company was founded by Larry Page and Sergey Brin while both attended Stanford University. Together, Brin and Page own about 16 percent of the company&#39;s stake. Google was first incorporated as a privately held company on September 4, 1998, and its initial public offering followed on August 19, 2004. The company&#39;s mission statement from the outset was &quot;to organize the world&#39;s information and make it universally accessible and useful&quot;, and the company&#39;s unofficial slogan is &quot;Don&#39;t be evil&quot;. In 2006, the company moved to its current headquarters in Mountain View, California.
+Rapid growth since incorporation has triggered a chain of products, acquisitions, and partnerships beyond the company&#39;s core web search engine. The company offers online productivity software including email, an office suite, and social networking. Google&#39;s products extend to the desktop as well, with applications for web
+    					</div>
+    				
+    			</div>
+    		
+    			<div class="freebase widget">
+    				
+    					<div class='widget-title' id="widget-name-4">
+    						Richard Howe, 1st Earl Howe <a href="141.html#" onclick="javascript:showHide('widget-description-4');">[show/hide]</a>
+    					</div>
+    					<div class='widget-content' id="widget-description-4" style="display:none">
+    						<img src="https://usercontent.googleapis.com/freebase/v1/image/m/02c7fh8" alt="" style="float:left; margin:5px;">
+    						Admiral of the Fleet Richard Howe, 1st Earl Howe KG (8 March 1726 – 5 August 1799) was a British naval officer, notable in particular for his service during the American War of Independence and French Revolutionary Wars. He was the brother of William Howe and George Howe.
+Howe joined the navy at the age of thirteen and served throughout the War of the Austrian Succession. During the Seven Years War he gained a reputation for his role in amphibious operations against the French coast as part of Britain&#39;s policy of naval descents. He took part in the decisive British naval victory at the Battle of Quiberon Bay in 1759. He is best known for his service during the American War of Independence, when he acted as a naval commander and a peace commissioner with the American rebels, and for his command of the British fleet during the Glorious First of June in 1794.
+Howe was born in London, the second son of Emanuel Scrope Howe, 2nd Viscount Howe, who died as governor of Barbados in March 1735, and of Charlotte, a daughter of Baroness von Kielmansegg, afterwards Countess of Darlington, the half-sister of King George I which does much to explain his early rise in the navy. Richard Howe
+    					</div>
+    				
+    			</div>
+    		
+    			<div class="freebase widget">
+    				
+    					<div class='widget-title' id="widget-name-5">
+    						Methodist Church of Great Britain <a href="141.html#" onclick="javascript:showHide('widget-description-5');">[show/hide]</a>
+    					</div>
+    					<div class='widget-content' id="widget-description-5" style="display:none">
+    						The Methodist Church of Great Britain (or simply The Methodist Church) is the largest Wesleyan Methodist body in the United Kingdom, with congregations across Great Britain (although more limited in Scotland). It is the United Kingdom&#39;s fourth largest Christian denomination, with around 300,000 members and 6,000 churches. Congregations in the Channel Islands, the Isle of Man, Malta and Gibraltar also form part of the British Methodist Church. According to historians such as Elie Halevy, Eric J. Hobsbawm and E. P. Thompson, Methodism had a major impact in the early decades of the making of the English working class (1760–1820).
+Methodism arose as a revival movement in the 18th century, largely within the Church of England.
+The main Methodist movement outside the Church of England was associated with Howell Harris in Wales. This was to become The Calvinistic Methodist Church. Another branch of the Methodist revival was under the ministry of Rev. George Whitfield, resulting in the Countess of Huntingdon&#39;s Connexion. A later development of Whitfield&#39;s ministry was the Free Church of England, a result of Whitfield&#39;s influence upon the Church of England.
+The largest branch of Methodism
+    					</div>
+    				
+    			</div>
+    		
+			
+			<!-- CUSTOMIZED WIDGET -->
+    		<div class="widget" id="custom-widget">
+				<div class='widget-title'>
+					<span id="custom-widget-title">More... </span>
+					[show/hide]
+				</div>
+				<div class='widget-content' id="custom-widget-description">
+					Information about additional persons, locations and organizations.
+				</div>
+    		</div>
+    		
+    		<!-- GOOGLE TREND WIDGET -->
+    		<div class="popularity widget">
+    			<div class='widget-title' id="widget-name-">
+    						Popularity [show/hide]</a>
+    			</div>
+    			<div class='widget-content' id="popularity_widget">
+    				 
+    				<script src="http://www.google.com/trends/embed.js?hl=en-US&amp;q=Scott&#32;E.&#32;Howe,+Richard&#32;Howe,&#32;1st&#32;Earl&#32;Howe,+&amp;date=today+1-m&amp;gprop=news&amp;cmpt=q&amp;content=1&amp;cid=TIMESERIES_GRAPH_0&amp;export=5&amp;w=400"></script>
+
+					
+
+				</div>
+
+			</div>
+    		    		
+    		<!-- PERSON BAR DIAGRAM -->
+    		<div class="persons widget">
+    			<div class='widget-title' id="widget-name">
+    						People [show/hide]
+    			</div>
+    			<div class='widget-content' id="persons_widget">
+    				<!-- content generated onload by javascript:drawChart() -->
+    			</div>
+    		</div>
+		</aside>
+		</div>
+		
+	<!-- JSCRIPT IMPORTS -->
+	<script src="../static/js/Label.js"></script>
+	<script src="../static/js/BaseMarkerMethods.js"></script>
+	<script src="../static/js/Marker.Label.js"></script>
+	<script src="../static/js/Map.Label.js"></script>
+	<script src="https://www.google.com/jsapi"></script>
+	<script src="https://code.jquery.com/jquery-1.8.3.min.js"></script>
+	
+	<!-- JSCRIPT FUNCTIONS -->
+	<script>
+		$('.aside-content > .widget:first-child > .widget-content').show();
+		$('.aside-content > .widget > .widget-title').click(function(){
+
+	    // close
+	    $('.aside-content .widget-content').stop().slideUp();
+
+	    // toggle
+	    if($(this).next('.widget-content').is(':hidden') == true){
+	        $(this).next().stop().slideDown();
+	    }
+
+	    event.preventDefault();
+	    return false;
+
+	});
+	
+	$('.article-item').each(function() {
+
+		    $('.toggle, .article_title',this).click(function() {
+
+		        var container = $(this).parents('.article-item'),
+	                toggle = $('.toggle',container),
+		            article = $('.article',container);
+
+		        $(article).stop().slideToggle();
+			
+				$(toggle).text($(toggle).text() == 'Read more' ? 'Minimize' : 'Read more');
+        
+		        return false;
+
+		    });
+
+	});
+	
+	$('.entity_link').click(function(){
+	    var maps = $('.aside-content > .widget:first-child > .widget-content');
+    
+	    if ($(maps).is(':hidden') == true) {
+	        $('.aside-content .widget-content').stop().slideUp();
+	        $(maps).stop().slideDown();
+	    }
+	});
+	
+	</script>
+		
+   <script> 	
+   		function changeContent(id, msg) {
+     		var el = document.getElementById(id);
+    		if (id) {
+    			el.innerHTML = msg;
+    		}
+    	}
+			
+    	function focusLocation(latitude, longitude) {
+    		var newCenter = L.latLng(latitude, longitude);
+    		map.zoomOut(3);
+        	map.panTo(newCenter);
+        	map.zoomIn(3);
+    	}
+		
+    	function map_init_basic (map, options) {
+    		
+        		L.marker([42.3584308,  -71.0597732]).bindLabel("Boston", { noHide: false }).addTo(map);
+        	
+        		L.marker([43.9653889,  -70.8226541]).bindLabel("New England", { noHide: false }).addTo(map);
+        	
+        		L.marker([37.09024,  -95.712891]).bindLabel("United States of America", { noHide: false }).addTo(map);
+        	
+        		L.marker([35.4675602,  -97.5164276]).bindLabel("Oklahoma", { noHide: false }).addTo(map);
+        	
+        		L.marker([36.778261,  -119.4179324]).bindLabel("California", { noHide: false }).addTo(map);
+        	
+        	var center = L.latLng(37.09024, -95.712891);
+        	map.panTo(center);
+        	
+        	/* http://stackoverflow.com/questions/10111668/find-all-elements-whose-id-begins-with-a-common-string */
+        	var dates = document.querySelectorAll('*[id^="map-navigation"]');
+        	for (i = 0; i < dates.length; i++) {
+        		dates[i].onclick = function(e) {
+            	    var pos = e.target.getAttribute('data-position');
+            	    var zoom = e.target.getAttribute('data-zoom');
+            	    if (pos && zoom) {
+            	        var loc = pos.split(',');
+            	        var z = parseInt(zoom);
+            	        map.setView(loc, z, {animation: true});
+            	        return false;
+            	    	}
+            	}
+        	}
+		}
+	</script>
+	
+	<script type="text/javascript">
+	google.load("visualization", "1", {packages:["corechart"]});
+    google.setOnLoadCallback(drawChart);
+    
+	function drawChart() {
+      	var data = google.visualization.arrayToDataTable([
+        	['Name', 'Count'],
+        	
+        		['Richard Howe, 1st Earl Howe', 1],
+        	
+        		['Lester B. Pearson', 1],
+        	
+        		['Michael Rose', 1],
+        	
+        		['Lil Jon', 1],
+        	
+      	]);
+      var options = {
+        title: 'People mentioned',
+      }   
+     var chart = new google.visualization.BarChart(document.getElementById('persons_widget'));
+     chart.draw(data, options);
+     }
+	</script>
+
+</body>
+
+</html>
