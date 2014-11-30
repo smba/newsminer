@@ -74,6 +74,8 @@ public class RSSCrawler extends Observable implements Runnable {
   private static final int           THREAD_COUNT = 5;
   /** used to synchronize the worker threads */
   private static final Striped<Lock> LOCKS        = Striped.lazyWeakLock(THREAD_COUNT);
+  /** the amount of milliseconds to wait before accessing another webpage from the same server (to avoid getting blocked for spamming) */
+  private static final long          CRAWL_DELAY  = TimeUnit.SECONDS.toMillis(5); //TODO read Robots.txt's "Crawl-delay" for every feed instead of always waiting a predefined time
   
   //attributes
   /** the classifier to use */
@@ -227,6 +229,11 @@ public class RSSCrawler extends Observable implements Runnable {
       final String text;
       try {
         final URL linkURL = new URL(link);
+        try {
+          Thread.sleep(CRAWL_DELAY); //Wait before creating another request.
+        } catch (InterruptedException ie) {
+          //Do nothing.
+        }
         text = getText(linkURL);
       } catch (MalformedURLException murle) {
         System.err.printf("Invalid article URL received from feed with the URL %s: %s\n",
