@@ -45,7 +45,7 @@ def index(request, year, month, day):
         time_navigation['newer'] = tomorrow(date)
     
     oldest = RssArticleClusters.objects.all().aggregate(Min('timestamp'))['timestamp__min']
-    #print str(timestampToDate(int(str(oldest)[:-3])))
+
     if str(date) == str(timestampToDate(int(str(oldest)[:-3]))):
         time_navigation['older'] = None
     else:
@@ -138,7 +138,7 @@ def index(request, year, month, day):
                              'time_navigation':time_navigation,
                              'meta_timestamp':meta_timestamp
                              }
-    #print time_navigation
+
     index_context_dict = dict(context_dict.items() + specific_context_dict.items())
     return render_to_response('index.html', index_context_dict, context)
 
@@ -345,20 +345,20 @@ def dossier(request, cluster_id):
         # d = cursor.fetchall()
         #for person in d:
         #    personlist.append(person[0])
-        print personlist
+
         for person in personlist:
             cursor.execute("SELECT COUNT(*) FROM rss_articles_entity_persons "
                             + "JOIN rss_articles ON rss_articles.link = rss_articles_entity_persons.link "
                             + "JOIN rss_article_clusters_rss_articles ON rss_article_clusters_rss_articles.link = rss_articles.link "
                             + "WHERE rss_articles_entity_persons.name = '" + person[0] + "' AND rss_article_clusters_rss_articles.id = " + str(cluster_id))
             i = int(cursor.fetchone()[0])
-            print i
+
             person_dist[person[0]] = i
         return person_dist
     person_dist = getPersonDistribution() 
     persons = person_dist.keys()
     topPersons = sorted(person_dist.iteritems(), key=operator.itemgetter(1), reverse=True)[:5]
-    print topPersons
+
     #Create the links in the article's.text
     def buildLink(name, type, i):
         if type == 'location':
