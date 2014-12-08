@@ -347,10 +347,14 @@ def dossier(request, cluster_id):
         #    personlist.append(person[0])
 
         for person in personlist:
+            if "'" in person[0]:
+                escapedPerson = person[0].replace("'", "''")
+            else:
+                escapedPerson = person[0] 
             cursor.execute("SELECT COUNT(*) FROM rss_articles_entity_persons "
                             + "JOIN rss_articles ON rss_articles.link = rss_articles_entity_persons.link "
                             + "JOIN rss_article_clusters_rss_articles ON rss_article_clusters_rss_articles.link = rss_articles.link "
-                            + "WHERE rss_articles_entity_persons.name = '" + person[0] + "' AND rss_article_clusters_rss_articles.id = " + str(cluster_id))
+                            + "WHERE rss_articles_entity_persons.name = '" + escapedPerson + "' AND rss_article_clusters_rss_articles.id = " + str(cluster_id))
             i = int(cursor.fetchone()[0])
 
             person_dist[person[0]] = i
@@ -379,7 +383,10 @@ def dossier(request, cluster_id):
         elif type == 'person':
             if name in allEntities.keys():
                 description = allEntities[name]['description'] #
-                image = allEntities[name]['image']
+                try:
+                    image = allEntities[name]['image']
+                except KeyError:
+                    image = ""
                 stop= description.find("\n")
                 description = cgi.escape(description.replace("\n","").replace("'","&lsquo;"), True)
 
