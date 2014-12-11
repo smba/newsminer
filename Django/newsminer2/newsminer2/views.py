@@ -13,6 +13,12 @@ import operator
 import datetime
 import time
 
+#encoding fix
+import sys
+reload(sys)
+sys.setdefaultencoding("utf8")
+
+
 # from django.template import Template, Context
 # from django.template.loader import get_template
 global context_dict
@@ -402,10 +408,7 @@ def dossier(request, cluster_id):
         #    personlist.append(person[0])
         
         for person in personlist:
-            if "'" in person[0]:
-                escapedPerson = person[0].replace("'", "''")
-            else:
-                escapedPerson = person[0] 
+            escapedPerson = person[0].replace("'", "''")
             cursor.execute("execute preparedStatementPersons ({0}, {1})".format("'"+ escapedPerson + "'", cluster.id))
             i = int(cursor.fetchone()[0])
 
