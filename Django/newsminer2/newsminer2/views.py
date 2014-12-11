@@ -204,8 +204,9 @@ def dossier(request, cluster_id):
     
     #preparedStatement8
     cursor.execute("prepare preparedStatement8 as "
-                        +"SELECT name, start_index, end_index FROM rss_articles JOIN rss_articles_entity_persons "
-                        +"ON rss_articles.link = rss_articles_entity_persons.link "
+                        +"SELECT entity_persons.name, start_index, end_index FROM rss_articles JOIN rss_articles_entity_persons "
+                        +"ON rss_articles.link = rss_articles_entity_persons.link JOIN entity_persons "
+                        +"ON entity_persons.name = rss_articles_entity_persons.name "
                         +'WHERE rss_articles.link = $1')
     cursor.execute("execute preparedStatement5 ({0})".format(cluster.id))
         
@@ -226,7 +227,7 @@ def dossier(request, cluster_id):
         article['text'] = row[5]
         
         #determine article_locations
-        cursor.execute("execute preparedStatement6 ({0})".format("'" + article["link"]+"'"))
+        cursor.execute("execute preparedStatement6 ({0})".format("'" + article["link"].replace("'", "''")+"'"))
         c = []
         for loc in cursor.fetchall():
             c.append(loc[0])
@@ -239,7 +240,7 @@ def dossier(request, cluster_id):
         article['entity_locations'] = c
         
         #determine article_organizations
-        cursor.execute("execute preparedStatement7 ({0})".format("'" + article["link"]+"'"))
+        cursor.execute("execute preparedStatement7 ({0})".format("'" + article["link"].replace("'", "''")+"'"))
         c = []
         for org in cursor.fetchall():
             c.append(org[0])
@@ -252,7 +253,7 @@ def dossier(request, cluster_id):
         article['entity_organizations'] = c
         
         #determine article_persons
-        cursor.execute("execute preparedStatement8 ({0})".format("'" + article["link"]+"'"))
+        cursor.execute("execute preparedStatement8 ({0})".format("'" + article["link"].replace("'", "''")+"'"))
         
         c = []
         for per in cursor.fetchall():
