@@ -57,22 +57,44 @@ def index(request, year, month, day):
     
     
     cl = []
+    #preparedStatement1
+    cursor.execute("prepare preparedStatement1 as "
+                   +"select count(*) from rss_article_clusters_rss_articles "
+                     +"join rss_article_clusters on rss_article_clusters.id = rss_article_clusters_rss_articles.id "
+                     +"where rss_article_clusters_rss_articles.id = $1")
+    #preparedStatement2_locations
+    cursor.execute("prepare preparedStatement2_locations as "
+                           +"select count(*) from rss_article_clusters "
+                           +"join rss_article_clusters_entity_locations "
+                           +"on rss_article_clusters.id = rss_article_clusters_entity_locations.id "
+                           +"where rss_article_clusters.id = $1")
+    #preparedStatement2_organizations
+    cursor.execute("prepare preparedStatement2_organizations as "
+                           +"select count(*) from rss_article_clusters "
+                           +"join rss_article_clusters_entity_organizations "
+                           +"on rss_article_clusters.id = rss_article_clusters_entity_organizations.id "
+                           +"where rss_article_clusters.id = $1")
+    #preparedStatement2_persons
+    cursor.execute("prepare preparedStatement2_persons as "
+                           +"select count(*) from rss_article_clusters "
+                           +"join rss_article_clusters_entity_persons "
+                           +"on rss_article_clusters.id = rss_article_clusters_entity_persons.id "
+                           +"where rss_article_clusters.id = $1")
     for cluster in clusters:
         append = True
-        
-        cursor.execute("select count(*) from rss_article_clusters_rss_articles "
-                        +"join rss_article_clusters on rss_article_clusters.id = rss_article_clusters_rss_articles.id "
-                        +"where rss_article_clusters_rss_articles.id = " + str(cluster.id))
+        cursor.execute("execute preparedStatement1 ({0})".format(cluster.id))
         row = cursor.fetchone()[0]
         if row < 2:
             append = False
             continue
         
         for type in ["locations", "organizations", "persons"]:
-            cursor.execute("select count(*) from rss_article_clusters "
-                           +"join rss_article_clusters_entity_"+type+" "
-                           +"on rss_article_clusters.id = rss_article_clusters_entity_"+type+".id "
-                           +"where rss_article_clusters.id = " + str(cluster.id))
+            if type == "locations":
+                cursor.execute("execute preparedStatement2_locations ({0})".format(cluster.id))
+            elif type == "organizations":
+                cursor.execute("execute preparedStatement2_organizations ({0})".format(cluster.id))
+            elif type == "persons":
+                cursor.execute("execute preparedStatement2_persons ({0})".format(cluster.id))
             row = cursor.fetchone()[0]
             if row == 0:
                 append = False
@@ -81,17 +103,28 @@ def index(request, year, month, day):
             cl.append(cluster)
     clusters = cl
     
+    #preparedStatement3
+    cursor.execute("prepare preparedStatement3 as "
+                        +"SELECT (rss_articles.link, source_url, rss_articles.timestamp, title, description, text) FROM rss_article_clusters "
+                        +"JOIN rss_article_clusters_rss_articles "
+                        +"ON rss_article_clusters.id=rss_article_clusters_rss_articles.id "
+                        +"JOIN rss_articles ON rss_articles.link = rss_article_clusters_rss_articles.link "
+                        +"WHERE rss_article_clusters.id = $1 "
+                        +"ORDER BY rss_article_clusters_rss_articles.score DESC "
+                        +"LIMIT 1")
+    
+    #preparedStatement4
+    cursor.execute("prepare preparedStatement4 as "
+                       +"select entity_persons.image from rss_article_clusters "
+                       +"join rss_article_clusters_entity_persons on rss_article_clusters_entity_persons.id = rss_article_clusters.id "
+                       +"join entity_persons on rss_article_clusters_entity_persons.name = entity_persons.name "
+                       +"where rss_article_clusters.id = $1 and entity_persons.image <>''"
+                       +"order by entity_persons.popularity DESC limit 4")
     
     for cluster in clusters:
         clusterData = {}
         clusterData['id'] = cluster.id
-        cursor.execute("SELECT (rss_articles.link, source_url, rss_articles.timestamp, title, description, text) FROM rss_article_clusters "
-                        +"JOIN rss_article_clusters_rss_articles "
-                        +"ON rss_article_clusters.id=rss_article_clusters_rss_articles.id "
-                        +"JOIN rss_articles ON rss_articles.link = rss_article_clusters_rss_articles.link "
-                        +"WHERE rss_article_clusters.id = " + str(cluster.id) + " "
-                        +"ORDER BY rss_article_clusters_rss_articles.score DESC "
-                        +"LIMIT 1")
+        cursor.execute("execute preparedStatement3 ({0})".format(cluster.id))
         try:
             total_rows = cursor.fetchone()[0][1:-1]
         except:
@@ -113,11 +146,7 @@ def index(request, year, month, day):
         
         #get cluster persons
         persons = []
-        cursor.execute("select entity_persons.image from rss_article_clusters "
-                       +"join rss_article_clusters_entity_persons on rss_article_clusters_entity_persons.id = rss_article_clusters.id "
-                       +"join entity_persons on rss_article_clusters_entity_persons.name = entity_persons.name "
-                       +"where rss_article_clusters.id = " + str(cluster.id) + " and entity_persons.image <>''"
-                       +"order by entity_persons.popularity DESC limit 4")
+        cursor.execute("execute preparedStatement4 ({0})".format(cluster.id))
         images_row = cursor.fetchall()
         images = []
         for row in images_row:
@@ -153,9 +182,33 @@ def dossier(request, cluster_id):
     
     articles = []
     cluster = RssArticleClusters.objects.filter(id=cluster_id)[0]
-    cursor.execute("SELECT rss_articles.link, source_url, timestamp, title, description, text "
+    
+   
+    #preparedStatement5
+    cursor.execute("prepare preparedStatement5 as "
+                  +"SELECT rss_articles.link, source_url, timestamp, title, description, text "
                   +"FROM rss_articles JOIN rss_article_clusters_rss_articles "
-                  +"ON rss_article_clusters_rss_articles.link = rss_articles.link WHERE id = " + str(cluster_id) + " ORDER BY score DESC")
+                  +"ON rss_article_clusters_rss_articles.link = rss_articles.link WHERE id = $1 ORDER BY score DESC")
+    
+    #preparedStatement6
+    cursor.execute("prepare preparedStatement6 as "
+                        +'SELECT name, start_index, end_index FROM rss_articles JOIN rss_articles_entity_locations '
+                        +'ON rss_articles.link = rss_articles_entity_locations.link '
+                        +'WHERE rss_articles.link = $1')
+    
+    #preparedStatement7
+    cursor.execute("prepare preparedStatement7 as "
+                        +"SELECT name, start_index, end_index FROM rss_articles JOIN rss_articles_entity_organizations "
+                        +"ON rss_articles.link = rss_articles_entity_organizations.link "
+                        +'WHERE rss_articles.link = $1')
+    
+    #preparedStatement8
+    cursor.execute("prepare preparedStatement8 as "
+                        +"SELECT name, start_index, end_index FROM rss_articles JOIN rss_articles_entity_persons "
+                        +"ON rss_articles.link = rss_articles_entity_persons.link "
+                        +'WHERE rss_articles.link = $1')
+    cursor.execute("execute preparedStatement5 ({0})".format(cluster.id))
+        
     total_rows = cursor.fetchall()
     i= 0
     for row in total_rows:
@@ -173,9 +226,7 @@ def dossier(request, cluster_id):
         article['text'] = row[5]
         
         #determine article_locations
-        cursor.execute('SELECT name, start_index, end_index FROM rss_articles JOIN rss_articles_entity_locations '
-                        +'ON rss_articles.link = rss_articles_entity_locations.link '
-                        +'WHERE rss_articles.link = \'' + article['link'].replace("'","''") + '\'')
+        cursor.execute("execute preparedStatement6 ({0})".format("'" + article["link"]+"'"))
         c = []
         for loc in cursor.fetchall():
             c.append(loc[0])
@@ -188,9 +239,7 @@ def dossier(request, cluster_id):
         article['entity_locations'] = c
         
         #determine article_organizations
-        cursor.execute("SELECT name, start_index, end_index FROM rss_articles JOIN rss_articles_entity_organizations "
-                        +"ON rss_articles.link = rss_articles_entity_organizations.link "
-                        +'WHERE rss_articles.link = \'' + article['link'].replace("'","''") + '\'')
+        cursor.execute("execute preparedStatement7 ({0})".format("'" + article["link"]+"'"))
         c = []
         for org in cursor.fetchall():
             c.append(org[0])
@@ -203,9 +252,8 @@ def dossier(request, cluster_id):
         article['entity_organizations'] = c
         
         #determine article_persons
-        cursor.execute("SELECT name, start_index, end_index FROM rss_articles JOIN rss_articles_entity_persons "
-                        +"ON rss_articles.link = rss_articles_entity_persons.link "
-                        +'WHERE rss_articles.link = \'' + article['link'].replace("'","''") + '\'')
+        cursor.execute("execute preparedStatement8 ({0})".format("'" + article["link"]+"'"))
+        
         c = []
         for per in cursor.fetchall():
             c.append(per[0])
@@ -336,6 +384,12 @@ def dossier(request, cluster_id):
 
     
     def getPersonDistribution():
+        #preparedStatementPersons
+        cursor.execute("prepare preparedStatementPersons as "
+                            + "SELECT COUNT(*) FROM rss_articles_entity_persons "
+                            + "JOIN rss_articles ON rss_articles.link = rss_articles_entity_persons.link "
+                            + "JOIN rss_article_clusters_rss_articles ON rss_article_clusters_rss_articles.link = rss_articles.link "
+                            + "WHERE rss_articles_entity_persons.name = $1 AND rss_article_clusters_rss_articles.id = $2")
         personlist = topPersons
         person_dist = {}
         #cursor.execute("SELECT DISTINCT rss_articles_entity_persons.name FROM rss_articles_entity_persons "
@@ -345,16 +399,13 @@ def dossier(request, cluster_id):
         # d = cursor.fetchall()
         #for person in d:
         #    personlist.append(person[0])
-
+        
         for person in personlist:
             if "'" in person[0]:
                 escapedPerson = person[0].replace("'", "''")
             else:
                 escapedPerson = person[0] 
-            cursor.execute("SELECT COUNT(*) FROM rss_articles_entity_persons "
-                            + "JOIN rss_articles ON rss_articles.link = rss_articles_entity_persons.link "
-                            + "JOIN rss_article_clusters_rss_articles ON rss_article_clusters_rss_articles.link = rss_articles.link "
-                            + "WHERE rss_articles_entity_persons.name = '" + escapedPerson + "' AND rss_article_clusters_rss_articles.id = " + str(cluster_id))
+            cursor.execute("execute preparedStatementPersons ({0}, {1})".format("'"+ escapedPerson + "'", cluster.id))
             i = int(cursor.fetchone()[0])
 
             person_dist[person[0]] = i
