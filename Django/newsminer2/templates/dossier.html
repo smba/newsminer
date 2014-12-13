@@ -48,7 +48,7 @@
 								{% if word in location_match.keys %}
 									<a href="#" class="entity_link map-navigation" id='map-navigation:d{{forloop.counter}}' data-zoom="8" data-position="{{location_match|access:word|access:'lat'}},{{location_match|access:word|access:'lng'}}">{{word|html_escape}}</a> 
 								{% elif word in entities.keys %} 
-									<a href="#" id="widget-navigation" class="entity_link" onclick="changeContent('custom-widget-title', '{{entities|access:word|access:'name'|escape}}');changeContent('custom-widget-description', '{{entities|access:word|access:'description'}}');">{{word|html_escape}}</a> 
+									<a href="#" class="entity_link" onclick="changeContent('custom-widget-title', '{{entities|access:word|access:'name'|escape}}');changeContent('custom-widget-description', '{{entities|access:word|access:'description'}}');">{{word|html_escape}}</a> 
 								{% else %}
 									{{word|html_escape}} 
 								{% endif %}
@@ -196,7 +196,7 @@
 	    }
 	});
 	
-	$('#widget-navigation').click(function(){
+	$('.entity-link').click(function(){
 		console.log("widgetplop");
 	    var ent = $('.aside-content > .widget:nth-last-child(3)  > .widget-content');
     
