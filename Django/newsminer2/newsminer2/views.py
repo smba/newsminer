@@ -482,7 +482,7 @@ def dossier(request, cluster_id):
                     'person_dist':person_dist,
                     }
     dossier_context_dict = dict(context_dict.items() + specific_context_dict.items())
-    return render_to_response('dossier.html', dossier_context_dict, context)
+    return render_to_response('dossier_old.html', dossier_context_dict, context)
 
 #testview
 def testview(request, a, b, c):
