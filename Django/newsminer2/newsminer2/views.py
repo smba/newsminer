@@ -433,7 +433,7 @@ def dossier(request, cluster_id):
                 stop= description.find("\n")
                 description = cgi.escape(description.replace("\n","").replace("'","&lsquo;"), True)
                 area = "custom-widget-title"
-                link = "<a href='#' class='entity_link' onclick=\"changeContent('"+area+"','"+name+"');changeContent('custom-widget-description','" + description +"');\">"+name+"</a>"
+                link = "<a href='#' class='entity_link widget-navigation' onclick=\"changeContent('"+area+"','"+name+"');changeContent('custom-widget-description','" + description +"');\">"+name+"</a>"
                 return link
         elif type == 'person':
             if name in allEntities.keys():
@@ -447,7 +447,7 @@ def dossier(request, cluster_id):
 
                 
                 area = "custom-widget-title"
-                link = "<a href='#' class='entity_link' onclick=\"changeContent('"+area+"','"+name+"');changeContent('custom-widget-description','" + description +"');\">"+name+"</a>"
+                link = "<a href='#' class='entity_link widget-navigation' onclick=\"changeContent('"+area+"','"+name+"');changeContent('custom-widget-description','" + description +"');\">"+name+"</a>"
                 return link
     for article in articles:
         for i in range(len(article['entities'])):
